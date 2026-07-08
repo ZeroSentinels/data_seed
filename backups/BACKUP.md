@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-07-07 09:00:28 UTC
-- Generado America/Santiago: 2026-07-07 05:00:28 -04
+- Generado UTC: 2026-07-08 09:00:35 UTC
+- Generado America/Santiago: 2026-07-08 05:00:35 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -39,7 +39,7 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 - Hermes binary: `/opt/hermes/.venv/bin/hermes`
 - Disk snapshot:
   `Filesystem      Size  Used Avail Use% Mounted on`
-  `/dev/sda1        96G   16G   80G  17% /opt/data`
+  `/dev/sda1        96G   17G   80G  17% /opt/data`
 
 ## Configuración Hermes sanitizada
 
@@ -61,15 +61,15 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `ea05ea193912` [active]
   - Nombre: Demeter Daily Operations (5:00 AM Chile)
   - Schedule: 0 9 * * *
-  - Next run UTC: 2026-07-08T09:00:00+00:00
-  - Last run UTC/status: 2026-07-06T09:00:26.107507+00:00 / ok
+  - Next run UTC: 2026-07-09T09:00:00+00:00
+  - Last run UTC/status: 2026-07-07T09:00:33.832862+00:00 / ok
   - Mode: no-agent
   - Script: daily-operations-wrapper.sh
 - `0fffb87e5be9` [active]
   - Nombre: DataSeed Agent Factory Funnel Revenue Builder/Tester
   - Schedule: 0 */2 * * *
-  - Next run UTC: 2026-07-07T10:00:00+00:00
-  - Last run UTC/status: 2026-07-07T08:01:44.153449+00:00 / ok
+  - Next run UTC: 2026-07-08T10:00:00+00:00
+  - Last run UTC/status: 2026-07-08T08:01:21.032701+00:00 / ok
   - Mode: agent
   - Workdir: /opt/data
   - Skills: hermes-agent, kanban-agent-workflows, spike
@@ -77,8 +77,8 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `2caf9a63f6d7` [active]
   - Nombre: DataSeed Agent Factory Funnel Revenue Validator
   - Schedule: 30 */2 * * *
-  - Next run UTC: 2026-07-07T10:30:00+00:00
-  - Last run UTC/status: 2026-07-07T08:38:34.154728+00:00 / ok
+  - Next run UTC: 2026-07-08T10:30:00+00:00
+  - Last run UTC/status: 2026-07-08T08:34:28.711470+00:00 / ok
   - Mode: agent
   - Workdir: /opt/data
   - Skills: hermes-agent, kanban-agent-workflows, spike
@@ -86,8 +86,8 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `56f0366edcb7` [active]
   - Nombre: DataSeed Agent Factory Funnel Market Alert (Background Only)
   - Schedule: every 60m
-  - Next run UTC: 2026-07-07T09:52:25.052041+00:00
-  - Last run UTC/status: 2026-07-07T08:52:25.052041+00:00 / ok
+  - Next run UTC: 2026-07-08T09:52:32.258937+00:00
+  - Last run UTC/status: 2026-07-08T08:52:32.258937+00:00 / ok
   - Mode: no-agent
   - Script: agent-factory-funnel-alert.sh
 
@@ -189,9 +189,9 @@ No se copia el contenido de estos archivos; solo tamaño y huella para validaci�
 - `config.yaml`: 17.8 KB, sha256 1f4976130991156d
 - `memories/MEMORY.md`: 2.0 KB, sha256 607170d225fb9f59
 - `memories/USER.md`: 1.3 KB, sha256 02a1208d1eb2b93f
-- `channel_directory.json`: 1.0 KB, sha256 35366930c480d86a
+- `channel_directory.json`: 1.0 KB, sha256 2c30ef40dc73db26
 - `gateway_state.json`: 545.0 B, sha256 60fdf0b56be2eb5a
-- `cron/jobs.json`: 15.0 KB, sha256 255782e983d360f3
+- `cron/jobs.json`: 15.0 KB, sha256 9b69e203a47fd3bc
 
 ## Grafo de conocimiento del proyecto (Graphify)
 
