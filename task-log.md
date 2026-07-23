@@ -45,3 +45,9 @@
 **Decisión técnica:** Supabase Auth desde funciones serverless Vercel; tokens solo en cookies `HttpOnly`, `Secure`, `SameSite=Lax`; V1 invite-only con exactamente una membresía activa por usuario y resolución de organización exclusivamente en backend. Cero o múltiples membresías fallan cerradas.
 
 **Plan:** Completar por TDD login, refresh, recuperación y logout; añadir portal protegido, migración RLS segura, UI DataSeed responsive y verificación de rutas/CSP/aislamiento. Variables reales, migración aplicada y prueba E2E con dos tenants siguen siendo requisitos de activación productiva si no están disponibles en el entorno.
+
+## 2026-07-23 11:43 -04:00 — Validar autenticación multi-tenant con Supabase de producción
+- Estado: validaciones completadas; despliegue y migración no ejecutados. La migración queda a la espera de corrección y aprobación.
+- Resultado: variables configuradas localmente y en Vercel (Production/Preview, tipo sensitive); suite final 63/63; login y portal verificados en desktop y 320/375/390 px; conexión real con Supabase confirmada mediante Publishable Key.
+- Hallazgo bloqueante: el esquema actual ya contiene tablas históricas y la migración no completa columnas requeridas de organizations; además reemplaza trigger/funciones/policies y revoca grants. No es segura para aplicar sin preflight SQL, backup y ajuste no destructivo.
+- Seguridad: escaneo de 95 archivos sin claves reales; .env ignorado; .env.example contiene solo nombres. No se usó Secret Key ni service_role.
