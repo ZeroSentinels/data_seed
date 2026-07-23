@@ -33,3 +33,15 @@
 **Qué se hizo:** Se descartó el merge completo de la rama de autenticación al detectar vulnerabilidades críticas de RLS y aislamiento. Se publicó en `main` únicamente el header validado y una página provisional segura en `site/login.html`, sin scripts, formularios ni autenticación simulada. También se actualizó el grafo multibranch.
 
 **Verificación:** Dos validaciones técnicas con 0 fallos; revisión independiente aprobada; header sin recortes en 320/375/901/1101 px; grafo deduplicado de 12 ramas, 100% extraído y 0% ambiguo. `main` quedó en `3c55dc2`. Vercel sirvió `site/index.html` y `site/login.html` con HTTP 200, y sus hashes SHA-256 coincidieron exactamente con los archivos versionados.
+
+## 2026-07-23 09:04:50 -04 — Login real multi-tenant para clientes
+
+**Estado:** ⏳ A la espera de autorización y decisiones de arquitectura
+
+**Solicitud:** Implementar el flujo completo de login, sesión segura, rutas privadas y aislamiento multi-tenant, usando Codex para inspección, modificación y validación.
+
+**Hallazgos:** `main` es un sitio estático con una única función pública de demo; no existe backend de sesiones, proveedor auth configurado ni portal privado. El proyecto Vercel no tiene variables Supabase/Postgres/Auth en Production o Preview. La rama histórica Supabase usa sesiones persistidas en navegador y contiene políticas RLS con escalamiento de rol, escritura de auditoría y movimientos cross-tenant, por lo que no puede promoverse.
+
+**Bloqueos:** Codex CLI quedó instalado en `/opt/data/.local/bin/codex`, pero no está autenticado y devolvió HTTP 401. Se requiere autenticarlo y confirmar/proveer un proyecto Supabase real, variables de Vercel y un usuario/organización de prueba. También se debe confirmar V1 invite-only con exactamente una organización activa por usuario.
+
+**Plan:** Guardado en `.hermes/plans/2026-07-23_090450-secure-multitenant-auth.md` dentro de la rama local `feat/secure-multitenant-auth`. No se modificó código de producción.
