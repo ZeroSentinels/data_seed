@@ -36,12 +36,12 @@
 
 ## 2026-07-23 09:04:50 -04 — Login real multi-tenant para clientes
 
-**Estado:** ⏳ A la espera de autorización y decisiones de arquitectura
+**Estado:** 🔄 En ejecución en `feat/secure-multitenant-auth`
 
-**Solicitud:** Implementar el flujo completo de login, sesión segura, rutas privadas y aislamiento multi-tenant, usando Codex para inspección, modificación y validación.
+**Solicitud:** Implementar el flujo completo de login, sesión segura, rutas privadas y aislamiento multi-tenant, manteniendo la identidad visual DataSeed y validando desktop/mobile.
 
-**Hallazgos:** `main` es un sitio estático con una única función pública de demo; no existe backend de sesiones, proveedor auth configurado ni portal privado. El proyecto Vercel no tiene variables Supabase/Postgres/Auth en Production o Preview. La rama histórica Supabase usa sesiones persistidas en navegador y contiene políticas RLS con escalamiento de rol, escritura de auditoría y movimientos cross-tenant, por lo que no puede promoverse.
+**Hallazgos:** `main` es un sitio estático con una única función pública de demo; no existe backend de sesiones ni portal privado. La rama histórica Supabase persiste sesiones en navegador y contiene políticas RLS con escalamiento de rol, escritura directa de auditoría y cambios cross-tenant, por lo que no se reutilizará sin correcciones.
 
-**Bloqueos:** Codex CLI quedó instalado en `/opt/data/.local/bin/codex`, pero no está autenticado y devolvió HTTP 401. Se requiere autenticarlo y confirmar/proveer un proyecto Supabase real, variables de Vercel y un usuario/organización de prueba. También se debe confirmar V1 invite-only con exactamente una organización activa por usuario.
+**Decisión técnica:** Supabase Auth desde funciones serverless Vercel; tokens solo en cookies `HttpOnly`, `Secure`, `SameSite=Lax`; V1 invite-only con exactamente una membresía activa por usuario y resolución de organización exclusivamente en backend. Cero o múltiples membresías fallan cerradas.
 
-**Plan:** Guardado en `.hermes/plans/2026-07-23_090450-secure-multitenant-auth.md` dentro de la rama local `feat/secure-multitenant-auth`. No se modificó código de producción.
+**Plan:** Completar por TDD login, refresh, recuperación y logout; añadir portal protegido, migración RLS segura, UI DataSeed responsive y verificación de rutas/CSP/aislamiento. Variables reales, migración aplicada y prueba E2E con dos tenants siguen siendo requisitos de activación productiva si no están disponibles en el entorno.
