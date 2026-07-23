@@ -23,3 +23,13 @@
 - Hallazgo: rama `internal-agent-console`; entrada `console.html`; lógica en `components/console/app.js` (`renderOpsDashboard`); estilos en `components/console/console.css`; inventario en `components/console/generated/ops-inventory.json`; API en `api/demeter-chat.js`.
 - Verificación: Graphify relacionó `demeter` con `renderOpsDashboard`; `npm run check` pasó; vista local cargó sin errores JS; preview Vercel respondió HTTP 200. No está en `main` y `https://dataseed.cl/console.html` respondió 404.
 - Aviso: el preview de la rama es público, tiene bypass de auth y expone metadatos operativos; no se modificó ni publicó producto.
+
+## 2026-07-23 08:33:08 -04 — Publicar acceso de landing en main
+
+**Estado:** ✅ Finalizada exitosamente
+
+**Solicitud:** Llevar a `main` y a `dataseed.cl` el botón de acceso visible en el preview de la rama.
+
+**Qué se hizo:** Se descartó el merge completo de la rama de autenticación al detectar vulnerabilidades críticas de RLS y aislamiento. Se publicó en `main` únicamente el header validado y una página provisional segura en `site/login.html`, sin scripts, formularios ni autenticación simulada. También se actualizó el grafo multibranch.
+
+**Verificación:** Dos validaciones técnicas con 0 fallos; revisión independiente aprobada; header sin recortes en 320/375/901/1101 px; grafo deduplicado de 12 ramas, 100% extraído y 0% ambiguo. `main` quedó en `3c55dc2`. Vercel sirvió `site/index.html` y `site/login.html` con HTTP 200, y sus hashes SHA-256 coincidieron exactamente con los archivos versionados.
