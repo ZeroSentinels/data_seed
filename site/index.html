@@ -154,6 +154,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 nav ul{display:flex;gap:2.2rem;list-style:none;}
 nav ul a{color:var(--sub);text-decoration:none;font-size:.84rem;font-weight:400;letter-spacing:.01em;transition:color .2s;}
 nav ul a:hover{color:var(--g);}
+.nav-actions{display:flex;align-items:center;justify-content:flex-end;gap:.65rem;}
+.nav-login,.nav-cta{display:inline-flex;align-items:center;justify-content:center;min-height:44px;white-space:nowrap;}
+.nav-login{background:rgba(0,255,65,.035);color:var(--text);border:1px solid rgba(0,255,65,.2);padding:.56rem 1.15rem;border-radius:100px;font-size:.82rem;font-weight:500;text-decoration:none;transition:background .2s,border-color .2s,color .2s,transform .2s;}
+.nav-login:hover{background:rgba(0,255,65,.085);border-color:rgba(0,255,65,.38);color:var(--g);transform:translateY(-1px);}
+.nav-login:focus-visible,.nav-cta:focus-visible{outline:2px solid var(--g);outline-offset:3px;}
+.nav-login-short,.nav-cta-short{display:none;}
 .nav-cta{background:var(--g);color:#030a03;padding:.56rem 1.5rem;border-radius:100px;font-size:.82rem;font-weight:600;text-decoration:none;box-shadow:0 0 24px rgba(0,255,65,.28);transition:box-shadow .2s,opacity .2s;}
 .nav-cta:hover{opacity:.87;box-shadow:0 0 44px rgba(0,255,65,.48);}
 .theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid rgba(0,255,65,.22);background:rgba(0,255,65,.055);color:var(--g);font-size:1rem;cursor:pointer;box-shadow:0 0 18px rgba(0,255,65,.12);transition:background .2s,border-color .2s,box-shadow .2s,transform .2s;color-scheme:inherit;}
@@ -913,6 +919,8 @@ footer::before{
 html[data-theme="light"] body{background:linear-gradient(180deg,#f7fcf8 0%,#eef8f0 100%);}
 html[data-theme="light"] nav{background:rgba(247,252,248,.86);border-bottom-color:rgba(0,143,44,.16);}
 html[data-theme="light"] .logo img{filter:drop-shadow(0 0 10px rgba(0,143,44,.22));}
+html[data-theme="light"] .nav-login{background:rgba(0,143,44,.035);border-color:rgba(0,143,44,.2);}
+html[data-theme="light"] .nav-login:hover{background:rgba(0,143,44,.08);border-color:rgba(0,143,44,.38);}
 html[data-theme="light"] .nav-cta{color:#f7fff8;box-shadow:0 0 24px rgba(0,143,44,.18);}
 html[data-theme="light"] .nav-cta:hover{box-shadow:0 0 38px rgba(0,143,44,.28);}
 html[data-theme="light"] .theme-toggle{background:rgba(0,143,44,.07);border-color:rgba(0,143,44,.24);box-shadow:0 0 18px rgba(0,143,44,.10);}
@@ -947,8 +955,19 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
 
 @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
+@media(max-width:1100px) and (min-width:901px){
+  nav{padding-left:1.5rem;padding-right:1.5rem;}
+  nav ul{gap:.45rem;}
+  nav ul a{font-size:.76rem;}
+  .nav-actions{gap:.4rem;}
+  .nav-login{padding:.5rem .8rem;font-size:.72rem;}
+  .nav-cta{padding:.52rem .9rem;font-size:.72rem;}
+  .nav-login-full,.nav-cta-full{display:none;}
+  .nav-login-short,.nav-cta-short{display:inline;}
+}
 @media(max-width:900px){
-  nav{padding:1rem 1.5rem;}nav ul{display:none;}
+  nav{padding:1rem 1.5rem;}
+  nav ul{display:none;}
   .inner,.stats-row,#hero{padding-left:1.5rem;padding-right:1.5rem;}
   h1{font-size:2.8rem;}
   .hero-strip,.srv-grid,.types-grid,.kpi-row{grid-template-columns:1fr 1fr;}
@@ -976,7 +995,11 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
   .logo img{height:34px;}
   .logo-t{font-size:1rem;}
   .logo-s{font-size:.46rem;letter-spacing:.28em;}
-  .nav-cta{padding:.52rem .95rem;font-size:.72rem;white-space:nowrap;}
+  .nav-actions{gap:.4rem;}
+  .nav-login{padding:.5rem .8rem;font-size:.72rem;}
+  .nav-cta{padding:.52rem .9rem;font-size:.72rem;}
+  .nav-login-full,.nav-cta-full{display:none;}
+  .nav-login-short,.nav-cta-short{display:inline;}
   .theme-toggle{width:36px;height:36px;flex:0 0 36px;}
   #hero{padding-top:7.4rem;}
   .hero-btns{gap:.7rem;}
@@ -990,8 +1013,18 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
 }
 @media(max-width:380px){
   nav{padding:.85rem .8rem;gap:.45rem;}
+  .logo-s{display:none;}
+  .nav-actions{gap:.25rem;}
+  .nav-login{padding:.48rem .65rem;font-size:.68rem;}
   .nav-cta{padding:.5rem .72rem;font-size:.66rem;}
   .theme-toggle{width:34px;height:34px;flex-basis:34px;}
+}
+@media(max-width:340px){
+  nav{padding-left:.65rem;padding-right:.65rem;}
+  .logo>div{display:none;}
+  .nav-actions{gap:.2rem;}
+  .nav-login{padding:.45rem .55rem;}
+  .nav-cta{padding:.45rem .6rem;}
 }
 @media(max-width:600px) and (orientation:landscape){
   nav{padding-top:.65rem;padding-bottom:.65rem;}
@@ -1023,8 +1056,11 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
     <li><a href="#types">Analítica</a></li>
     <li><a href="#cta">Contacto</a></li>
   </ul>
-  <a href="https://calendly.com/dataseed/30min" target="_blank" class="nav-cta">Reservar diagnóstico</a>
-  <button class="theme-toggle" type="button" id="themeToggle" aria-label="Cambiar a tema claro" aria-pressed="false"><span class="moon">☾</span><span class="sun">☀</span></button>
+  <div class="nav-actions">
+    <a href="login.html" class="nav-login" data-track="nav_login"><span class="nav-login-full">Iniciar sesión</span><span class="nav-login-short">Ingresar</span></a>
+    <a href="https://calendly.com/dataseed/30min" target="_blank" rel="noopener noreferrer" class="nav-cta"><span class="nav-cta-full">Reservar diagnóstico</span><span class="nav-cta-short">Diagnóstico</span></a>
+    <button class="theme-toggle" type="button" id="themeToggle" aria-label="Cambiar a tema claro" aria-pressed="false"><span class="moon">☾</span><span class="sun">☀</span></button>
+  </div>
 </nav>
 
 <!-- HERO -->
