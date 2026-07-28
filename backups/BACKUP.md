@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-07-08 09:00:35 UTC
-- Generado America/Santiago: 2026-07-08 05:00:35 -04
+- Generado UTC: 2026-07-28 05:48:15 UTC
+- Generado America/Santiago: 2026-07-28 01:48:15 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -15,8 +15,8 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - El backup diario de las 05:00 AM NO copia `task-log.md` ni `daily-summary.md`; solo deja esta referencia para consultarlos en el repo de tracking.
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
 - Repo/branch de tracking: `/opt/data/data_seed_tasklog_worktree` / `feat/task-tracking-system`.
-- Daily summary: `daily-summary.md` (61.9 KB, sha256 b1646d07790527a7).
-- Task log actual: `task-log.md` (213.0 B, sha256 1512ddaa0df19af1).
+- Daily summary: `daily-summary.md` (70.0 KB, sha256 b4225897802a8f03).
+- Task log actual: `task-log.md` (9.7 KB, sha256 f4be3be7cb622934).
 - Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (594.0 B, sha256 6fd18874fbd0ad90).
 
 Regla operativa: el log diario registra detalles; el resumen diario consolida tareas y pendientes; el backup de las 05:00 AM solo guarda ciclos grandes completados y una referencia hacia el resumen diario.
@@ -31,7 +31,7 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 
 ## Estado técnico
 
-- Host: `Linux-6.8.0-124-generic-x86_64-with-glibc2.41`
+- Host: `Linux-6.8.0-136-generic-x86_64-with-glibc2.41`
 - Python: `3.13.5`
 - Hermes home: `/opt/data`
 - Backup repo dir: `/opt/data/data_seed_daily_backup`
@@ -39,20 +39,20 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 - Hermes binary: `/opt/hermes/.venv/bin/hermes`
 - Disk snapshot:
   `Filesystem      Size  Used Avail Use% Mounted on`
-  `/dev/sda1        96G   17G   80G  17% /opt/data`
+  `/dev/sda1        96G   16G   81G  16% /opt/data`
 
 ## Configuración Hermes sanitizada
 
-- Config path: `/opt/data/config.yaml` (17.8 KB, sha256 1f4976130991156d)
+- Config path: `/opt/data/config.yaml` (16.4 KB, sha256 66a5ccb914c67fb1)
 - Model provider: `openai-codex`
-- Model default: `gpt-5.5`
+- Model default: `gpt-5.6-sol`
 - Agent max_turns: `60`
 - Agent reasoning_effort: `xhigh`
 - Display personality: `concise`
 - Display show_reasoning: `false`
 - Terminal backend: `local`
 - Terminal cwd: `.`
-- Top-level toolsets: `hermes-cli`
+- Top-level toolsets: `none listed`
 
 ## Cron jobs configurados y estado
 
@@ -61,15 +61,15 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `ea05ea193912` [active]
   - Nombre: Demeter Daily Operations (5:00 AM Chile)
   - Schedule: 0 9 * * *
-  - Next run UTC: 2026-07-09T09:00:00+00:00
-  - Last run UTC/status: 2026-07-07T09:00:33.832862+00:00 / ok
+  - Next run UTC: 2026-07-28T09:00:00+00:00
+  - Last run UTC/status: 2026-07-27T09:00:49.794352+00:00 / error
   - Mode: no-agent
   - Script: daily-operations-wrapper.sh
 - `0fffb87e5be9` [active]
   - Nombre: DataSeed Agent Factory Funnel Revenue Builder/Tester
   - Schedule: 0 */2 * * *
-  - Next run UTC: 2026-07-08T10:00:00+00:00
-  - Last run UTC/status: 2026-07-08T08:01:21.032701+00:00 / ok
+  - Next run UTC: 2026-07-28T06:00:00+00:00
+  - Last run UTC/status: 2026-07-28T05:03:25.057136+00:00 / ok
   - Mode: agent
   - Workdir: /opt/data
   - Skills: hermes-agent, kanban-agent-workflows, spike
@@ -77,8 +77,8 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `2caf9a63f6d7` [active]
   - Nombre: DataSeed Agent Factory Funnel Revenue Validator
   - Schedule: 30 */2 * * *
-  - Next run UTC: 2026-07-08T10:30:00+00:00
-  - Last run UTC/status: 2026-07-08T08:34:28.711470+00:00 / ok
+  - Next run UTC: 2026-07-28T06:30:00+00:00
+  - Last run UTC/status: 2026-07-28T05:14:25.117204+00:00 / ok
   - Mode: agent
   - Workdir: /opt/data
   - Skills: hermes-agent, kanban-agent-workflows, spike
@@ -86,8 +86,8 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `56f0366edcb7` [active]
   - Nombre: DataSeed Agent Factory Funnel Market Alert (Background Only)
   - Schedule: every 60m
-  - Next run UTC: 2026-07-08T09:52:32.258937+00:00
-  - Last run UTC/status: 2026-07-08T08:52:32.258937+00:00 / ok
+  - Next run UTC: 2026-07-28T05:56:53.179762+00:00
+  - Last run UTC/status: 2026-07-28T04:56:53.179762+00:00 / ok
   - Mode: no-agent
   - Script: agent-factory-funnel-alert.sh
 
@@ -122,7 +122,7 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `songwriting-and-ai-music` (creative/songwriting-and-ai-music) — Songwriting craft and Suno AI music prompts.
 - `touchdesigner-mcp` (creative/touchdesigner-mcp) — Control a running TouchDesigner instance via twozero MCP — create operators, set parameters, wire connections, execute Python, build real-time visuals. 36 native tools.
 - `jupyter-live-kernel` (data-science/jupyter-live-kernel) — Iterative Python via live Jupyter kernel (hamelnb).
-- `deployment-platform-verification` (devops/deployment-platform-verification) — Verify deployment-platform connections (Vercel, Netlify, Render, cloud deploy APIs) safely using real API calls without exposing secrets.
+- `deployment-platform-verification` (devops/deployment-platform-verification) — Verify deployment-platform connections and recover deployment URLs safely using current provider, project, source, and live evidence without exposing secrets.
 - `kanban-agent-workflows` (devops/kanban-agent-workflows) — Use when orchestrating Kanban-style multi-agent work: board setup, task decomposition, worker prompts, status transitions, and recovery.
 - `operational-recovery-backups` (devops/operational-recovery-backups) — Build and maintain safe operational recovery backups for Hermes/DataSeed: cron job reconstruction, non-secret GitHub snapshots, rollback docs, script inclusion policies, graphify knowledge graph backup, and unified cleanup-then-backup daily operations.
 - `safe-mcp-api-integrations` (devops/safe-mcp-api-integrations) — Build and configure MCP API integrations with a safety proxy that preserves operational access while blocking irreversible actions.
@@ -135,6 +135,8 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `github-issues` (github/github-issues) — Create, triage, label, assign GitHub issues via gh or REST.
 - `github-pr-workflow` (github/github-pr-workflow) — GitHub PR lifecycle: branch, commit, open, CI, merge.
 - `github-repo-management` (github/github-repo-management) — Clone/create/fork repos; manage remotes, releases.
+- `hermes-desktop-plugins` (hermes-desktop-plugins) — Write desktop app plugins that add UI panes and commands.
+- `hermes-themes` (hermes-themes) — Author a Hermes color theme that skins every surface.
 - `audio-music-media-workflows` (media/audio-music-media-workflows) — Use when creating, transforming, searching, or analyzing lightweight audio/music/media assets: songwriting prompts, local song generation, audio feature visualization, and GIF retrieval.
 - `gif-search` (media/gif-search) — Search/download GIFs from Tenor via curl + jq.
 - `heartmula` (media/heartmula) — HeartMuLa: Suno-like song generation from lyrics + tags.
@@ -151,14 +153,18 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `obsidian` (note-taking/obsidian) — Read, search, create, and edit notes in the Obsidian vault.
 - `airtable` (productivity/airtable) — Airtable REST API via curl. Records CRUD, filters, upserts.
 - `apple-platform-automation` (productivity/apple-platform-automation) — Use when automating Apple/macOS apps and services from Hermes: Notes, Reminders, Messages, Find My, and visual computer-use workflows.
+- `docx` (productivity/docx) — Create, read, edit Word .docx documents and templates.
 - `google-workspace` (productivity/google-workspace) — Gmail, Calendar, Drive, Docs, Sheets via gws CLI or Python.
 - `maps` (productivity/maps) — Geocode, POIs, routes, timezones via OpenStreetMap/OSRM.
 - `nano-pdf` (productivity/nano-pdf) — Edit PDF text/typos/titles via nano-pdf CLI (NL prompts).
 - `notion` (productivity/notion) — Notion API + ntn CLI: pages, databases, markdown, Workers.
 - `ocr-and-documents` (productivity/ocr-and-documents) — Extract text from PDFs/scans (pymupdf, marker-pdf).
+- `pdf` (productivity/pdf) — Create, merge, split, fill, and secure PDF files.
 - `petdex` (productivity/petdex) — Install and select animated petdex mascots for Hermes.
 - `powerpoint` (productivity/powerpoint) — Create, read, edit .pptx decks, slides, notes, templates.
 - `teams-meeting-pipeline` (productivity/teams-meeting-pipeline) — Operate the Teams meeting summary pipeline via Hermes CLI — summarize meetings, inspect pipeline status, replay jobs, manage Microsoft Graph subscriptions.
+- `tui-widgets` (productivity/tui-widgets) — Author live widget apps for the Hermes TUI dock.
+- `xlsx` (productivity/xlsx) — Create, read, edit Excel .xlsx spreadsheets and CSVs.
 - `godmode` (red-teaming/godmode) — Jailbreak LLMs: Parseltongue, GODMODE, ULTRAPLINIAN.
 - `arxiv` (research/arxiv) — Search arXiv papers by keyword, author, category, or ID.
 - `blogwatcher` (research/blogwatcher) — Monitor blogs and RSS/Atom feeds via blogwatcher-cli tool.
@@ -174,11 +180,13 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `plan` (software-development/plan) — Plan mode: write an actionable markdown plan to .hermes/plans/, no execution. Bite-sized tasks, exact paths, complete code.
 - `python-debugpy` (software-development/python-debugpy) — Debug Python: pdb REPL + debugpy remote (DAP).
 - `requesting-code-review` (software-development/requesting-code-review) — Pre-commit review: security scan, quality gates, auto-fix.
+- `secure-multitenant-web-auth` (software-development/secure-multitenant-web-auth) — Design, implement, test, and deploy secure multi-tenant authentication for web applications, especially static frontends backed by serverless APIs and an external auth/Postgres provider.
 - `simplify-code` (software-development/simplify-code) — Parallel 3-agent cleanup of recent code changes.
 - `software-debugging-and-quality` (software-development/software-debugging-and-quality) — Use when improving software correctness: root-cause debugging, TDD, debugger attachment, pre-commit review, simplification passes, and throwaway validation spikes.
 - `spike` (software-development/spike) — Throwaway experiments to validate an idea before build.
 - `systematic-debugging` (software-development/systematic-debugging) — 4-phase root cause debugging: understand bugs before fixing.
 - `test-driven-development` (software-development/test-driven-development) — TDD: enforce RED-GREEN-REFACTOR, tests before code.
+- `web-deployment-integration-review` (software-development/web-deployment-integration-review) — Review staged web merges across document-root routing, static assets, responsive UI, authentication guards, CSP, database migrations, and generated artifacts.
 - `ui-ux-pro-max` (ui-ux-pro-max) — UI/UX design intelligence for web and mobile. Includes 50+ styles, 161 color palettes, 57 font pairings, 161 product types, 99 UX guidelines, and 25 chart types across 10 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui, and HTML/CSS). Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, and check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, and mobile app. Elements: button, modal, navbar, sidebar, card, table, form, and chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, and flat design. Topics: color systems, accessibility, animation, layout, typography, font pairing, spacing, interaction states, shadow, and gradient. Integrations: shadcn/ui MCP for component search and examples.
 - `yuanbao` (yuanbao) — Yuanbao (元宝) groups: @mention users, query info/members.
 
@@ -186,12 +194,12 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 
 No se copia el contenido de estos archivos; solo tamaño y huella para validación.
 
-- `config.yaml`: 17.8 KB, sha256 1f4976130991156d
-- `memories/MEMORY.md`: 2.0 KB, sha256 607170d225fb9f59
-- `memories/USER.md`: 1.3 KB, sha256 02a1208d1eb2b93f
-- `channel_directory.json`: 1.0 KB, sha256 2c30ef40dc73db26
-- `gateway_state.json`: 545.0 B, sha256 60fdf0b56be2eb5a
-- `cron/jobs.json`: 15.0 KB, sha256 9b69e203a47fd3bc
+- `config.yaml`: 16.4 KB, sha256 66a5ccb914c67fb1
+- `memories/MEMORY.md`: 2.1 KB, sha256 104300ca3b8b2c53
+- `memories/USER.md`: 1.3 KB, sha256 8edb89e606ba3319
+- `channel_directory.json`: 648.0 B, sha256 508087cef6e355f6
+- `gateway_state.json`: 544.0 B, sha256 23927d7f548e7631
+- `cron/jobs.json`: 15.9 KB, sha256 875b10ce72391aef
 
 ## Grafo de conocimiento del proyecto (Graphify)
 
