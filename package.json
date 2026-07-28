@@ -1,0 +1,13 @@
+{
+  "name": "dataseed-portal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check site/login.js && node --check site/portal.js && node --test"
+  }
+}
