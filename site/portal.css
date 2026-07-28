@@ -1,0 +1,99 @@
+:root {
+  color-scheme: dark;
+  --bg: #050e06;
+  --panel: #08150a;
+  --panel-2: #0b180e;
+  --card: rgba(0, 255, 65, 0.035);
+  --border: rgba(0, 255, 65, 0.14);
+  --g: #00ff41;
+  --g2: #00cc33;
+  --text: #dff5e3;
+  --sub: #7aaa84;
+  --muted: #5e8a67;
+  --shadow: 0 22px 70px rgba(0, 0, 0, 0.32);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --bg: #f4fbf5;
+    --panel: #ffffff;
+    --panel-2: #eaf6ed;
+    --card: rgba(0, 128, 40, 0.05);
+    --border: rgba(0, 128, 40, 0.17);
+    --g: #008f2c;
+    --g2: #007a25;
+    --text: #08240d;
+    --sub: #315c39;
+    --muted: #66856c;
+    --shadow: 0 22px 65px rgba(8, 36, 13, 0.11);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { min-height: 100%; }
+body { min-height: 100dvh; margin: 0; overflow-x: hidden; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+button, a { font: inherit; touch-action: manipulation; }
+svg { display: block; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+
+.skip-link { position: fixed; z-index: 1000; top: 0.75rem; left: 0.75rem; transform: translateY(-180%); border-radius: 8px; padding: 0.75rem 1rem; background: var(--g); color: #031003; font-weight: 700; text-decoration: none; }
+.skip-link:focus { transform: translateY(0); }
+
+.portal-shell { min-height: 100dvh; }
+.portal-header { position: sticky; z-index: 10; top: 0; display: flex; min-height: 78px; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--border); padding: 0.85rem clamp(1rem, 4vw, 3rem); background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(20px); }
+.portal-brand { display: inline-flex; min-height: 44px; align-items: center; gap: 0.7rem; color: var(--text); text-decoration: none; }
+.portal-brand img { width: 40px; height: 40px; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.26)); }
+.portal-brand strong { display: block; font-family: 'Syne', sans-serif; font-size: 1.08rem; font-weight: 800; }
+.portal-brand small { display: block; margin-top: 0.1rem; color: var(--muted); font-size: 0.58rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; }
+.portal-user { display: flex; align-items: center; gap: 1rem; }
+.portal-identity { display: grid; text-align: right; }
+.portal-identity strong { font-size: 0.82rem; }
+.portal-identity small { margin-top: 0.2rem; color: var(--sub); font-size: 0.7rem; }
+.logout-button { min-height: 44px; border: 1px solid var(--border); border-radius: 999px; padding: 0.65rem 1rem; background: var(--card); color: var(--text); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, transform 0.2s; }
+.logout-button:hover:not(:disabled) { border-color: var(--g2); color: var(--g); transform: translateY(-1px); }
+.logout-button:disabled { cursor: wait; opacity: 0.62; }
+
+.portal-main { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; padding: clamp(3rem, 7vw, 6.5rem) 0; }
+.portal-welcome { position: relative; overflow: hidden; border: 1px solid var(--border); border-radius: 24px; padding: clamp(1.5rem, 5vw, 3.5rem); background: var(--panel); box-shadow: var(--shadow); }
+.portal-welcome::after { position: absolute; width: 280px; height: 280px; right: -170px; top: -170px; border: 1px solid var(--border); border-radius: 50%; content: ''; box-shadow: 0 0 0 55px rgba(0, 255, 65, 0.018), 0 0 0 110px rgba(0, 255, 65, 0.012); }
+.portal-status { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 0.55rem; margin: 0 0 1.25rem; color: var(--g2); font-size: 0.74rem; font-weight: 600; }
+.portal-status span { width: 7px; height: 7px; border-radius: 50%; background: var(--g); box-shadow: 0 0 9px var(--g); }
+.portal-welcome h1 { position: relative; z-index: 1; margin: 0; font-family: 'Syne', sans-serif; font-size: clamp(2.5rem, 7vw, 5.7rem); font-weight: 800; line-height: 1; letter-spacing: -0.045em; }
+.portal-welcome > p:not(.portal-status) { position: relative; z-index: 1; max-width: 62ch; margin: 1rem 0 1.4rem; color: var(--sub); line-height: 1.7; }
+.plan-badge { position: relative; z-index: 1; display: inline-flex; border: 1px solid var(--border); border-radius: 999px; padding: 0.42rem 0.75rem; background: var(--card); color: var(--g2); font-size: 0.72rem; font-weight: 700; text-transform: capitalize; }
+
+.module-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; margin-top: 1rem; }
+.module-grid article { display: flex; min-height: 260px; flex-direction: column; border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; background: var(--panel); }
+.module-grid article > span { color: var(--g2); font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; }
+.module-grid h2 { margin: auto 0 0.7rem; font-family: 'Syne', sans-serif; font-size: 1.25rem; line-height: 1.15; }
+.module-grid p { margin: 0 0 1rem; color: var(--sub); font-size: 0.84rem; line-height: 1.6; }
+.module-grid article > strong { color: var(--muted); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.portal-message { min-height: 1.4em; margin: 1rem 0 0; color: var(--sub); font-size: 0.82rem; text-align: right; }
+.portal-message[data-state="error"] { color: #ff8585; }
+
+button:focus-visible, a:focus-visible { outline: 2px solid var(--g); outline-offset: 3px; }
+
+@media (max-width: 900px) {
+  .module-grid { grid-template-columns: 1fr 1fr; }
+  .module-grid article:last-child { grid-column: 1 / -1; min-height: 210px; }
+}
+
+@media (max-width: 700px) {
+  .portal-header { align-items: flex-start; }
+  .portal-identity { display: none; }
+  .portal-main { width: min(100% - 1.5rem, 1180px); padding: 2rem 0; }
+  .portal-welcome { border-radius: 18px; padding: 1.5rem 1rem; }
+  .module-grid { grid-template-columns: 1fr; }
+  .module-grid article, .module-grid article:last-child { grid-column: auto; min-height: 210px; }
+  .portal-message { text-align: left; }
+}
+
+@media (max-width: 420px) {
+  .portal-header { padding: 0.75rem; }
+  .portal-brand small { display: none; }
+  .logout-button { padding: 0.6rem 0.8rem; font-size: 0.74rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
