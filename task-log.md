@@ -66,3 +66,11 @@
 - Resultado: PR 8 mergeado mediante squash; Vercel Production quedó READY. HTML, CSS y JavaScript respondieron 200 y sus hashes coincidieron exactamente con el commit; `/login` redirige al formulario, `/portal` sin sesión redirige al login, `/api/auth/session` devuelve 401 y credenciales ficticias reciben 401 genérico.
 - Gate: 58/58 pruebas aprobadas en dos rondas, revisión independiente PASS, UI verificada entre 320 y 1280 px, CSP/cabeceras correctas, secretos ausentes y grafo multibranch sin duplicados, dangling edges ni self-loops.
 - Seguridad: no se incluyó ni aplicó ninguna migración SQL. La autorización permanece fail-closed hasta corregir el esquema histórico y crear cuentas administradas. Rollback disponible en `checkpoint/pre-login-production-20260728-0001`.
+
+## 2026-07-28 00:32 -04 — Corregir esquema histórico y habilitar altas administradas en Supabase
+
+- Estado: migración core, preflight y activación administrativa preparados y verificados localmente; producción a la espera de autorización y datos de alta.
+- Solicitud: completar el esquema histórico de Supabase y crear usuarios administrados para el portal publicado.
+- Resultado local: nueva migración V1 limitada a `profiles`, `organizations`, `user_organizations` y congelamiento de `reports`; RLS determinista de solo lectura, grants por columna, onboarding invite-only, backfill inactivo y máximo de una membresía activa. Se agregó preflight de solo lectura y activación atómica sin manejo de credenciales en el repositorio.
+- Verificación: `npm run check` pasó 63/63. PostgreSQL embebido validó upgrade del esquema histórico, rollback ante filas activas no inventariadas, eliminación de policies heredadas, trigger invite-only, recursos privados sin grants, activación administrativa y aislamiento RLS real entre dos organizaciones.
+- Bloqueo: no existe en la sesión un canal administrativo/DB de Supabase para ejecutar el preflight o aplicar SQL, y faltan correo, nombre y organización del primer usuario. Acción marcada como “a la espera de autorización”. No se aplicó SQL ni se creó ninguna cuenta en producción.
