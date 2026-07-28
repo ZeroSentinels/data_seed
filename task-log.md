@@ -84,3 +84,13 @@
 **Cambio:** Revenue Builder/Tester (`0fffb87e5be9`) y Revenue Validator (`2caf9a63f6d7`) quedaron fijados explícitamente a `openai-codex/gpt-5.5`.
 
 **Verificación:** El listado canónico del scheduler muestra ambos jobs habilitados, programados y con el override explícito. No se modificaron prompts, horarios, toolsets, scripts ni el job diario.
+
+## 2026-07-28 00:46 -04 — Desactivar reinicio automático de sesiones
+
+**Estado:** ⚠️ Configuración completada; activación a la espera de reinicio externo
+
+**Solicitud:** Eliminar del `config.yaml` el reinicio automático de sesiones a las 04:00 y evitar que la conversación pierda continuidad por esa política.
+
+**Cambio:** `session_reset.mode` quedó en `none`; se eliminaron `session_reset.at_hour: 4` y `session_reset.idle_minutes: 1440`. No se borraron sesiones ni mensajes existentes.
+
+**Verificación:** `config.yaml` es válido y el cargador real resuelve `mode=none`. La recarga desde esta sesión fue bloqueada por la protección de Hermes porque el proceso está ejecutándose manualmente; la activación queda pendiente del comando `/restart` enviado por el usuario o de un reinicio desde una shell externa.
