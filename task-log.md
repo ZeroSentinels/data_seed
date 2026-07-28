@@ -74,3 +74,13 @@
 - Resultado local: nueva migración V1 limitada a `profiles`, `organizations`, `user_organizations` y congelamiento de `reports`; RLS determinista de solo lectura, grants por columna, onboarding invite-only, backfill inactivo y máximo de una membresía activa. Se agregó preflight de solo lectura y activación atómica sin manejo de credenciales en el repositorio.
 - Verificación: `npm run check` pasó 63/63. PostgreSQL embebido validó upgrade del esquema histórico, rollback ante filas activas no inventariadas, eliminación de policies heredadas, trigger invite-only, recursos privados sin grants, activación administrativa y aislamiento RLS real entre dos organizaciones.
 - Bloqueo: no existe en la sesión un canal administrativo/DB de Supabase para ejecutar el preflight o aplicar SQL, y faltan correo, nombre y organización del primer usuario. Acción marcada como “a la espera de autorización”. No se aplicó SQL ni se creó ninguna cuenta en producción.
+
+## 2026-07-28 00:39 -04 — Fijación de modelo en jobs del funnel
+
+**Estado:** ✅ Completada y verificada
+
+**Solicitud:** Fijar el modelo de los jobs del funnel en GPT-5.5 para evitar deriva frente al modelo global y reducir cambios frágiles.
+
+**Cambio:** Revenue Builder/Tester (`0fffb87e5be9`) y Revenue Validator (`2caf9a63f6d7`) quedaron fijados explícitamente a `openai-codex/gpt-5.5`.
+
+**Verificación:** El listado canónico del scheduler muestra ambos jobs habilitados, programados y con el override explícito. No se modificaron prompts, horarios, toolsets, scripts ni el job diario.
