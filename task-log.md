@@ -94,3 +94,10 @@
 **Cambio:** `session_reset.mode` quedó en `none`; se eliminaron `session_reset.at_hour: 4` y `session_reset.idle_minutes: 1440`. No se borraron sesiones ni mensajes existentes.
 
 **Verificación:** `config.yaml` es válido y el cargador real resuelve `mode=none`. La recarga desde esta sesión fue bloqueada por la protección de Hermes porque el proceso está ejecutándose manualmente; la activación queda pendiente del comando `/restart` enviado por el usuario o de un reinicio desde una shell externa.
+
+## 2026-07-28 01:12 -04 — Verificar estado del backup diario — 2026-07-28
+
+- **Estado:** ❌ Backup diario no operativo; diagnóstico confirmado, sin cambios aplicados.
+- **Solicitud:** Confirmar si el backup operativo diario ya funciona.
+- **Verificación:** El cron `ea05ea193912` está habilitado, pero su última ejecución (2026-07-27 05:00 Chile) terminó en error. Grafo y limpieza de task-log completaron; el backup falló por el falso positivo `sk-[A-Za-z0-9_-]{20,}` al revisar `graphify-out/manifest.json`. El patrón defectuoso sigue presente en `/opt/data/scripts/demeter_daily_backup.py`; el último commit de backup visible es del 2026-07-08. No se modificó el cron ni el script.
+
