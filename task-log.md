@@ -101,3 +101,11 @@
 - **Solicitud:** Confirmar si el backup operativo diario ya funciona.
 - **Verificación:** El cron `ea05ea193912` está habilitado, pero su última ejecución (2026-07-27 05:00 Chile) terminó en error. Grafo y limpieza de task-log completaron; el backup falló por el falso positivo `sk-[A-Za-z0-9_-]{20,}` al revisar `graphify-out/manifest.json`. El patrón defectuoso sigue presente en `/opt/data/scripts/demeter_daily_backup.py`; el último commit de backup visible es del 2026-07-08. No se modificó el cron ni el script.
 
+## 2026-07-28 01:48 -04 — Reparar falso positivo task-history del backup diario
+
+- **Estado:** ✅ Finalizada y verificada.
+- **Solicitud:** Ajustar el detector de secretos para que no confunda la subcadena `sk-` dentro de nombres `task-*` con una clave real.
+- **Causa:** El manifest multibranch contenía `demeter-task-history-executive-summary.md`; la expresión previa encontraba la subcadena interna `sk-history-...` y abortaba el backup.
+- **Cambio:** El patrón de claves con prefijo `sk-` ahora exige que no esté precedido por un carácter alfanumérico. Así evita el falso positivo dentro de `task-` sin dejar de bloquear una clave independiente.
+- **Verificación:** El manifest real fue aceptado; una clave simulada independiente siguió bloqueada; `py_compile` y `bash -n` pasaron. Se ejecutó un backup controlado que creó y verificó el commit `8393d26` en `main`; el restore checker pasó. El estado histórico del cron seguirá mostrando el error anterior hasta su próxima ejecución programada.
+
