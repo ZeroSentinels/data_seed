@@ -51,3 +51,10 @@
 - Resultado: variables configuradas localmente y en Vercel (Production/Preview, tipo sensitive); suite final 63/63; login y portal verificados en desktop y 320/375/390 px; conexión real con Supabase confirmada mediante Publishable Key.
 - Hallazgo bloqueante: el esquema actual ya contiene tablas históricas y la migración no completa columnas requeridas de organizations; además reemplaza trigger/funciones/policies y revoca grants. No es segura para aplicar sin preflight SQL, backup y ajuste no destructivo.
 - Seguridad: escaneo de 95 archivos sin claves reales; .env ignorado; .env.example contiene solo nombres. No se usó Secret Key ni service_role.
+
+## 2026-07-27 23:45 -04 — Habilitar login real con usuario y contraseña
+
+- Estado: Preview funcional publicado; producción sin cambios. Creación de la cuenta a la espera del correo del usuario y del gate de migración Supabase.
+- Solicitud: reemplazar la página provisional por un acceso real con usuario/correo y contraseña.
+- Resultado: rama `feat/secure-multitenant-auth` publicada y PR draft abierto; Preview con formulario, APIs same-origin, cookies seguras y portal fail-closed. Suite ejecutada dos veces: 63/63 y 0 fallos; rutas, assets, desktop y 375 px verificados; Supabase Auth respondió correctamente con error genérico para credenciales inválidas.
+- Bloqueo productivo: la migración actual no es segura para el esquema histórico y no se creó una cuenta sin una dirección de correo confirmada. No se aplicó SQL ni se promovió a `main`.
