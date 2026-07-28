@@ -58,3 +58,11 @@
 - Solicitud: reemplazar la página provisional por un acceso real con usuario/correo y contraseña.
 - Resultado: rama `feat/secure-multitenant-auth` publicada y PR draft abierto; Preview con formulario, APIs same-origin, cookies seguras y portal fail-closed. Suite ejecutada dos veces: 63/63 y 0 fallos; rutas, assets, desktop y 375 px verificados; Supabase Auth respondió correctamente con error genérico para credenciales inválidas.
 - Bloqueo productivo: la migración actual no es segura para el esquema histórico y no se creó una cuenta sin una dirección de correo confirmada. No se aplicó SQL ni se promovió a `main`.
+
+## 2026-07-28 00:07 -04 — Publicar login funcional en dataseed.cl
+
+- Estado: superficie de login publicada en `main` y verificada en producción; alta de usuarios y migración Supabase continúan pendientes.
+- Solicitud: hacer commit y push a `main` para que `https://dataseed.cl/site/login.html` muestre el formulario funcional.
+- Resultado: PR 8 mergeado mediante squash; Vercel Production quedó READY. HTML, CSS y JavaScript respondieron 200 y sus hashes coincidieron exactamente con el commit; `/login` redirige al formulario, `/portal` sin sesión redirige al login, `/api/auth/session` devuelve 401 y credenciales ficticias reciben 401 genérico.
+- Gate: 58/58 pruebas aprobadas en dos rondas, revisión independiente PASS, UI verificada entre 320 y 1280 px, CSP/cabeceras correctas, secretos ausentes y grafo multibranch sin duplicados, dangling edges ni self-loops.
+- Seguridad: no se incluyó ni aplicó ninguna migración SQL. La autorización permanece fail-closed hasta corregir el esquema histórico y crear cuentas administradas. Rollback disponible en `checkpoint/pre-login-production-20260728-0001`.
