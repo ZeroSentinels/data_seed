@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-07-28 05:48:15 UTC
-- Generado America/Santiago: 2026-07-28 01:48:15 -04
+- Generado UTC: 2026-07-28 09:01:00 UTC
+- Generado America/Santiago: 2026-07-28 05:01:00 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -15,8 +15,8 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - El backup diario de las 05:00 AM NO copia `task-log.md` ni `daily-summary.md`; solo deja esta referencia para consultarlos en el repo de tracking.
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
 - Repo/branch de tracking: `/opt/data/data_seed_tasklog_worktree` / `feat/task-tracking-system`.
-- Daily summary: `daily-summary.md` (70.0 KB, sha256 b4225897802a8f03).
-- Task log actual: `task-log.md` (9.7 KB, sha256 f4be3be7cb622934).
+- Daily summary: `daily-summary.md` (79.7 KB, sha256 88783fde91a6bb8a).
+- Task log actual: `task-log.md` (213.0 B, sha256 1512ddaa0df19af1).
 - Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (594.0 B, sha256 6fd18874fbd0ad90).
 
 Regla operativa: el log diario registra detalles; el resumen diario consolida tareas y pendientes; el backup de las 05:00 AM solo guarda ciclos grandes completados y una referencia hacia el resumen diario.
@@ -61,15 +61,15 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `ea05ea193912` [active]
   - Nombre: Demeter Daily Operations (5:00 AM Chile)
   - Schedule: 0 9 * * *
-  - Next run UTC: 2026-07-28T09:00:00+00:00
+  - Next run UTC: 2026-07-29T09:00:00+00:00
   - Last run UTC/status: 2026-07-27T09:00:49.794352+00:00 / error
   - Mode: no-agent
   - Script: daily-operations-wrapper.sh
 - `0fffb87e5be9` [active]
   - Nombre: DataSeed Agent Factory Funnel Revenue Builder/Tester
   - Schedule: 0 */2 * * *
-  - Next run UTC: 2026-07-28T06:00:00+00:00
-  - Last run UTC/status: 2026-07-28T05:03:25.057136+00:00 / ok
+  - Next run UTC: 2026-07-28T10:00:00+00:00
+  - Last run UTC/status: 2026-07-28T08:01:17.987935+00:00 / ok
   - Mode: agent
   - Workdir: /opt/data
   - Skills: hermes-agent, kanban-agent-workflows, spike
@@ -77,8 +77,8 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `2caf9a63f6d7` [active]
   - Nombre: DataSeed Agent Factory Funnel Revenue Validator
   - Schedule: 30 */2 * * *
-  - Next run UTC: 2026-07-28T06:30:00+00:00
-  - Last run UTC/status: 2026-07-28T05:14:25.117204+00:00 / ok
+  - Next run UTC: 2026-07-28T10:30:00+00:00
+  - Last run UTC/status: 2026-07-28T08:32:31.593046+00:00 / ok
   - Mode: agent
   - Workdir: /opt/data
   - Skills: hermes-agent, kanban-agent-workflows, spike
@@ -86,8 +86,8 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `56f0366edcb7` [active]
   - Nombre: DataSeed Agent Factory Funnel Market Alert (Background Only)
   - Schedule: every 60m
-  - Next run UTC: 2026-07-28T05:56:53.179762+00:00
-  - Last run UTC/status: 2026-07-28T04:56:53.179762+00:00 / ok
+  - Next run UTC: 2026-07-28T09:56:54.497867+00:00
+  - Last run UTC/status: 2026-07-28T08:56:54.497867+00:00 / ok
   - Mode: no-agent
   - Script: agent-factory-funnel-alert.sh
 
@@ -197,9 +197,9 @@ No se copia el contenido de estos archivos; solo tamaño y huella para validaci�
 - `config.yaml`: 16.4 KB, sha256 66a5ccb914c67fb1
 - `memories/MEMORY.md`: 2.1 KB, sha256 104300ca3b8b2c53
 - `memories/USER.md`: 1.3 KB, sha256 8edb89e606ba3319
-- `channel_directory.json`: 648.0 B, sha256 508087cef6e355f6
-- `gateway_state.json`: 544.0 B, sha256 23927d7f548e7631
-- `cron/jobs.json`: 15.9 KB, sha256 875b10ce72391aef
+- `channel_directory.json`: 648.0 B, sha256 b6a0c9944ae1f24b
+- `gateway_state.json`: 544.0 B, sha256 f04752ee80f0bdc2
+- `cron/jobs.json`: 15.9 KB, sha256 b7021880a83c3d3c
 
 ## Grafo de conocimiento del proyecto (Graphify)
 
