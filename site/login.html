@@ -1,59 +1,115 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="es" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Acceso privado — DataSeed</title>
-<meta name="description" content="Acceso privado para clientes de DataSeed.">
-<meta name="robots" content="noindex,nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
-<meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{color-scheme:dark;--bg:#050e06;--panel:#08150a;--g:#00ff41;--g2:#00cc33;--text:#dff5e3;--sub:#7aaa84;--border:rgba(0,255,65,.16)}
-*,*::before,*::after{box-sizing:border-box}
-body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:1.5rem;font-family:'Inter',sans-serif;color:var(--text);background:radial-gradient(circle at 50% 20%,rgba(0,255,65,.08),transparent 35%),var(--bg)}
-.shell{width:min(100%,560px)}
-.brand{display:inline-flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;color:var(--text);text-decoration:none}
-.brand img{width:40px;height:40px;filter:drop-shadow(0 0 12px rgba(0,255,65,.32))}
-.brand strong{display:block;font:800 1.05rem 'Syne',sans-serif}
-.brand small{display:block;margin-top:.1rem;color:var(--sub);font-size:.52rem;letter-spacing:.3em;text-transform:uppercase}
-.card{padding:clamp(1.6rem,5vw,3rem);border:1px solid var(--border);border-radius:24px;background:rgba(8,21,10,.9);box-shadow:0 24px 80px rgba(0,0,0,.3)}
-.badge{display:inline-flex;align-items:center;gap:.5rem;margin-bottom:1.4rem;padding:.35rem .8rem;border:1px solid var(--border);border-radius:999px;color:var(--g2);font-size:.72rem;font-weight:600}
-.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 8px var(--g)}
-h1{margin:0 0 1rem;font:800 clamp(2.2rem,8vw,3.7rem)/1 'Syne',sans-serif;letter-spacing:-.04em}
-p{margin:0;color:var(--sub);font-size:1rem;line-height:1.75}
-.actions{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:2rem}
-.btn{display:inline-flex;min-height:46px;align-items:center;justify-content:center;padding:.8rem 1.35rem;border-radius:999px;font-weight:600;text-decoration:none;transition:transform .2s,background .2s,border-color .2s}
-.btn-primary{background:var(--g);color:#030a03;box-shadow:0 0 28px rgba(0,255,65,.24)}
-.btn-secondary{border:1px solid var(--border);color:var(--text);background:rgba(0,255,65,.03)}
-.btn:hover{transform:translateY(-1px)}
-.btn-secondary:hover{border-color:rgba(0,255,65,.38);color:var(--g)}
-.btn:focus-visible,.brand:focus-visible{outline:2px solid var(--g);outline-offset:3px}
-.note{margin-top:1.4rem;font-size:.78rem;color:#5f8f68}
-@media(max-width:520px){.actions{display:grid}.btn{width:100%}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Portal de clientes — DataSeed</title>
+  <meta name="description" content="Acceso seguro al portal privado de clientes de DataSeed.">
+  <meta name="robots" content="noindex,nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="Referrer-Policy" content="no-referrer">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="login.css">
+  <script src="login.js" defer></script>
 </head>
 <body>
-<main class="shell">
-  <a class="brand" href="index.html" aria-label="Volver a DataSeed">
-    <img src="assets/dataseed_logo_black.png" alt="" width="40" height="40">
-    <span><strong>DataSeed</strong><small>Data Driven</small></span>
-  </a>
-  <section class="card" aria-labelledby="access-title">
-    <div class="badge">Portal de clientes</div>
-    <h1 id="access-title">Acceso privado.</h1>
-    <p>Estamos habilitando el acceso seguro para clientes de DataSeed. Si ya trabajas con nosotros o necesitas ingresar al portal, solicita la activación de tu cuenta.</p>
-    <div class="actions">
-      <a class="btn btn-primary" href="mailto:contacto@dataseed.cl?subject=Solicitud%20de%20acceso%20DataSeed">Solicitar acceso</a>
-      <a class="btn btn-secondary" href="index.html">Volver al inicio</a>
-    </div>
-    <p class="note">El acceso se habilita de forma individual para proteger la información de cada organización.</p>
-  </section>
-</main>
+  <a class="skip-link" href="#login-card">Saltar al formulario</a>
+  <main class="auth-shell">
+    <section class="auth-context" aria-labelledby="context-title">
+      <a class="brand" href="index.html" aria-label="DataSeed, volver al sitio principal">
+        <img src="assets/dataseed_logo_black.png" alt="" width="44" height="44">
+        <span><strong>DataSeed</strong><small>Data Driven</small></span>
+      </a>
+
+      <div class="context-copy">
+        <p class="context-label"><span aria-hidden="true"></span> Inteligencia privada por organización</p>
+        <h2 id="context-title">Tus datos, en el contexto correcto.</h2>
+        <p>Cada cliente accede a un entorno independiente para trabajar con reportes, agentes y fuentes autorizadas por su organización.</p>
+      </div>
+
+      <ul class="trust-list" aria-label="Protecciones del portal">
+        <li>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span><strong>Sesión segura</strong>Credenciales procesadas en el servidor.</span>
+        </li>
+        <li>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
+          <span><strong>Acceso aislado</strong>El entorno se determina desde tu identidad.</span>
+        </li>
+        <li>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 11V8a7 7 0 0 1 14 0v3"/><rect x="3" y="11" width="18" height="10" rx="2"/></svg>
+          <span><strong>Privacidad por diseño</strong>Sin tokens sensibles almacenados en el navegador.</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="auth-main" aria-label="Acceso al portal de clientes">
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar a tema claro" aria-pressed="false">
+        <svg class="theme-moon" aria-hidden="true" viewBox="0 0 24 24"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"/></svg>
+        <svg class="theme-sun" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+
+      <section class="login-card" id="login-card" aria-labelledby="login-title">
+        <div class="portal-mark"><span aria-hidden="true"></span> Acceso seguro</div>
+        <h1 id="login-title">Portal de clientes</h1>
+        <p class="login-intro">Ingresa con las credenciales asociadas a tu organización.</p>
+
+        <div class="login-status" id="login-status" role="status" aria-live="polite" hidden></div>
+
+        <form id="login-form" novalidate>
+          <div class="field" id="email-field">
+            <label for="email">Correo electrónico</label>
+            <input id="email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" placeholder="nombre@empresa.cl" maxlength="254" required aria-describedby="email-error">
+            <p class="field-error" id="email-error" aria-live="polite"></p>
+          </div>
+
+          <div class="field" id="password-field">
+            <div class="label-row">
+              <label for="password">Contraseña</label>
+              <button class="text-action" id="forgot-password" type="button">¿Olvidaste tu contraseña?</button>
+            </div>
+            <div class="password-control">
+              <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" maxlength="1024" required aria-describedby="password-error">
+              <button class="password-toggle" id="password-toggle" type="button" aria-controls="password" aria-label="Mostrar contraseña" aria-pressed="false">
+                <svg class="eye-open" aria-hidden="true" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-closed" aria-hidden="true" viewBox="0 0 24 24"><path d="m3 3 18 18M10.6 10.6A2 2 0 0 0 13.4 13.4M9.9 5.2A11.8 11.8 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.1 3M6.6 6.6C3.6 8.4 2 12 2 12s3.5 7 10 7a10 10 0 0 0 4.1-.9"/></svg>
+              </button>
+            </div>
+            <p class="field-error" id="password-error" aria-live="polite"></p>
+          </div>
+
+          <label class="remember-control" for="remember">
+            <input id="remember" name="remember" type="checkbox">
+            <span aria-hidden="true"></span>
+            Recordarme en este dispositivo
+          </label>
+
+          <button class="submit-button" id="submit-button" type="submit">
+            <span class="button-label">Iniciar sesión</span>
+            <span class="button-spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+
+        <div class="access-help">
+          <p>¿Tu organización aún no tiene acceso?</p>
+          <a href="mailto:contacto@dataseed.cl?subject=Solicitud%20de%20acceso%20al%20portal%20DataSeed">Solicitar acceso</a>
+        </div>
+
+        <div class="security-note">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <p>La sesión y la organización se validan de forma segura antes de mostrar información privada.</p>
+        </div>
+
+        <a class="back-link" href="index.html">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+          Volver al sitio principal
+        </a>
+      </section>
+    </section>
+  </main>
 </body>
 </html>
