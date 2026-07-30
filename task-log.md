@@ -18,3 +18,13 @@
 **Verificación:** Google Drive confirmó doce subcarpetas y veinticuatro archivos `text/markdown`, con dos archivos por carpeta. Tres descargas de control —guía, plantilla base y reporte de prueba— coincidieron exactamente con los archivos fuente. No se creó ni modificó ningún cronjob.
 
 **Pendiente:** Esperar la orientación del usuario para elegir qué reporte se incorporará al cronjob diario.
+
+## 2026-07-30 15:52 -04 — Corregir reportes a formato documento
+
+**Estado:** ✅ Finalizada y verificada
+
+**Corrección solicitada:** Los reportes finales deben ser documentos editables; los archivos `.md` se usan únicamente como guías internas para conservar la estructura estandarizada.
+
+**Qué se hizo:** Se generaron y publicaron once reportes `.docx`, uno dentro de la carpeta de cada área, con portada DataSeed, metadatos, semáforo, KPI, logros, hitos, riesgos, dependencias, decisiones y calidad de datos. Se añadió una guía `.md` que fija la regla de salida. Los once reportes de prueba `.md` incorrectos fueron enviados a la papelera de Drive de forma reversible; las plantillas `.md` se conservaron.
+
+**Verificación:** Cada carpeta de área contiene exactamente una plantilla `.md` y un reporte `.docx` visible mediante Google Docs. Drive confirmó ubicación y tipo MIME de los once documentos. Tres descargas remotas de control coincidieron byte por byte con sus fuentes locales. No se creó ni modificó ningún cronjob.
