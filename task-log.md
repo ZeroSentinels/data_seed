@@ -38,3 +38,23 @@
 **Qué se hizo:** Se concedió rol `writer` —lectura y edición— a `matias@dataseed.cl`, `arturo.barea@dataseed.cl`, `daniel.caignet@dataseed.cl`, `eli.gamboa@dataseed.cl` y `javier.rodriguez@dataseed.cl`. Luego se envió un correo individual desde `demeter@dataseed.cl` a cada persona con el enlace de la carpeta y el canal de contacto por WhatsApp.
 
 **Verificación:** Drive confirmó las cinco operaciones de acceso con estado `shared`. Gmail confirmó los cinco mensajes con estado `sent`, y una búsqueda posterior encontró cada mensaje bajo la etiqueta `SENT`. No se modificó ningún cronjob.
+
+## 2026-07-30 16:51 -04 — Automatizar reportes diarios por área desde el task-log
+
+**Estado:** ✅ Finalizada y verificada
+
+**Área sugerida:** Operaciones
+
+**Solicitud:** Registrar las tareas operativas terminadas de cada conversación, clasificarlas al cierre diario por área, generar reportes editables con estructura empresarial, subirlos a la carpeta respectiva de Drive y enviar por correo sus enlaces y highlights, sin alterar las tareas del cronjob diario existente.
+
+**Qué se hizo:** Se añadió una política persistente de registro por conversación en `SOUL.md` y se invalidó únicamente la caché del prompt del sistema, sin borrar sesiones ni historial. Se implementó una automatización independiente en `/opt/data/automations/daily-area-reporting/` que prioriza `daily-summary.md`, usa `task-log.md` como recuperación, acepta solo tareas terminales nuevas, asigna cada tarea a una de once áreas, redacta posibles credenciales, genera documentos `.docx`, los carga en la carpeta de área y envía un correo individual a los cinco integrantes con highlights y enlaces. La automatización mantiene estado por lote, huellas globales, consulta Drive y Gmail antes de escribir y permite un reintento idempotente. Se publicó además la guía `AUTOMATIZACION_DIARIA_DE_REPORTES__v1.md` en `00_Estandar_y_Guia`.
+
+**Criterios de comunicación aplicados:** Documento fechado en Drive como fuente de verdad; correo como índice ejecutivo; resumen, estado, indicadores con evidencia, resultados, próximos pasos, riesgos, dependencias, decisiones, frescura y trazabilidad. La estructura toma como referencia Google Meet/Gemini, Atlassian, Asana y GitLab para notas organizadas, comunicación asíncrona y cierre escrito.
+
+**Programación:** Se creó un cronjob nuevo e independiente, `DataSeed - reportes diarios por area`, en modo `no_agent`, con ventanas UTC compatibles con el horario de verano/invierno de Chile. El wrapper solo actúa a las 05:20 o 05:40 `America/Santiago`; la segunda ventana sirve como reintento. No se modificaron `daily-operations.sh`, `daily-task-log-cleanup.sh`, `daily-operations-wrapper.sh` ni sus tareas.
+
+**Verificación:** El `dry-run` consolidó tres tareas terminales reales en un reporte de Operaciones. Una prueba controlada de extremo a extremo generó y cargó `2026-07-30__OPERACIONES__REPORTE_DIARIO__v1__PRUEBA_AUTOMATIZACION_164711.docx` dentro de `08_Operaciones`, envió un correo de prueba únicamente a `demeter@dataseed.cl` y Gmail lo confirmó con etiqueta `SENT`. Drive confirmó tanto el documento de prueba como la guía en sus carpetas correctas. La repetición con el mismo identificador terminó silenciosamente, validando idempotencia. El cronjob nuevo quedó habilitado y programado.
+
+**Observación operativa:** El cronjob diario previo citado por el usuario no aparece en la lista actual del programador de Hermes, aunque sus scripts y resúmenes históricos siguen presentes. No se recreó ni modificó para evitar alterar su alcance. La automatización nueva no depende de su presencia porque puede leer directamente el task-log.
+
+**Pendiente:** Supervisar el primer cierre productivo; si el cronjob diario previo debía seguir activo, restaurarlo solo con autorización específica y conservando exactamente sus tareas anteriores.
