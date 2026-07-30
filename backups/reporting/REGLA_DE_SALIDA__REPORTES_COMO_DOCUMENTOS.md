@@ -10,13 +10,20 @@
 
 - Todo reporte DataSeed, ya sea automático o solicitado directamente, debe cargar desde el repositorio `backups/reporting/` la plantilla base, esta regla de salida y la plantilla específica del área.
 - Si cualquiera de esos archivos falta, está vacío o no contiene su estructura obligatoria, la generación debe terminar con error sin publicar un documento alternativo.
-- El reporte y su manifiesto deben registrar nombre y huella SHA-256 de las plantillas usadas.
+- El reporte y su manifiesto deben registrar nombre y huella SHA-256 completa de las plantillas usadas.
+
+## Convención y controles de publicación
+
+- Nombre final: `YYYY-MM-DD__<AREA>__REPORTE__v1.docx`.
+- El modo de prueba es exclusivamente `--dry-run` y no puede publicar en Drive ni enviar correos.
+- Un archivo remoto solo puede reutilizarse si MIME y SHA-256 coinciden; una colisión o duplicado debe detener la ejecución.
+- El manifiesto se persiste antes de enviar correos, procesar huellas y marcar el cierre como completo.
 
 ## Estructura que debe conservarse
 
 1. Resumen ejecutivo.
 2. Salud general VERDE/AMARILLO/ROJO/N/D.
-3. KPI con resultado, meta, tendencia, fuente y dueño.
+3. KPI con resultado, meta, variación, tendencia, fuente y dueño.
 4. Logros y evidencia.
 5. Próximos hitos.
 6. Riesgos y mitigaciones.

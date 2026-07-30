@@ -82,12 +82,36 @@ REPORTING_DOC_OUTPUTS = [
     "backups/reporting/areas/PLANTILLA__LEGAL_RIESGOS_Y_SEGURIDAD__v1.md",
 ]
 
+REPORTING_TEST_OUTPUTS = [
+    "scripts/ops/tests/reporting/canonical-end-to-end-test.sh",
+    "scripts/ops/tests/reporting/runtime-backup-parity-test.sh",
+    "scripts/ops/tests/reporting/snapshot-retry-test.sh",
+    "scripts/ops/tests/reporting/drive-idempotency-invariants-test.py",
+    "scripts/ops/tests/reporting/deterministic-retry-test.sh",
+    "scripts/ops/tests/reporting/transaction-guard-test.sh",
+    "scripts/ops/tests/reporting/production-guards-test.sh",
+    "scripts/ops/tests/reporting/template-validation-test.sh",
+    "scripts/ops/tests/reporting/secret-redaction-test.sh",
+    "scripts/ops/tests/reporting/template-missing-test.sh",
+    "scripts/ops/tests/reporting/template-usage-test.sh",
+    "scripts/ops/tests/reporting/template-catalog-test.py",
+    "scripts/ops/tests/reporting/fixtures/daily-summary-empty.md",
+    "scripts/ops/tests/reporting/fixtures/task-log-template.md",
+    "scripts/ops/tests/reporting/fingerprint-collision-test.sh",
+    "scripts/ops/tests/reporting/failure-preservation-test.sh",
+    "scripts/ops/tests/reporting/fake-reporter.js",
+    "scripts/ops/tests/reporting/integration-test.sh",
+    "scripts/ops/tests/reporting/fake-backup.py",
+    "scripts/ops/tests/reporting/fake-graph.py",
+]
+
 ALLOWED_REPO_OUTPUTS = [
     "backups/BACKUP.md",
     COMPLETED_CYCLES_REPO_REL,
     "backups/RESTORE_GUIDE.md",
     "backups/restore.sh",
     *REPORTING_DOC_OUTPUTS,
+    *REPORTING_TEST_OUTPUTS,
     # Compatibility wrappers kept temporarily so old cron/process paths keep working.
     "scripts/demeter_daily_backup.py",
     "scripts/daily-operations.sh",
@@ -1005,6 +1029,17 @@ def copy_new_scripts() -> None:
             assert_no_secret_values("scripts/ops/daily-area-reports.js", text)
             write_repo_file("scripts/ops/daily-area-reports.js", text, executable=True)
             break
+
+    reporting_tests_root = HERMES_HOME / "automations" / "daily-area-reporting" / "tests"
+    reporting_tests_prefix = Path("scripts/ops/tests/reporting")
+    for repo_rel in REPORTING_TEST_OUTPUTS:
+        relative = Path(repo_rel).relative_to(reporting_tests_prefix)
+        source = reporting_tests_root / relative
+        if not source.exists():
+            raise RuntimeError(f"Required reporting test not found: {source}")
+        text = source.read_text(encoding="utf-8", errors="strict")
+        assert_no_secret_values(repo_rel, text)
+        write_repo_file(repo_rel, text, executable=source.suffix in {".sh", ".py", ".js"})
 
     staging = HERMES_HOME / "dataseed-reportes-drive-staging"
     reporting_docs = [

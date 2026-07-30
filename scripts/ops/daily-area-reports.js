@@ -7,16 +7,20 @@ const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 
 const ROOT = '/opt/data/automations/daily-area-reporting';
-const STATE_DIR = path.join(ROOT, 'state');
-const OUTPUT_DIR = path.join(ROOT, 'output');
+const DEFAULT_STATE_DIR = path.join(ROOT, 'state');
+const DEFAULT_OUTPUT_DIR = path.join(ROOT, 'output');
 const TRACKING_REPO = process.env.DATASEED_TASK_TRACKING_REPO_DIR || '/opt/data/data_seed_tasklog_worktree';
 const TASK_LOG = path.join(TRACKING_REPO, 'task-log.md');
 const DAILY_SUMMARY = path.join(TRACKING_REPO, 'daily-summary.md');
 const GAPI_PY = '/opt/hermes/.venv/bin/python';
 const GAPI_SCRIPT = '/opt/data/skills/productivity/google-workspace/scripts/google_api.py';
 const DRIVE_ROOT = '12nCWotIEOW4EMkCW0dHKKmSAEKrzGMpp';
-const TEMPLATE_ROOT = process.env.DATASEED_REPORT_TEMPLATE_ROOT || '/opt/data/data_seed_daily_backup/backups/reporting';
-const VERSION = '1.2.0';
+const CANONICAL_TEMPLATE_ROOT = '/opt/data/data_seed_daily_backup/backups/reporting';
+const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+let STATE_DIR = DEFAULT_STATE_DIR;
+let OUTPUT_DIR = DEFAULT_OUTPUT_DIR;
+let TEMPLATE_ROOT = CANONICAL_TEMPLATE_ROOT;
+const VERSION = '1.3.0';
 
 const DEFAULT_RECIPIENTS = [
   { email: 'matias@dataseed.cl', name: 'Matias' },
@@ -25,6 +29,7 @@ const DEFAULT_RECIPIENTS = [
   { email: 'eli.gamboa@dataseed.cl', name: 'Eli' },
   { email: 'javier.rodriguez@dataseed.cl', name: 'Javier' },
 ];
+const ALLOWED_RECIPIENTS = new Set([...DEFAULT_RECIPIENTS.map(item => item.email), 'demeter@dataseed.cl']);
 
 const AREAS = [
   {
@@ -105,9 +110,18 @@ function numberedSections(markdown) {
 
 function bulletsUnderHeading(markdown, heading) {
   const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = markdown.match(new RegExp(`^##\\s+${escaped}\\s*$([\\s\\S]*?)(?=^##\\s+|\\Z)`, 'm'));
+  const match = markdown.match(new RegExp(`^##\\s+${escaped}\\s*$([\\s\\S]*?)(?=^##\\s+|(?![\\s\\S]))`, 'm'));
   if (!match) return [];
   return [...match[1].matchAll(/^[-*]\s+(.+)$/gm)].map(item => item[1].trim()).filter(Boolean);
+}
+
+function orderedItemsUnderHeading(markdown, heading) {
+  const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = markdown.match(new RegExp(`^##\\s+${escaped}\\s*$([\\s\\S]*?)(?=^##\\s+|(?![\\s\\S]))`, 'm'));
+  if (!match) return {};
+  const items = {};
+  for (const item of match[1].matchAll(/^(\d+)\.\s+(.+)$/gm)) items[item[1]] = item[2].trim();
+  return items;
 }
 
 function loadReportTemplate(area) {
@@ -119,10 +133,36 @@ function loadReportTemplate(area) {
   const areaContent = readRequiredTemplate(areaPath);
   const suggestedKpis = bulletsUnderHeading(areaContent, 'KPI sugeridos').slice(0, 5);
   if (!suggestedKpis.length) throw new Error(`Plantilla de area sin KPI sugeridos: ${areaPath}`);
-  const sectionTitles = { ...numberedSections(baseContent), ...numberedSections(areaContent) };
+  const baseSections = numberedSections(baseContent);
+  const areaSections = numberedSections(areaContent);
   for (let number = 1; number <= 11; number += 1) {
-    if (!sectionTitles[String(number)]) throw new Error(`Plantilla base incompleta: falta seccion ${number} en ${basePath}`);
+    if (!baseSections[String(number)]) throw new Error(`Plantilla base incompleta: falta seccion ${number} en ${basePath}`);
   }
+  for (let number = 1; number <= 9; number += 1) {
+    if (!areaSections[String(number)]) throw new Error(`Plantilla de area incompleta: falta seccion ${number} en ${areaPath}`);
+  }
+  if (!/^## Fuente obligatoria de estructura$/m.test(ruleContent)
+      || !/^## Estructura que debe conservarse$/m.test(ruleContent)
+      || !/documentos editables/i.test(ruleContent)
+      || !/No publicar reportes finales como archivos `\.md`/i.test(ruleContent)) {
+    throw new Error(`Regla de salida invalida: ${rulePath}`);
+  }
+  const ruleStructure = orderedItemsUnderHeading(ruleContent, 'Estructura que debe conservarse');
+  const ruleRequirements = {
+    1: /resumen ejecutivo/i,
+    2: /salud general.*verde.*amarillo.*rojo.*n\/d/i,
+    3: /kpi.*resultado.*meta.*variaci[oó]n.*tendencia.*fuente.*due[nñ]o/i,
+    4: /logros.*evidencia/i,
+    5: /pr[oó]ximos? hitos?/i,
+    6: /riesgos?.*mitigaciones?/i,
+    7: /dependencias?.*inter[aá]rea/i,
+    8: /decisiones?.*requeridas?/i,
+    9: /calidad.*limitaciones?.*datos/i,
+  };
+  for (const [number, requirement] of Object.entries(ruleRequirements)) {
+    if (!ruleStructure[number] || !requirement.test(ruleStructure[number])) throw new Error(`Regla de salida invalida: falta estructura ${number} en ${rulePath}`);
+  }
+  const sectionTitles = { ...baseSections, ...areaSections };
   return {
     root: TEMPLATE_ROOT,
     baseFile: path.relative(TEMPLATE_ROOT, basePath),
@@ -148,13 +188,35 @@ function parseArgs(argv) {
     else if (arg === '--test') out.test = true;
     else if (arg === '--test-id') out.testId = argv[++i];
     else if (arg === '--report-date') out.reportDate = argv[++i];
-    else if (arg === '--recipients') out.recipients = argv[++i].split(',').map(v => v.trim()).filter(Boolean);
-    else throw new Error(`Argumento no reconocido: ${arg}`);
+    else if (arg === '--recipients') {
+      const value = argv[++i];
+      if (!value) throw new Error('--recipients requiere una lista');
+      out.recipients = value.split(',').map(v => v.trim().toLowerCase()).filter(Boolean);
+      if (!out.recipients.length) throw new Error('--recipients requiere al menos un destinatario');
+    } else throw new Error(`Argumento no reconocido: ${arg}`);
   }
   if (out.reportDate && !/^\d{4}-\d{2}-\d{2}$/.test(out.reportDate)) throw new Error('Fecha invalida; use YYYY-MM-DD');
   if (out.testId && !/^\d{6}$/.test(out.testId)) throw new Error('Test ID invalido; use HHMMSS');
   if (out.testId && !out.test) throw new Error('--test-id requiere --test');
+  if (out.test && !out.dryRun) throw new Error('--test requiere --dry-run; Drive solo admite reportes finales');
+  for (const email of out.recipients || []) {
+    if (!ALLOWED_RECIPIENTS.has(email)) throw new Error(`Destinatario no autorizado: ${email}`);
+  }
   return out;
+}
+
+function configureRuntimePaths(args) {
+  const overrides = [
+    ['DATASEED_REPORT_TEMPLATE_ROOT', value => { TEMPLATE_ROOT = path.resolve(value); }],
+    ['DATASEED_REPORT_OUTPUT_ROOT', value => { OUTPUT_DIR = path.resolve(value); }],
+    ['DATASEED_REPORT_STATE_ROOT', value => { STATE_DIR = path.resolve(value); }],
+  ];
+  for (const [name, apply] of overrides) {
+    const value = process.env[name];
+    if (!value) continue;
+    if (!args.dryRun) throw new Error(`${name} solo se permite con --dry-run`);
+    apply(value);
+  }
 }
 
 function chileParts(date = new Date()) {
@@ -174,17 +236,35 @@ function previousDate(dateIso) {
   return prev.toISOString().slice(0, 10);
 }
 
+function nextDate(dateIso) {
+  const [y, m, d] = dateIso.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d) + 86400000).toISOString().slice(0, 10);
+}
+
 function normalize(text) {
   return String(text || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function meaningfulPending(text) {
+  const value = String(text || '').trim();
+  const normalized = normalize(value).replace(/[.!;:,]+$/g, '').trim();
+  if (/^(?:ningun[oa]s?|sin pendientes?|no (?:hay )?pendientes?|no aplica|n\/?a|n\/?d|-)$/i.test(normalized)) return '';
+  return value;
 }
 
 function sanitize(text, max = 900) {
   let value = String(text || '');
   value = value
-    .replace(/https?:\/\/[^/@\s]+:[^/@\s]+@/gi, 'https://[REDACTED]@')
+    .replace(/-----BEGIN [^-\r\n]*PRIVATE KEY-----[\s\S]*?-----END [^-\r\n]*PRIVATE KEY-----/gi, '[REDACTED]')
+    .replace(/https?:\/\/[^/@\s]+:[^/@\s]+@/gi, 'https://***@')
     .replace(/\b(?:gh[pousr]_|github_pat_|av_agt_|sk-)[A-Za-z0-9_-]{12,}\b/g, '[REDACTED]')
+    .replace(/\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/g, '[REDACTED]')
+    .replace(/\bAIza[0-9A-Za-z_-]{35}\b/g, '[REDACTED]')
+    .replace(/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g, '[REDACTED]')
     .replace(/\bBearer\s+[A-Za-z0-9._~+\/-]+=*\b/gi, 'Bearer [REDACTED]')
-    .replace(/\b(password|passwd|secret|token|api[_ -]?key)\s*[:=]\s*[^\s,;]+/gi, '$1: [REDACTED]')
+    .replace(/["']?\b(password|passwd|secret|token|api[_ -]?key|client[_ -]?secret|private[_ -]?key|aws[_ -]?(?:secret[_ -]?access[_ -]?key|access[_ -]?key[_ -]?id|session[_ -]?token)|google[_ -]?(?:api[_ -]?)?key)["']?\s*[:=]\s*"[^"]*"/gi, '$1: [REDACTED]')
+    .replace(/["']?\b(password|passwd|secret|token|api[_ -]?key|client[_ -]?secret|private[_ -]?key|aws[_ -]?(?:secret[_ -]?access[_ -]?key|access[_ -]?key[_ -]?id|session[_ -]?token)|google[_ -]?(?:api[_ -]?)?key)["']?\s*[:=]\s*'[^']*'/gi, '$1: [REDACTED]')
+    .replace(/["']?\b(password|passwd|secret|token|api[_ -]?key|client[_ -]?secret|private[_ -]?key|aws[_ -]?(?:secret[_ -]?access[_ -]?key|access[_ -]?key[_ -]?id|session[_ -]?token)|google[_ -]?(?:api[_ -]?)?key)["']?\s*[:=]\s*[^\s,;]+/gi, '$1: [REDACTED]')
     .replace(/\s+/g, ' ')
     .trim();
   if (value.length > max) value = `${value.slice(0, max - 1)}…`;
@@ -192,7 +272,16 @@ function sanitize(text, max = 900) {
 }
 
 function hashTask(task) {
-  return crypto.createHash('sha256').update([task.date, task.title, task.outcome, task.state].join('\n')).digest('hex');
+  const identity = {
+    date: task.date,
+    title: task.title,
+    request: task.request,
+    outcome: task.outcome,
+    verification: task.verification,
+    pending: task.pending,
+    state: task.state,
+  };
+  return crypto.createHash('sha256').update(JSON.stringify(identity)).digest('hex');
 }
 
 function extractSummaryBlock(text, summaryDate) {
@@ -243,7 +332,7 @@ function parseTasks(section) {
     }
     const outcome = fields['Qué se hizo'] || fields.Acción || fields.Resultado || fields.Solicitud || title;
     const verification = fields.Verificación || '';
-    const pending = fields.Pendiente || '';
+    const pending = meaningfulPending(fields.Pendiente || '');
     const request = fields.Solicitud || fields.Tarea || title;
     const task = {
       date: head.slice(0, 10), title: sanitize(title, 400), request: sanitize(request, 700),
@@ -301,9 +390,9 @@ function groupTasks(tasks) {
   const groups = new Map();
   for (const task of tasks) {
     const classification = classifyTask(task);
-    task.classification = classification;
+    const classifiedTask = { ...task, classification };
     if (!groups.has(classification.area.key)) groups.set(classification.area.key, { area: classification.area, tasks: [] });
-    groups.get(classification.area.key).tasks.push(task);
+    groups.get(classification.area.key).tasks.push(classifiedTask);
   }
   return [...groups.values()].sort((a, b) => AREAS.indexOf(a.area) - AREAS.indexOf(b.area));
 }
@@ -319,9 +408,8 @@ function statusFor(tasks) {
   return { label: 'N/D', reason: 'La evidencia disponible no permite asignar salud con suficiente confianza.' };
 }
 
-function buildReport(group, context) {
+function buildReport(group, context, template) {
   const tasks = group.tasks;
-  const template = loadReportTemplate(group.area);
   const health = statusFor(tasks);
   const success = tasks.filter(t => !/❌|con error|fallida|fallido/i.test(t.state)).length;
   const failures = tasks.length - success;
@@ -339,8 +427,8 @@ function buildReport(group, context) {
     highlights: highlights.slice(0, 5), reportDate: context.reportDate,
     period: context.reportDate === context.today
       ? `${context.reportDate} 00:00 a ${context.cutoff} (corte parcial de prueba)`
-      : `${context.reportDate} 05:00 a ${context.today} 05:00 (America/Santiago)`,
-    cutoff: context.cutoff, source: context.source, sourceKind: context.sourceKind,
+      : `${context.reportDate} 05:00 a ${nextDate(context.reportDate)} 05:00 (America/Santiago)`,
+    cutoff: context.cutoff, generatedAt: context.generatedAt, source: context.source, sourceKind: context.sourceKind,
   };
 }
 
@@ -403,9 +491,9 @@ function reportDocumentXml(report) {
     ['Área', report.area.display], ['Fecha informada', report.reportDate], ['Periodo', report.period],
     ['Corte', report.cutoff], ['Responsable', 'Demeter · DataSeed'], ['Cadencia', 'Diaria'],
     ['Confidencialidad', 'Interna'], ['Modo de datos', 'DATOS_REALES_OPERATIVOS'], ['Fuente', report.sourceKind],
-    ['Plantilla base', `${report.template.baseFile} · ${report.template.baseSha256.slice(0, 12)}`],
-    ['Plantilla de área', `${report.template.areaFile} · ${report.template.areaSha256.slice(0, 12)}`],
-    ['Regla de salida', `${report.template.ruleFile} · ${report.template.ruleSha256.slice(0, 12)}`],
+    ['Plantilla base', `${report.template.baseFile} · SHA-256 ${report.template.baseSha256}`],
+    ['Plantilla de área', `${report.template.areaFile} · SHA-256 ${report.template.areaSha256}`],
+    ['Regla de salida', `${report.template.ruleFile} · SHA-256 ${report.template.ruleSha256}`],
     ['Version', VERSION],
   ], true));
   blocks.push(paragraph(`${report.health.label} — ${report.health.reason}`, 'Status', { shading: statusColors.fill, border: statusColors.border, run: { bold: true, color: statusColors.text } }));
@@ -418,16 +506,16 @@ function reportDocumentXml(report) {
 
   blocks.push(paragraph(sectionHeading(report, 3), 'Heading1', { keepNext: true }));
   blocks.push(tableXml([
-    ['Indicador', 'Resultado', 'Lectura', 'Fuente'],
-    ['Tareas terminales', String(report.tasks.length), 'Volumen consolidado; no equivale por si solo a impacto.', 'task-log'],
-    ['Cierres correctos', String(report.success), report.failures ? 'Revisar cierres con error.' : 'Sin cierres con error en la fuente.', 'Estado de tarea'],
-    ['Cierres con error', String(report.failures), report.failures ? 'Requiere seguimiento.' : 'Sin errores terminales registrados.', 'Estado de tarea'],
-    ['Con verificacion explicita', `${report.verified}/${report.tasks.length}`, report.verified === report.tasks.length ? 'Cobertura completa.' : 'Cobertura parcial; completar evidencia.', 'Verificacion'],
-    ['Siguientes pasos registrados', String(report.pending.length), report.pending.length ? 'Hay continuidad requerida.' : 'Sin pasos pendientes explicitos.', 'Pendiente'],
+    ['KPI', 'Resultado', 'Meta', 'Variación', 'Tendencia', 'Fuente', 'Dueño'],
+    ['Tareas terminales', String(report.tasks.length), 'N/D', 'N/D', 'N/D', 'task-log', 'N/D'],
+    ['Cierres correctos', String(report.success), 'N/D', 'N/D', 'N/D', 'Estado de tarea', 'N/D'],
+    ['Cierres con error', String(report.failures), '0', 'N/D', 'N/D', 'Estado de tarea', 'N/D'],
+    ['Con verificación explícita', `${report.verified}/${report.tasks.length}`, `${report.tasks.length}/${report.tasks.length}`, 'N/D', 'N/D', 'Verificación', 'N/D'],
+    ['Siguientes pasos registrados', String(report.pending.length), 'N/D', 'N/D', 'N/D', 'Pendiente', 'N/D'],
   ]));
   blocks.push(paragraph(`KPI sugeridos por la plantilla de ${report.area.display}. Se usa N/D cuando el task-log no contiene una medición verificable.`));
-  const suggestedKpiRows = [['KPI sugerido', 'Resultado', 'Meta', 'Fuente canónica']];
-  for (const kpi of report.template.suggestedKpis) suggestedKpiRows.push([kpi, 'N/D', 'N/D', 'No medido en task-log']);
+  const suggestedKpiRows = [['KPI sugerido', 'Resultado', 'Meta', 'Variación', 'Tendencia', 'Fuente', 'Dueño']];
+  for (const kpi of report.template.suggestedKpis) suggestedKpiRows.push([kpi, 'N/D', 'N/D', 'N/D', 'N/D', 'No medido en task-log', 'N/D']);
   blocks.push(tableXml(suggestedKpiRows));
 
   blocks.push(paragraph(sectionHeading(report, 4), 'Heading1', { keepNext: true }));
@@ -475,7 +563,7 @@ function reportDocumentXml(report) {
   blocks.push(paragraph('Repositorio canónico: task-log.md y daily-summary.md en feat/task-tracking-system.', 'Normal', { numbered: true }));
 
   blocks.push(paragraph(sectionHeading(report, 11), 'Heading1', { keepNext: true }));
-  blocks.push(paragraph(`${report.reportDate} — Demeter — reporte generado con ${report.template.baseFile} y ${report.template.areaFile}; huellas ${report.template.baseSha256.slice(0, 12)} / ${report.template.areaSha256.slice(0, 12)}.`, 'Normal', { numbered: true }));
+  blocks.push(paragraph(`${report.reportDate} — Demeter — reporte generado con ${report.template.baseFile}, ${report.template.areaFile} y ${report.template.ruleFile}; SHA-256 ${report.template.baseSha256} / ${report.template.areaSha256} / ${report.template.ruleSha256}.`, 'Normal', { numbered: true }));
   blocks.push(paragraph('Documento diario DataSeed · Comunicación asíncrona orientada a decisiones', 'FooterNote'));
   blocks.push('<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr>');
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${blocks.join('')}</w:body></w:document>`;
@@ -498,7 +586,7 @@ const documentRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 const appXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>DataSeed Daily Area Reporting</Application><AppVersion>${VERSION}</AppVersion><Company>DataSeed</Company></Properties>`;
 
 function coreXml(report) {
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${esc(`Reporte diario — ${report.area.display} — ${report.reportDate}`)}</dc:title><dc:creator>Demeter DataSeed</dc:creator><cp:lastModifiedBy>Demeter DataSeed</cp:lastModifiedBy><dc:description>Reporte diario por area generado desde el task-log operativo.</dc:description><dcterms:created xsi:type="dcterms:W3CDTF">${new Date().toISOString()}</dcterms:created></cp:coreProperties>`;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${esc(`Reporte diario — ${report.area.display} — ${report.reportDate}`)}</dc:title><dc:creator>Demeter DataSeed</dc:creator><cp:lastModifiedBy>Demeter DataSeed</cp:lastModifiedBy><dc:description>Reporte diario por area generado desde el task-log operativo.</dc:description><dcterms:created xsi:type="dcterms:W3CDTF">${report.generatedAt}</dcterms:created></cp:coreProperties>`;
 }
 
 const crcTable = (() => {
@@ -512,9 +600,9 @@ const crcTable = (() => {
 })();
 function crc32(buf) { let c = 0xFFFFFFFF; for (const byte of buf) c = crcTable[(c ^ byte) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
 
-function createZip(entries, outputPath) {
+function createZip(entries, outputPath, generatedAt) {
   const localParts = []; const centralParts = []; let offset = 0;
-  const now = chileParts(); const year = Number(now.year); const month = Number(now.month); const day = Number(now.day);
+  const now = chileParts(new Date(generatedAt)); const year = Number(now.year); const month = Number(now.month); const day = Number(now.day);
   const hour = Number(now.hour); const minute = Number(now.minute); const second = Number(now.second);
   const dosTime = ((hour << 11) | (minute << 5) | Math.floor(second / 2)) & 0xFFFF;
   const dosDate = (((Math.max(1980, year) - 1980) << 9) | (month << 5) | day) & 0xFFFF;
@@ -535,7 +623,7 @@ function writeDocx(report, outputPath) {
     { name: 'word/document.xml', data: reportDocumentXml(report) }, { name: 'word/styles.xml', data: stylesXml },
     { name: 'word/numbering.xml', data: numberingXml }, { name: 'word/_rels/document.xml.rels', data: documentRelsXml },
     { name: 'docProps/core.xml', data: coreXml(report) }, { name: 'docProps/app.xml', data: appXml },
-  ], outputPath);
+  ], outputPath, report.generatedAt);
   const buf = fs.readFileSync(outputPath);
   if (buf.length < 5000 || buf.readUInt32LE(0) !== 0x04034B50 || buf.readUInt32LE(buf.length - 22) !== 0x06054B50) throw new Error(`DOCX invalido: ${outputPath}`);
 }
@@ -558,12 +646,27 @@ function saveJson(file, value) {
   const tmp = `${file}.tmp-${process.pid}`; fs.writeFileSync(tmp, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 }); fs.renameSync(tmp, file);
 }
 function loadJson(file, fallback) { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return fallback; } }
+function sha256File(file) { return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'); }
 
 function findDriveFile(area, name) {
   const safeName = name.replace(/'/g, "\\'");
   const query = `'${area.folderId}' in parents and name = '${safeName}' and trashed = false`;
   const found = gapi(['drive', 'search', query, '--raw-query', '--max', '5'], `buscar ${name}`);
-  return Array.isArray(found) && found.length ? found[0] : null;
+  if (!Array.isArray(found) || !found.length) return null;
+  if (found.length > 1) throw new Error(`Drive contiene ${found.length} archivos activos con el nombre ${name}; resolver duplicados antes de continuar`);
+  return found[0];
+}
+
+function verifyRemoteDocument(remote, localPath) {
+  if (!remote || !remote.id || !remote.webViewLink || remote.mimeType !== DOCX_MIME) return false;
+  const verifyPath = path.join(path.dirname(localPath), `.verify-${remote.id}-${process.pid}.docx`);
+  try {
+    const downloaded = gapi(['drive', 'download', remote.id, '--output', verifyPath], `verificar contenido remoto ${remote.name || remote.id}`);
+    if (downloaded.status !== 'downloaded' || !fs.existsSync(verifyPath)) return false;
+    return sha256File(verifyPath) === sha256File(localPath);
+  } finally {
+    try { fs.unlinkSync(verifyPath); } catch { /* archivo temporal ausente */ }
+  }
 }
 
 function emailAlreadySent(recipient, subject) {
@@ -597,10 +700,47 @@ function buildEmail(name, reports, links, context, test) {
   return lines.join('\n');
 }
 
+function loadPinnedTasks(state) {
+  if (!Array.isArray(state.taskSnapshot) || !state.taskSnapshot.length) return null;
+  const tasks = state.taskSnapshot.map(task => ({ ...task }));
+  const fingerprints = tasks.map(task => task.fingerprint);
+  if (tasks.some(task => !task.fingerprint || hashTask(task) !== task.fingerprint)) throw new Error('Snapshot de tareas invalido o alterado');
+  if (new Set(fingerprints).size !== fingerprints.length) throw new Error('Snapshot de tareas contiene huellas duplicadas');
+  if (!Array.isArray(state.taskFingerprints) || state.taskFingerprints.length !== fingerprints.length
+      || state.taskFingerprints.some(fingerprint => !fingerprints.includes(fingerprint))) {
+    throw new Error('Snapshot de tareas no coincide con sus huellas fijadas');
+  }
+  if (state.taskSnapshotSha256 && state.taskSnapshotSha256 !== sha256Text(JSON.stringify(state.taskSnapshot))) {
+    throw new Error('Snapshot de tareas no coincide con su SHA-256 fijado');
+  }
+  return tasks;
+}
+
+function validatePinnedTemplate(template, area, expectedSha256) {
+  if (!template || !Array.isArray(template.suggestedKpis) || !template.suggestedKpis.length || !template.sectionTitles) {
+    throw new Error(`Snapshot de plantilla invalido para ${area.display}`);
+  }
+  if (template.baseFile !== 'PLANTILLA_BASE__REPORTE_DE_AREA__v1.md'
+      || template.ruleFile !== 'REGLA_DE_SALIDA__REPORTES_COMO_DOCUMENTOS.md'
+      || template.areaFile !== path.join('areas', `PLANTILLA__${area.slug}__v1.md`)) {
+    throw new Error(`Snapshot de plantilla usa archivos inesperados para ${area.display}`);
+  }
+  for (const key of ['baseSha256', 'areaSha256', 'ruleSha256']) {
+    if (!/^[a-f0-9]{64}$/.test(template[key] || '')) throw new Error(`Snapshot de plantilla sin SHA-256 completo para ${area.display}`);
+  }
+  for (let number = 1; number <= 11; number += 1) {
+    if (!template.sectionTitles[String(number)]) throw new Error(`Snapshot de plantilla incompleto para ${area.display}: seccion ${number}`);
+  }
+  const actualSha256 = sha256Text(JSON.stringify(template));
+  if (expectedSha256 && actualSha256 !== expectedSha256) throw new Error(`Snapshot de plantilla alterado para ${area.display}`);
+  return actualSha256;
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
+  configureRuntimePaths(args);
   const now = chileParts(); const today = isoDate(now); const reportDate = args.reportDate || previousDate(today);
-  const cutoff = `${today}T${now.hour}:${now.minute}:${now.second} America/Santiago`;
+  const observedCutoff = `${today}T${now.hour}:${now.minute}:${now.second} America/Santiago`;
   fs.mkdirSync(STATE_DIR, { recursive: true }); fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
   const processedPath = path.join(STATE_DIR, 'processed-task-fingerprints.json');
@@ -608,65 +748,91 @@ function main() {
   const testStamp = args.test ? (args.testId || `${now.hour}${now.minute}${now.second}`) : '';
   const runKey = args.test ? `test-${reportDate}-${testStamp}` : reportDate;
   const statePath = path.join(STATE_DIR, `${runKey}.json`);
+  const batchDir = path.join(OUTPUT_DIR, runKey);
+  const manifestPath = path.join(batchDir, 'manifest.json');
   const state = loadJson(statePath, { version: VERSION, runKey, reportDate, test: args.test, reports: {}, emails: {}, status: 'running' });
-  if (state.status === 'complete') return;
+  if (state.status === 'complete') {
+    if (!fs.existsSync(manifestPath)) throw new Error(`Estado completo sin manifiesto obligatorio: ${manifestPath}`);
+    const missing = (state.taskFingerprints || []).filter(fingerprint => !processed.has(fingerprint));
+    if (missing.length) {
+      const repaired = new Set([...processed, ...missing]);
+      saveJson(processedPath, { version: VERSION, updatedAt: new Date().toISOString(), fingerprints: [...repaired].sort() });
+    }
+    return;
+  }
 
-  const loaded = loadTasks(today);
-  let freshTasks = args.test ? loaded.tasks : loaded.tasks.filter(task => !processed.has(task.fingerprint));
-  if (Array.isArray(state.taskFingerprints) && state.taskFingerprints.length) {
+  let loaded;
+  let freshTasks = loadPinnedTasks(state);
+  if (freshTasks) {
+    loaded = { source: state.source, sourceKind: state.sourceKind };
+  } else {
+    loaded = loadTasks(today);
+    freshTasks = args.test ? loaded.tasks : loaded.tasks.filter(task => !processed.has(task.fingerprint));
+  }
+  if (!state.taskSnapshot && Array.isArray(state.taskFingerprints) && state.taskFingerprints.length) {
     const pinned = new Set(state.taskFingerprints);
-    freshTasks = freshTasks.filter(task => pinned.has(task.fingerprint));
+    const available = loaded.tasks.filter(task => pinned.has(task.fingerprint));
+    if (available.length !== pinned.size) throw new Error('No se pudieron reconstruir todas las tareas fijadas del reintento');
+    freshTasks = available;
   }
   if (!freshTasks.length) return;
 
-  const groups = groupTasks(freshTasks);
-  const context = { today, reportDate, cutoff, source: loaded.source, sourceKind: loaded.sourceKind };
-  const reports = groups.map(group => buildReport(group, context));
+  state.version = VERSION;
+  state.status = state.status === 'committing' ? 'committing' : 'running';
+  state.cutoff = state.cutoff || observedCutoff;
+  state.generatedAt = state.generatedAt || new Date().toISOString();
+  state.today = state.today || today;
+  state.source = state.source || loaded.source;
+  state.sourceKind = state.sourceKind || loaded.sourceKind;
+  if (!state.taskSnapshot) {
+    state.taskFingerprints = freshTasks.map(task => task.fingerprint);
+    state.taskSnapshot = freshTasks.map(task => ({ ...task }));
+    state.taskSnapshotSha256 = sha256Text(JSON.stringify(state.taskSnapshot));
+  }
+  saveJson(statePath, state);
 
-  const batchDir = path.join(OUTPUT_DIR, runKey); fs.mkdirSync(batchDir, { recursive: true });
+  const groups = groupTasks(freshTasks);
+  const context = { today: state.today, reportDate, cutoff: state.cutoff, generatedAt: state.generatedAt, source: state.source, sourceKind: state.sourceKind };
+  state.templateSnapshots = state.templateSnapshots || {};
+  state.templateSnapshotSha256 = state.templateSnapshotSha256 || {};
+  const reports = groups.map(group => {
+    const template = state.templateSnapshots[group.area.key] || loadReportTemplate(group.area);
+    const snapshotSha256 = validatePinnedTemplate(template, group.area, state.templateSnapshotSha256[group.area.key]);
+    state.templateSnapshots[group.area.key] = template;
+    state.templateSnapshotSha256[group.area.key] = snapshotSha256;
+    return buildReport(group, context, template);
+  });
+  saveJson(statePath, state);
+
+  fs.mkdirSync(batchDir, { recursive: true });
   const links = {};
   for (const report of reports) {
-    const suffix = args.test ? `__PRUEBA_AUTOMATIZACION_${testStamp}` : '';
-    const name = `${reportDate}__${report.area.slug}__REPORTE_DIARIO__v1${suffix}.docx`;
+    const name = `${reportDate}__${report.area.slug}__REPORTE__v1.docx`;
     const localPath = path.join(batchDir, name);
     writeDocx(report, localPath);
+    const localSha256 = sha256File(localPath);
     if (args.dryRun) {
-      links[report.area.key] = { id: null, name, webViewLink: `LOCAL:${localPath}`, mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' };
+      links[report.area.key] = { id: null, name, webViewLink: `LOCAL:${localPath}`, mimeType: DOCX_MIME, sha256: localSha256 };
       continue;
     }
     let remote = state.reports[report.area.key] || findDriveFile(report.area, name);
-    if (!remote || !remote.webViewLink) {
+    if (remote) {
+      if (!verifyRemoteDocument(remote, localPath)) throw new Error(`Documento remoto ${name} no coincide en MIME o SHA-256 con el reporte generado`);
+    } else {
       const uploaded = gapi(['drive', 'upload', localPath, '--parent', report.area.folderId], `subir ${name}`);
-      if (uploaded.status !== 'uploaded' || !uploaded.id || !uploaded.webViewLink) throw new Error(`Carga no confirmada para ${name}`);
+      if (uploaded.status !== 'uploaded' || !uploaded.id || !uploaded.webViewLink || uploaded.mimeType !== DOCX_MIME) throw new Error(`Carga no confirmada para ${name}`);
       remote = uploaded;
+      if (!verifyRemoteDocument(remote, localPath)) throw new Error(`La verificacion posterior a la carga fallo para ${name}`);
     }
-    links[report.area.key] = remote; state.reports[report.area.key] = remote; state.source = loaded.source; state.sourceKind = loaded.sourceKind;
-    state.taskFingerprints = freshTasks.map(t => t.fingerprint); saveJson(statePath, state);
+    remote.sha256 = localSha256;
+    links[report.area.key] = remote;
+    state.reports[report.area.key] = remote;
+    saveJson(statePath, state);
   }
 
   const recipients = recipientList(args);
-  const subject = `${args.test ? '[PRUEBA] ' : ''}Reportes diarios DataSeed - ${reportDate}`;
-  if (!args.dryRun) {
-    for (const recipient of recipients) {
-      if (state.emails[recipient.email]?.verified || emailAlreadySent(recipient.email, subject)) {
-        state.emails[recipient.email] = { verified: true, skippedAsExisting: true }; saveJson(statePath, state); continue;
-      }
-      const body = buildEmail(recipient.name, reports, links, context, args.test);
-      const sent = gapi(['gmail', 'send', '--to', recipient.email, '--from', '"Demeter DataSeed" <demeter@dataseed.cl>', '--subject', subject, '--body', body], `enviar correo ${recipient.email}`);
-      if (sent.status !== 'sent' || !sent.id) throw new Error(`Envio no confirmado para ${recipient.email}`);
-      const verified = emailAlreadySent(recipient.email, subject);
-      if (!verified) throw new Error(`El correo a ${recipient.email} no aparecio en Gmail Sent`);
-      state.emails[recipient.email] = { verified: true, messageId: sent.id, threadId: sent.threadId || sent.id }; saveJson(statePath, state);
-    }
-    state.status = 'complete'; state.completedAt = new Date().toISOString(); saveJson(statePath, state);
-    if (!args.test) {
-      const merged = new Set([...processed, ...freshTasks.map(t => t.fingerprint)]);
-      saveJson(processedPath, { version: VERSION, updatedAt: new Date().toISOString(), fingerprints: [...merged].sort() });
-    }
-  }
-
   const manifest = {
-    version: VERSION, mode: args.dryRun ? 'dry-run' : (args.test ? 'test' : 'production'),
+    version: VERSION, mode: args.dryRun ? 'dry-run' : 'production',
     reportDate, source: loaded.source, sourceKind: loaded.sourceKind,
     taskCount: freshTasks.length, areas: reports.map(r => ({
       key: r.area.key,
@@ -678,7 +844,27 @@ function main() {
     })),
     recipients: args.dryRun ? [] : recipients.map(r => r.email), driveRoot: DRIVE_ROOT,
   };
-  saveJson(path.join(batchDir, 'manifest.json'), manifest);
+  saveJson(manifestPath, manifest);
+
+  if (!args.dryRun) {
+    const subject = `Reportes diarios DataSeed - ${reportDate}`;
+    for (const recipient of recipients) {
+      if (state.emails[recipient.email]?.verified || emailAlreadySent(recipient.email, subject)) {
+        state.emails[recipient.email] = { verified: true, skippedAsExisting: true }; saveJson(statePath, state); continue;
+      }
+      const body = buildEmail(recipient.name, reports, links, context, false);
+      const sent = gapi(['gmail', 'send', '--to', recipient.email, '--from', '"Demeter DataSeed" <demeter@dataseed.cl>', '--subject', subject, '--body', body], `enviar correo ${recipient.email}`);
+      if (sent.status !== 'sent' || !sent.id) throw new Error(`Envio no confirmado para ${recipient.email}`);
+      const verified = emailAlreadySent(recipient.email, subject);
+      if (!verified) throw new Error(`El correo a ${recipient.email} no aparecio en Gmail Sent`);
+      state.emails[recipient.email] = { verified: true, messageId: sent.id, threadId: sent.threadId || sent.id }; saveJson(statePath, state);
+    }
+    const merged = new Set([...processed, ...freshTasks.map(t => t.fingerprint)]);
+    state.status = 'committing'; saveJson(statePath, state);
+    saveJson(processedPath, { version: VERSION, updatedAt: new Date().toISOString(), fingerprints: [...merged].sort() });
+    state.status = 'complete'; state.completedAt = new Date().toISOString(); saveJson(statePath, state);
+  }
+
   console.log(`${args.test ? 'PRUEBA VERDE' : args.dryRun ? 'DRY-RUN VERDE' : 'VERDE'} — Reportes diarios DataSeed ${reportDate}: ${freshTasks.length} tarea(s), ${reports.length} area(s), ${args.dryRun ? 0 : reports.length} documento(s), ${args.dryRun ? 0 : recipients.length} correo(s).`);
 }
 

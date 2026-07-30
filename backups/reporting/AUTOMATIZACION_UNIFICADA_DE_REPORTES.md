@@ -11,8 +11,9 @@ Esta automatización forma parte del **cronjob unificado de las 05:00 Chile**. E
 - **Google Drive:** exclusivamente reportes diarios editables por área; no se publican guías, plantillas, scripts ni documentación técnica.
 - **Repositorio GitHub:** código en `scripts/ops/` y documentación técnica, reglas y plantillas internas en `backups/reporting/`.
 - **Uso obligatorio de plantillas:** tanto el cronjob como cualquier generación solicitada directamente deben cargar `PLANTILLA_BASE__REPORTE_DE_AREA__v1.md`, `REGLA_DE_SALIDA__REPORTES_COMO_DOCUMENTOS.md` y `areas/PLANTILLA__<AREA>__v1.md` desde el repositorio. Si falta una, el reporte falla sin publicar ni limpiar el task-log.
-- **Trazabilidad:** cada documento y manifiesto registra nombres y SHA-256 de las plantillas utilizadas.
+- **Trazabilidad:** cada documento y manifiesto registra nombres y SHA-256 completos de las plantillas utilizadas.
 - Los reportes finales son documentos `.docx` editables desde Google Docs.
+- La convención de nombre es `YYYY-MM-DD__<AREA>__REPORTE__v1.docx`.
 - Se crea un reporte únicamente para las áreas que tengan tareas terminales nuevas.
 - Cada tarea se asigna a exactamente un área principal.
 - Si no existen tareas nuevas, el proceso permanece silencioso.
@@ -46,7 +47,7 @@ Cada documento contiene:
 - Metadatos, periodo, corte, responsable, confidencialidad y procedencia.
 - Resumen ejecutivo de hasta cinco puntos.
 - Estado VERDE/AMARILLO/ROJO/N/D con justificación.
-- Indicadores operativos basados en evidencia del task-log.
+- KPI con resultado, meta, variación, tendencia, fuente y dueño; los campos no medidos se marcan `N/D`.
 - Resultados y verificaciones.
 - Próximos pasos sugeridos.
 - Riesgos, dependencias y decisiones.
@@ -55,7 +56,7 @@ Cada documento contiene:
 
 ## Comunicación
 
-Se envía un correo individual a los cinco integrantes autorizados. El correo funciona como índice breve e incluye:
+Se envía un correo individual a los cinco integrantes autorizados. Los destinatarios están limitados por allowlist; `demeter@dataseed.cl` queda habilitado únicamente como buzón técnico controlado. El correo funciona como índice breve e incluye:
 
 - Estado y highlights por área.
 - Enlace editable de cada reporte.
@@ -66,7 +67,7 @@ El documento en Drive es la fuente de verdad; el correo evita duplicar el detall
 
 ## Generación solicitada directamente
 
-Una petición manual o ad hoc debe usar el mismo ejecutable `scripts/ops/daily-area-reports.js`; no se debe redactar un reporte desde cero ni copiar una estructura anterior. El ejecutable carga la plantilla base, la regla y la plantilla del área desde `backups/reporting/`, valida sus secciones y registra sus SHA-256 en el documento y el manifiesto.
+Una petición manual o ad hoc debe usar el mismo ejecutable `scripts/ops/daily-area-reports.js`; no se debe redactar un reporte desde cero ni copiar una estructura anterior. El ejecutable carga la plantilla base, la regla y la plantilla del área desde la ruta canónica `backups/reporting/`, valida cada archivo de forma independiente y registra sus SHA-256 completos en el documento y el manifiesto. La ruta canónica solo puede sustituirse durante un `--dry-run` aislado.
 
 ## Cronjob unificado y orden transaccional
 
@@ -86,10 +87,12 @@ Si resumen, clasificación, Drive o correo fallan, el proceso termina con error 
 
 ## Idempotencia y seguridad
 
-- Un documento fechado no se duplica si ya existe en su carpeta.
+- Un documento fechado solo se reutiliza si su MIME y SHA-256 coinciden exactamente con el archivo local; duplicados por nombre o contenido distinto detienen el proceso.
+- La fecha de generación, el corte, el snapshot sanitizado de tareas y el snapshot validado de plantillas —con sus SHA-256— quedan fijados en el estado para que un reintento sea independiente de cambios posteriores en las fuentes y produzca el mismo documento.
 - Gmail Sent se consulta antes de cada envío para evitar correos duplicados.
-- El estado se guarda después de cada carga y cada correo.
-- Las tareas se redactan contra patrones de credenciales antes de entrar al documento.
+- El manifiesto se guarda antes de enviar correos. Luego el estado pasa a `committing`, se persisten las huellas procesadas y solo entonces pasa a `complete`; un reintento desde `committing` reconstruye la misma transacción fijada.
+- `--test` requiere `--dry-run`: ningún artefacto de prueba se carga en Drive.
+- Las tareas se redactan contra patrones de credenciales, incluidos secretos genéricos, JWT, claves AWS permanentes o temporales (`AKIA`, `ASIA`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`), claves Google y bloques PEM, antes de entrar al documento.
 - No se incluyen secretos, tokens, contraseñas ni detalles de seguridad explotables.
 - Las operaciones de Google usan exclusivamente `google_api.py`.
 

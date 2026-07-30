@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-07-30 21:41:30 UTC
-- Generado America/Santiago: 2026-07-30 17:41:30 -04
+- Generado UTC: 2026-07-30 22:53:22 UTC
+- Generado America/Santiago: 2026-07-30 18:53:22 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -16,7 +16,7 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
 - Repo/branch de tracking: `/opt/data/data_seed_tasklog_worktree` / `feat/task-tracking-system`.
 - Daily summary: `daily-summary.md` (79.7 KB, sha256 88783fde91a6bb8a).
-- Task log actual: `task-log.md` (12.5 KB, sha256 d81906c61ab9d6bb).
+- Task log actual: `task-log.md` (14.9 KB, sha256 39c2ef3fef8f0874).
 - Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (594.0 B, sha256 6fd18874fbd0ad90).
 
 Regla operativa: el log diario registra detalles; el resumen diario consolida tareas y pendientes; el backup de las 05:00 AM solo guarda ciclos grandes completados y una referencia hacia el resumen diario.
@@ -39,7 +39,7 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 - Hermes binary: `/opt/hermes/.venv/bin/hermes`
 - Disk snapshot:
   `Filesystem      Size  Used Avail Use% Mounted on`
-  `/dev/sda1        96G   18G   79G  19% /opt/data`
+  `/dev/sda1        96G   17G   79G  18% /opt/data`
 
 ## Configuración Hermes sanitizada
 
@@ -111,7 +111,7 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `jupyter-live-kernel` (data-science/jupyter-live-kernel) — Iterative Python via live Jupyter kernel (hamelnb).
 - `deployment-platform-verification` (devops/deployment-platform-verification) — Verify deployment-platform connections and recover deployment URLs safely using current provider, project, source, and live evidence without exposing secrets.
 - `kanban-agent-workflows` (devops/kanban-agent-workflows) — Use when orchestrating Kanban-style multi-agent work: board setup, task decomposition, worker prompts, status transitions, and recovery.
-- `operational-recovery-backups` (devops/operational-recovery-backups) — Build and maintain safe operational recovery backups for Hermes/DataSeed: cron job reconstruction, non-secret GitHub snapshots, rollback docs, script inclusion policies, graphify knowledge graph backup, and unified cleanup-then-backup daily operations.
+- `operational-recovery-backups` (devops/operational-recovery-backups) — Build and maintain safe operational recovery backups for Hermes/DataSeed: cron reconstruction, non-secret GitHub snapshots, rollback docs, Graphify backup, and transactional graph-summary-report-cleanup-backup operations.
 - `safe-mcp-api-integrations` (devops/safe-mcp-api-integrations) — Build and configure MCP API integrations with a safety proxy that preserves operational access while blocking irreversible actions.
 - `whatsapp-gateway-config` (devops/whatsapp-gateway-config) — WhatsApp gateway configuration for Hermes Agent — require_mention, dm_policy, group_policy, allow_from, mention_patterns, group_sessions_per_user, and all platform-specific settings.
 - `dogfood` (dogfood) — Exploratory QA of web apps: find bugs, evidence, reports.
@@ -184,10 +184,10 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 No se copia el contenido de estos archivos; solo tamaño y huella para validación.
 
 - `config.yaml`: 16.4 KB, sha256 66a5ccb914c67fb1
-- `memories/MEMORY.md`: 2.1 KB, sha256 7d76de027a88e645
-- `memories/USER.md`: 1.3 KB, sha256 8edb89e606ba3319
-- `channel_directory.json`: 785.0 B, sha256 2cd877d4f8e8011c
-- `gateway_state.json`: 544.0 B, sha256 a0b0542a1e2ed419
+- `memories/MEMORY.md`: 2.2 KB, sha256 b3a976d8dea35dfb
+- `memories/USER.md`: 1.3 KB, sha256 bf1ae26473033298
+- `channel_directory.json`: 785.0 B, sha256 63f3936bf550b4f9
+- `gateway_state.json`: 544.0 B, sha256 87e20b6eda4b1d60
 - `cron/jobs.json`: 2.7 KB, sha256 e475aea0205aa850
 
 ## Grafo de conocimiento del proyecto (Graphify)
@@ -222,6 +222,26 @@ Se genera con `scripts/generate-multibranch-graph.py`, que crea un snapshot temp
 - `backups/reporting/areas/PLANTILLA__FINANZAS__v1.md`
 - `backups/reporting/areas/PLANTILLA__PERSONAS_Y_CULTURA__v1.md`
 - `backups/reporting/areas/PLANTILLA__LEGAL_RIESGOS_Y_SEGURIDAD__v1.md`
+- `scripts/ops/tests/reporting/canonical-end-to-end-test.sh`
+- `scripts/ops/tests/reporting/runtime-backup-parity-test.sh`
+- `scripts/ops/tests/reporting/snapshot-retry-test.sh`
+- `scripts/ops/tests/reporting/drive-idempotency-invariants-test.py`
+- `scripts/ops/tests/reporting/deterministic-retry-test.sh`
+- `scripts/ops/tests/reporting/transaction-guard-test.sh`
+- `scripts/ops/tests/reporting/production-guards-test.sh`
+- `scripts/ops/tests/reporting/template-validation-test.sh`
+- `scripts/ops/tests/reporting/secret-redaction-test.sh`
+- `scripts/ops/tests/reporting/template-missing-test.sh`
+- `scripts/ops/tests/reporting/template-usage-test.sh`
+- `scripts/ops/tests/reporting/template-catalog-test.py`
+- `scripts/ops/tests/reporting/fixtures/daily-summary-empty.md`
+- `scripts/ops/tests/reporting/fixtures/task-log-template.md`
+- `scripts/ops/tests/reporting/fingerprint-collision-test.sh`
+- `scripts/ops/tests/reporting/failure-preservation-test.sh`
+- `scripts/ops/tests/reporting/fake-reporter.js`
+- `scripts/ops/tests/reporting/integration-test.sh`
+- `scripts/ops/tests/reporting/fake-backup.py`
+- `scripts/ops/tests/reporting/fake-graph.py`
 - `scripts/demeter_daily_backup.py`
 - `scripts/daily-operations.sh`
 - `scripts/daily-operations-wrapper.sh`
