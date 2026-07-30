@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-07-28 09:01:00 UTC
-- Generado America/Santiago: 2026-07-28 05:01:00 -04
+- Generado UTC: 2026-07-30 21:28:36 UTC
+- Generado America/Santiago: 2026-07-30 17:28:36 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -16,7 +16,7 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
 - Repo/branch de tracking: `/opt/data/data_seed_tasklog_worktree` / `feat/task-tracking-system`.
 - Daily summary: `daily-summary.md` (79.7 KB, sha256 88783fde91a6bb8a).
-- Task log actual: `task-log.md` (213.0 B, sha256 1512ddaa0df19af1).
+- Task log actual: `task-log.md` (11.0 KB, sha256 445a1e53136ac4fa).
 - Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (594.0 B, sha256 6fd18874fbd0ad90).
 
 Regla operativa: el log diario registra detalles; el resumen diario consolida tareas y pendientes; el backup de las 05:00 AM solo guarda ciclos grandes completados y una referencia hacia el resumen diario.
@@ -39,7 +39,7 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 - Hermes binary: `/opt/hermes/.venv/bin/hermes`
 - Disk snapshot:
   `Filesystem      Size  Used Avail Use% Mounted on`
-  `/dev/sda1        96G   16G   81G  16% /opt/data`
+  `/dev/sda1        96G   17G   80G  17% /opt/data`
 
 ## Configuración Hermes sanitizada
 
@@ -56,40 +56,27 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 
 ## Cron jobs configurados y estado
 
-Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
+Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 
-- `ea05ea193912` [active]
-  - Nombre: Demeter Daily Operations (5:00 AM Chile)
-  - Schedule: 0 9 * * *
-  - Next run UTC: 2026-07-29T09:00:00+00:00
-  - Last run UTC/status: 2026-07-27T09:00:49.794352+00:00 / error
-  - Mode: no-agent
-  - Script: daily-operations-wrapper.sh
-- `0fffb87e5be9` [active]
+- `0fffb87e5be9` [paused]
   - Nombre: DataSeed Agent Factory Funnel Revenue Builder/Tester
-  - Schedule: 0 */2 * * *
-  - Next run UTC: 2026-07-28T10:00:00+00:00
-  - Last run UTC/status: 2026-07-28T08:01:17.987935+00:00 / ok
+  - Schedule: unknown
+  - Next run UTC: None
+  - Last run UTC/status: 2026-07-28T16:03:25.785766+00:00 / ok
   - Mode: agent
-  - Workdir: /opt/data
-  - Skills: hermes-agent, kanban-agent-workflows, spike
-  - Enabled toolsets: web, search, browser, file, terminal, session_search, skills
 - `2caf9a63f6d7` [active]
   - Nombre: DataSeed Agent Factory Funnel Revenue Validator
-  - Schedule: 30 */2 * * *
-  - Next run UTC: 2026-07-28T10:30:00+00:00
-  - Last run UTC/status: 2026-07-28T08:32:31.593046+00:00 / ok
+  - Schedule: unknown
+  - Next run UTC: unknown
+  - Last run UTC/status: never / unknown
   - Mode: agent
-  - Workdir: /opt/data
-  - Skills: hermes-agent, kanban-agent-workflows, spike
-  - Enabled toolsets: web, search, browser, file, terminal, session_search, skills
-- `56f0366edcb7` [active]
-  - Nombre: DataSeed Agent Factory Funnel Market Alert (Background Only)
-  - Schedule: every 60m
-  - Next run UTC: 2026-07-28T09:56:54.497867+00:00
-  - Last run UTC/status: 2026-07-28T08:56:54.497867+00:00 / ok
+- `2073a6cc3d6e` [active]
+  - Nombre: Demeter Daily Operations (5:00 AM Chile)
+  - Schedule: 0 8,9 * * *
+  - Next run UTC: 2026-07-31T08:00:00+00:00
+  - Last run UTC/status: None / None
   - Mode: no-agent
-  - Script: agent-factory-funnel-alert.sh
+  - Script: daily-operations-wrapper.sh
 
 ## Skills instalados
 
@@ -153,6 +140,8 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `obsidian` (note-taking/obsidian) — Read, search, create, and edit notes in the Obsidian vault.
 - `airtable` (productivity/airtable) — Airtable REST API via curl. Records CRUD, filters, upserts.
 - `apple-platform-automation` (productivity/apple-platform-automation) — Use when automating Apple/macOS apps and services from Hermes: Notes, Reminders, Messages, Find My, and visual computer-use workflows.
+- `business-reporting-systems` (productivity/business-reporting-systems) — Design, standardize, publish, validate, and automate cross-functional reporting systems for companies and startups. Use for area reports, executive status packs, KPI schemas, RAG health reporting, synthetic samples, and report folders in shared document systems.
+- `cross-functional-business-reporting` (productivity/cross-functional-business-reporting) — Design, create, validate, and automate standardized reporting systems across business or startup areas, including Drive folder structures, Markdown guides, editable document deliverables, KPI/RAG conventions, and cross-area dependencies.
 - `docx` (productivity/docx) — Create, read, edit Word .docx documents and templates.
 - `google-workspace` (productivity/google-workspace) — Gmail, Calendar, Drive, Docs, Sheets via gws CLI or Python.
 - `maps` (productivity/maps) — Geocode, POIs, routes, timezones via OpenStreetMap/OSRM.
@@ -195,11 +184,11 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 No se copia el contenido de estos archivos; solo tamaño y huella para validación.
 
 - `config.yaml`: 16.4 KB, sha256 66a5ccb914c67fb1
-- `memories/MEMORY.md`: 2.1 KB, sha256 104300ca3b8b2c53
+- `memories/MEMORY.md`: 2.1 KB, sha256 f74cbb20a6b1c377
 - `memories/USER.md`: 1.3 KB, sha256 8edb89e606ba3319
-- `channel_directory.json`: 648.0 B, sha256 b6a0c9944ae1f24b
-- `gateway_state.json`: 544.0 B, sha256 f04752ee80f0bdc2
-- `cron/jobs.json`: 15.9 KB, sha256 b7021880a83c3d3c
+- `channel_directory.json`: 785.0 B, sha256 61100d38edc23dd3
+- `gateway_state.json`: 544.0 B, sha256 fb3524219170cc7f
+- `cron/jobs.json`: 2.7 KB, sha256 e475aea0205aa850
 
 ## Grafo de conocimiento del proyecto (Graphify)
 
@@ -218,6 +207,21 @@ Se genera con `scripts/generate-multibranch-graph.py`, que crea un snapshot temp
 - `backups/COMPLETED_CYCLES.md`
 - `backups/RESTORE_GUIDE.md`
 - `backups/restore.sh`
+- `backups/reporting/AUTOMATIZACION_UNIFICADA_DE_REPORTES.md`
+- `backups/reporting/README__SISTEMA_DE_REPORTES.md`
+- `backups/reporting/PLANTILLA_BASE__REPORTE_DE_AREA__v1.md`
+- `backups/reporting/REGLA_DE_SALIDA__REPORTES_COMO_DOCUMENTOS.md`
+- `backups/reporting/areas/PLANTILLA__DIRECCION_Y_ESTRATEGIA__v1.md`
+- `backups/reporting/areas/PLANTILLA__PRODUCTO__v1.md`
+- `backups/reporting/areas/PLANTILLA__INGENIERIA_Y_TECNOLOGIA__v1.md`
+- `backups/reporting/areas/PLANTILLA__DATOS_E_IA__v1.md`
+- `backups/reporting/areas/PLANTILLA__VENTAS__v1.md`
+- `backups/reporting/areas/PLANTILLA__MARKETING_Y_GROWTH__v1.md`
+- `backups/reporting/areas/PLANTILLA__EXITO_DEL_CLIENTE_Y_SOPORTE__v1.md`
+- `backups/reporting/areas/PLANTILLA__OPERACIONES__v1.md`
+- `backups/reporting/areas/PLANTILLA__FINANZAS__v1.md`
+- `backups/reporting/areas/PLANTILLA__PERSONAS_Y_CULTURA__v1.md`
+- `backups/reporting/areas/PLANTILLA__LEGAL_RIESGOS_Y_SEGURIDAD__v1.md`
 - `scripts/demeter_daily_backup.py`
 - `scripts/daily-operations.sh`
 - `scripts/daily-operations-wrapper.sh`
@@ -225,6 +229,7 @@ Se genera con `scripts/generate-multibranch-graph.py`, que crea un snapshot temp
 - `scripts/ops/daily-operations.sh`
 - `scripts/ops/daily-operations-wrapper.sh`
 - `scripts/ops/daily-task-log-cleanup.sh`
+- `scripts/ops/daily-area-reports.js`
 - `scripts/ops/github_api_commit.py`
 - `scripts/github_api_commit.py`
 - `scripts/generate-multibranch-graph.py`
@@ -239,7 +244,6 @@ Se genera con `scripts/generate-multibranch-graph.py`, que crea un snapshot temp
 ## Scripts/documentos pendientes de aprobación humana
 
 - `daily-operations-wrapper.sh`: pendiente; existe pero NO se copia como copia dura sin aprobación explícita en `/opt/data/backup_hardcopy_allowlist.txt`.
-- `agent-factory-funnel-alert.sh`: pendiente; existe pero NO se copia como copia dura sin aprobación explícita en `/opt/data/backup_hardcopy_allowlist.txt`.
 
 ## Exclusiones estrictas
 

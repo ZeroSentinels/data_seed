@@ -64,11 +64,30 @@ COMPLETED_CYCLES_SOURCE = Path(
     )
 ).resolve()
 
+REPORTING_DOC_OUTPUTS = [
+    "backups/reporting/AUTOMATIZACION_UNIFICADA_DE_REPORTES.md",
+    "backups/reporting/README__SISTEMA_DE_REPORTES.md",
+    "backups/reporting/PLANTILLA_BASE__REPORTE_DE_AREA__v1.md",
+    "backups/reporting/REGLA_DE_SALIDA__REPORTES_COMO_DOCUMENTOS.md",
+    "backups/reporting/areas/PLANTILLA__DIRECCION_Y_ESTRATEGIA__v1.md",
+    "backups/reporting/areas/PLANTILLA__PRODUCTO__v1.md",
+    "backups/reporting/areas/PLANTILLA__INGENIERIA_Y_TECNOLOGIA__v1.md",
+    "backups/reporting/areas/PLANTILLA__DATOS_E_IA__v1.md",
+    "backups/reporting/areas/PLANTILLA__VENTAS__v1.md",
+    "backups/reporting/areas/PLANTILLA__MARKETING_Y_GROWTH__v1.md",
+    "backups/reporting/areas/PLANTILLA__EXITO_DEL_CLIENTE_Y_SOPORTE__v1.md",
+    "backups/reporting/areas/PLANTILLA__OPERACIONES__v1.md",
+    "backups/reporting/areas/PLANTILLA__FINANZAS__v1.md",
+    "backups/reporting/areas/PLANTILLA__PERSONAS_Y_CULTURA__v1.md",
+    "backups/reporting/areas/PLANTILLA__LEGAL_RIESGOS_Y_SEGURIDAD__v1.md",
+]
+
 ALLOWED_REPO_OUTPUTS = [
     "backups/BACKUP.md",
     COMPLETED_CYCLES_REPO_REL,
     "backups/RESTORE_GUIDE.md",
     "backups/restore.sh",
+    *REPORTING_DOC_OUTPUTS,
     # Compatibility wrappers kept temporarily so old cron/process paths keep working.
     "scripts/demeter_daily_backup.py",
     "scripts/daily-operations.sh",
@@ -78,6 +97,7 @@ ALLOWED_REPO_OUTPUTS = [
     "scripts/ops/daily-operations.sh",
     "scripts/ops/daily-operations-wrapper.sh",
     "scripts/ops/daily-task-log-cleanup.sh",
+    "scripts/ops/daily-area-reports.js",
     "scripts/ops/github_api_commit.py",
     "scripts/github_api_commit.py",
     "scripts/generate-multibranch-graph.py",
@@ -787,9 +807,11 @@ bash backups/restore.sh
 - `backups/RESTORE_GUIDE.md`: esta guía.
 - `backups/restore.sh`: verificación segura post-restore.
 - `scripts/ops/demeter_daily_backup.py`: rutina canónica que genera el backup diario.
-- `scripts/ops/daily-operations.sh`: pipeline diario cleanup → backup.
+- `scripts/ops/daily-operations.sh`: pipeline unificado grafo → resumen → reportes/correos → limpieza → backup.
 - `scripts/ops/daily-operations-wrapper.sh`: wrapper horario America/Santiago para cron.
 - `scripts/ops/daily-task-log-cleanup.sh`: limpieza de `task-log.md` y resumen diario, copia sanitizada aprobada.
+- `scripts/ops/daily-area-reports.js`: clasificación por área, documentos Drive, correos e idempotencia.
+- `backups/reporting/`: guía técnica, regla de salida y plantillas internas; Drive queda reservado para reportes.
 - `scripts/demeter_daily_backup.py`, `scripts/daily-operations.sh`, `scripts/daily-operations-wrapper.sh`: wrappers temporales de compatibilidad para rutas antiguas.
 - `scripts/cron/`: scripts referenciados por cron, solo si existen en `/opt/data/scripts`, tienen extensión segura (`.py`, `.sh`, `.bash`), pasan escaneo básico de secretos y fueron aprobados explícitamente en `/opt/data/backup_hardcopy_allowlist.txt`.
 
@@ -851,6 +873,7 @@ test -f scripts/demeter_daily_backup.py && echo "OK scripts/demeter_daily_backup
 test -f scripts/ops/daily-operations.sh && echo "OK scripts/ops/daily-operations.sh"
 test -f scripts/ops/daily-operations-wrapper.sh && echo "OK scripts/ops/daily-operations-wrapper.sh"
 test -f scripts/ops/daily-task-log-cleanup.sh && echo "OK scripts/ops/daily-task-log-cleanup.sh"
+test -f scripts/ops/daily-area-reports.js && echo "OK scripts/ops/daily-area-reports.js"
 if [ -d scripts/cron ]; then
   echo "Cron scripts copied for rollback:"
   find scripts/cron -type f | sort
@@ -971,6 +994,45 @@ def copy_new_scripts() -> None:
         text = generator_source.read_text(encoding="utf-8", errors="ignore")
         assert_no_secret_values("scripts/generate-multibranch-graph.py", text)
         write_repo_file("scripts/generate-multibranch-graph.py", text, executable=True)
+
+    area_reporter_candidates = [
+        HERMES_HOME / "automations" / "daily-area-reporting" / "daily-area-reports.js",
+        CANONICAL_REPO_DIR / "scripts" / "ops" / "daily-area-reports.js",
+    ]
+    for source in area_reporter_candidates:
+        if source.exists():
+            text = source.read_text(encoding="utf-8", errors="ignore")
+            assert_no_secret_values("scripts/ops/daily-area-reports.js", text)
+            write_repo_file("scripts/ops/daily-area-reports.js", text, executable=True)
+            break
+
+    staging = HERMES_HOME / "dataseed-reportes-drive-staging"
+    reporting_docs = [
+        (
+            HERMES_HOME / "automations" / "daily-area-reporting" / "README.md",
+            "backups/reporting/AUTOMATIZACION_UNIFICADA_DE_REPORTES.md",
+        ),
+        (
+            staging / "00_Estandar_y_Guia" / "README__SISTEMA_DE_REPORTES.md",
+            "backups/reporting/README__SISTEMA_DE_REPORTES.md",
+        ),
+        (
+            staging / "00_Estandar_y_Guia" / "PLANTILLA_BASE__REPORTE_DE_AREA__v1.md",
+            "backups/reporting/PLANTILLA_BASE__REPORTE_DE_AREA__v1.md",
+        ),
+        (
+            HERMES_HOME / "dataseed-reportes-drive-staging-docx" / "00_Estandar_y_Guia" / "REGLA_DE_SALIDA__REPORTES_COMO_DOCUMENTOS.md",
+            "backups/reporting/REGLA_DE_SALIDA__REPORTES_COMO_DOCUMENTOS.md",
+        ),
+    ]
+    for source in sorted(staging.glob("*/PLANTILLA__*.md")):
+        reporting_docs.append((source, f"backups/reporting/areas/{source.name}"))
+    for source, repo_rel in reporting_docs:
+        if not source.exists():
+            continue
+        text = source.read_text(encoding="utf-8", errors="ignore")
+        assert_no_secret_values(repo_rel, text)
+        write_repo_file(repo_rel, text, executable=False)
 
     write_repo_file(
         "scripts/daily-operations.sh",

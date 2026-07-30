@@ -100,6 +100,15 @@ DAILY_SUMMARY="$REPO_DIR/daily-summary.md"
 DATE=$(TZ='America/Santiago' date '+%Y-%m-%d')
 TIMESTAMP=$(TZ='America/Santiago' date '+%Y-%m-%d %H:%M:%S %Z')
 PUSH_ENABLED="${DATASEED_CLEANUP_PUSH:-1}"
+MODE="${1:---all}"
+
+case "$MODE" in
+  --all|--summary-only|--cleanup-only) ;;
+  *)
+    echo "[$TIMESTAMP] ERROR: modo inválido: $MODE (use --all, --summary-only o --cleanup-only)"
+    exit 2
+    ;;
+esac
 
 if [ ! -f "$TASK_LOG" ]; then
   echo "[$TIMESTAMP] ERROR: no existe task-log.md en $REPO_DIR"
@@ -129,36 +138,44 @@ ACTIVE=$(printf '%s
 PENDING=$(printf '%s
 ' "$ENTRIES" | grep -ciE '^\*\*Estado:\*\*.*(⏳|⚠️|espera|pendiente|waiting|bloquead)' || true)
 
-{
-  echo ""
-  echo "## Resumen $DATE"
-  echo ""
-  echo "**Generado:** $TIMESTAMP"
-  echo ""
-  echo "| Estado | Cantidad |"
-  echo "|--------|----------|"
-  echo "| ✅ Finalizada exitosamente | $SUCCESS |"
-  echo "| ❌ Finalizada con error | $ERRORS |"
-  echo "| 🔄 Activa | $ACTIVE |"
-  echo "| ⏳ En espera de acción de usuario | $PENDING |"
-  echo ""
-  echo "### Detalle de tareas"
-  echo ""
-  echo "$ENTRIES"
-  echo ""
-  echo "---"
-} >> "$DAILY_SUMMARY"
+if [ "$MODE" = "--all" ] || [ "$MODE" = "--summary-only" ]; then
+  if grep -Fqx "## Resumen $DATE" "$DAILY_SUMMARY"; then
+    echo "[$TIMESTAMP] El resumen $DATE ya existe; no se duplica."
+  else
+    {
+      echo ""
+      echo "## Resumen $DATE"
+      echo ""
+      echo "**Generado:** $TIMESTAMP"
+      echo ""
+      echo "| Estado | Cantidad |"
+      echo "|--------|----------|"
+      echo "| ✅ Finalizada exitosamente | $SUCCESS |"
+      echo "| ❌ Finalizada con error | $ERRORS |"
+      echo "| 🔄 Activa | $ACTIVE |"
+      echo "| ⏳ En espera de acción de usuario | $PENDING |"
+      echo ""
+      echo "### Detalle de tareas"
+      echo ""
+      echo "$ENTRIES"
+      echo ""
+      echo "---"
+    } >> "$DAILY_SUMMARY"
+  fi
+fi
 
-{
-  echo "# Task Log - Demeter"
-  echo ""
-  echo "> **Archivo volátil**: Se reinicia automáticamente cada 24 horas a las 05:00 AM (hora Chile, America/Santiago)."
-  echo "> No editar manualmente fuera del flujo automático."
-  echo ""
-  echo "---"
-  echo ""
-  echo "<!-- ENTRADAS -->"
-} > "$TASK_LOG"
+if [ "$MODE" = "--all" ] || [ "$MODE" = "--cleanup-only" ]; then
+  {
+    echo "# Task Log - Demeter"
+    echo ""
+    echo "> **Archivo volátil**: Se reinicia automáticamente cada 24 horas a las 05:00 AM (hora Chile, America/Santiago)."
+    echo "> No editar manualmente fuera del flujo automático."
+    echo ""
+    echo "---"
+    echo ""
+    echo "<!-- ENTRADAS -->"
+  } > "$TASK_LOG"
+fi
 
 chmod 0644 "$TASK_LOG" "$DAILY_SUMMARY" 2>/dev/null || true
 
@@ -168,7 +185,11 @@ git add task-log.md daily-summary.md
 if git diff --cached --quiet; then
   echo "[$TIMESTAMP] No hay cambios para commitear."
 else
-  COMMIT_MESSAGE="chore: daily task log cleanup and summary for $DATE"
+  case "$MODE" in
+    --summary-only) COMMIT_MESSAGE="docs: daily task summary for $DATE" ;;
+    --cleanup-only) COMMIT_MESSAGE="chore: daily task log cleanup for $DATE" ;;
+    *) COMMIT_MESSAGE="chore: daily task log cleanup and summary for $DATE" ;;
+  esac
   git commit -m "$COMMIT_MESSAGE" --no-verify
   if [ "$PUSH_ENABLED" = "0" ]; then
     echo "[$TIMESTAMP] Push deshabilitado por DATASEED_CLEANUP_PUSH=0."
@@ -177,4 +198,8 @@ else
   fi
 fi
 
-echo "[$TIMESTAMP] Limpieza completada. Resumen agregado al daily-summary.md."
+case "$MODE" in
+  --summary-only) echo "[$TIMESTAMP] Resumen diario generado sin limpiar task-log.md." ;;
+  --cleanup-only) echo "[$TIMESTAMP] task-log.md limpiado después de publicar reportes y correos." ;;
+  *) echo "[$TIMESTAMP] Limpieza completada. Resumen agregado al daily-summary.md." ;;
+esac

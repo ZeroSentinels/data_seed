@@ -39,6 +39,7 @@ test -f scripts/demeter_daily_backup.py && echo "OK scripts/demeter_daily_backup
 test -f scripts/ops/daily-operations.sh && echo "OK scripts/ops/daily-operations.sh"
 test -f scripts/ops/daily-operations-wrapper.sh && echo "OK scripts/ops/daily-operations-wrapper.sh"
 test -f scripts/ops/daily-task-log-cleanup.sh && echo "OK scripts/ops/daily-task-log-cleanup.sh"
+test -f scripts/ops/daily-area-reports.js && echo "OK scripts/ops/daily-area-reports.js"
 if [ -d scripts/cron ]; then
   echo "Cron scripts copied for rollback:"
   find scripts/cron -type f | sort

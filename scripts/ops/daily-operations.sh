@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Operaciones diarias Demeter: grafo optimizado -> cleanup task-log -> backup operativo.
+# Operaciones diarias Demeter: grafo -> resumen -> reportes/correos -> limpieza -> backup.
 # Salida WhatsApp: reporte ejecutivo compacto. Detalle técnico queda en log local.
 # Runtime estable para cron: usa /opt/data/scripts como fuente de scripts, no el checkout vivo del repo.
 set -euo pipefail
@@ -104,6 +104,7 @@ fi
 
 GRAPH_GENERATOR="${DATASEED_GRAPH_GENERATOR:-$SCRIPT_DIR/generate-multibranch-graph.py}"
 TASK_CLEANUP="${DATASEED_TASK_CLEANUP_SCRIPT:-$SCRIPT_DIR/daily-task-log-cleanup.sh}"
+AREA_REPORTER="${DATASEED_AREA_REPORTER:-/opt/data/automations/daily-area-reporting/daily-area-reports.js}"
 BACKUP_SCRIPT="${DATASEED_DAILY_BACKUP_SCRIPT:-$SCRIPT_DIR/demeter_daily_backup.py}"
 LOG_DIR="${DATASEED_DAILY_LOG_DIR:-/opt/data/logs/demeter-daily-operations}"
 mkdir -p "$LOG_DIR"
@@ -117,6 +118,9 @@ if [ ! -f "$GRAPH_GENERATOR" ] && [ -f "$CANONICAL_REPO/scripts/generate-multibr
 fi
 if [ ! -f "$TASK_CLEANUP" ] && [ -f "$CANONICAL_REPO/scripts/ops/daily-task-log-cleanup.sh" ]; then
   TASK_CLEANUP="$CANONICAL_REPO/scripts/ops/daily-task-log-cleanup.sh"
+fi
+if [ ! -f "$AREA_REPORTER" ] && [ -f "$CANONICAL_REPO/scripts/ops/daily-area-reports.js" ]; then
+  AREA_REPORTER="$CANONICAL_REPO/scripts/ops/daily-area-reports.js"
 fi
 if [ ! -f "$BACKUP_SCRIPT" ] && [ -f "$CANONICAL_REPO/scripts/ops/demeter_daily_backup.py" ]; then
   BACKUP_SCRIPT="$CANONICAL_REPO/scripts/ops/demeter_daily_backup.py"
@@ -202,10 +206,20 @@ extract_alerts() {
       graph)
         printf -- '- %s: no se pudieron actualizar refs remotos o regenerar Graphify completamente; no bloquea el backup. Ver log técnico.\n' "$label"
         ;;
+      summary)
+        line="$(first_alert_line "${STEP_OUTPUTS[$idx]}")"
+        clipped="$(clip_text "${line:-sin detalle de error en stdout}" 180)"
+        printf -- '- %s: no se pudo consolidar el resumen; task-log preservado. Primer indicio: %s\n' "$label" "$clipped"
+        ;;
+      reports)
+        line="$(first_alert_line "${STEP_OUTPUTS[$idx]}")"
+        clipped="$(clip_text "${line:-sin detalle de error en stdout}" 180)"
+        printf -- '- %s: no se completaron clasificación, Drive o correos; task-log preservado. Primer indicio: %s\n' "$label" "$clipped"
+        ;;
       cleanup)
         line="$(first_alert_line "${STEP_OUTPUTS[$idx]}")"
         clipped="$(clip_text "${line:-sin detalle de error en stdout}" 180)"
-        printf -- '- %s: consolidación del task-log requiere revisión. Primer indicio: %s\n' "$label" "$clipped"
+        printf -- '- %s: no se pudo limpiar el task-log después de distribuir reportes. Primer indicio: %s\n' "$label" "$clipped"
         ;;
       backup)
         line="$(first_alert_line "${STEP_OUTPUTS[$idx]}")"
@@ -339,6 +353,7 @@ step_note() {
   local key="$1"
   local status="$2"
   local out="$3"
+  local line
   case "$key" in
     graph)
       if [[ "$status" == *OK* ]]; then
@@ -347,11 +362,30 @@ step_note() {
         printf 'no bloqueante; requiere revisión técnica'
       fi
       ;;
+    summary)
+      if [[ "$status" == *OK* ]]; then
+        printf 'resumen consolidado sin limpiar task-log: %s' "$(extract_task_metrics)"
+      else
+        printf 'falló el resumen; task-log preservado'
+      fi
+      ;;
+    reports)
+      if [[ "$status" == *OK* ]]; then
+        line="$(grep -E '^(VERDE|DRY-RUN VERDE|PRUEBA VERDE)' "$out" | tail -n 1 || true)"
+        if [ -n "$line" ]; then
+          printf '%s' "$line"
+        else
+          printf 'sin tareas terminales nuevas; no se generaron documentos ni correos'
+        fi
+      else
+        printf 'falló la publicación o comunicación; task-log preservado'
+      fi
+      ;;
     cleanup)
       if [[ "$status" == *OK* ]]; then
-        printf 'task-log consolidado: %s' "$(extract_task_metrics)"
+        printf 'task-log limpiado después de reportes y correos'
       else
-        printf 'falló la consolidación del task-log; backup omitido'
+        printf 'falló la limpieza posterior; backup omitido'
       fi
       ;;
     backup)
@@ -419,6 +453,7 @@ log_line "Repo canónico: $CANONICAL_REPO"
 log_line "Repo tracking: $TRACKING_REPO"
 log_line "Graph generator: $GRAPH_GENERATOR"
 log_line "Cleanup script: $TASK_CLEANUP"
+log_line "Area reporter: $AREA_REPORTER"
 log_line "Backup script: $BACKUP_SCRIPT"
 
 run_step "graph" "Grafo de conocimiento" 0 bash -c '
@@ -439,18 +474,44 @@ run_step "graph" "Grafo de conocimiento" 0 bash -c '
 ' _ "$CANONICAL_REPO" "$GRAPH_GENERATOR"
 
 if [ ! -f "$TASK_CLEANUP" ]; then
-  printf 'ERROR: no existe TASK_CLEANUP=%s\n' "$TASK_CLEANUP" > "$TMP_DIR/cleanup.out"
-  STEP_KEYS+=("cleanup")
-  STEP_LABELS+=("Task-log diario")
+  printf 'ERROR: no existe TASK_CLEANUP=%s\n' "$TASK_CLEANUP" > "$TMP_DIR/summary.out"
+  STEP_KEYS+=("summary")
+  STEP_LABELS+=("Resumen diario")
   STEP_STATUSES+=("❌ FALLÓ")
   STEP_RCS+=("1")
   STEP_DURATIONS+=("0")
-  STEP_OUTPUTS+=("$TMP_DIR/cleanup.out")
+  STEP_OUTPUTS+=("$TMP_DIR/summary.out")
   EXEC_STATUS="RED"
   CRITICAL_FAILURE=1
 else
-  run_step "cleanup" "Task-log diario" 1 env REPO_DIR="$TRACKING_REPO" DATASEED_TASK_TRACKING_REPO_DIR="$TRACKING_REPO" bash "$TASK_CLEANUP"
+  run_step "summary" "Resumen diario" 1 env REPO_DIR="$TRACKING_REPO" DATASEED_TASK_TRACKING_REPO_DIR="$TRACKING_REPO" bash "$TASK_CLEANUP" --summary-only
 fi
+
+if [ "$CRITICAL_FAILURE" -ne 0 ]; then
+  print_report
+  exit 1
+fi
+
+if [ ! -f "$AREA_REPORTER" ]; then
+  printf 'ERROR: no existe AREA_REPORTER=%s\n' "$AREA_REPORTER" > "$TMP_DIR/reports.out"
+  STEP_KEYS+=("reports")
+  STEP_LABELS+=("Áreas, reportes Drive y correos")
+  STEP_STATUSES+=("❌ FALLÓ")
+  STEP_RCS+=("1")
+  STEP_DURATIONS+=("0")
+  STEP_OUTPUTS+=("$TMP_DIR/reports.out")
+  EXEC_STATUS="RED"
+  CRITICAL_FAILURE=1
+else
+  run_step "reports" "Áreas, reportes Drive y correos" 1 /usr/local/bin/node "$AREA_REPORTER"
+fi
+
+if [ "$CRITICAL_FAILURE" -ne 0 ]; then
+  print_report
+  exit 1
+fi
+
+run_step "cleanup" "Limpieza del task-log" 1 env REPO_DIR="$TRACKING_REPO" DATASEED_TASK_TRACKING_REPO_DIR="$TRACKING_REPO" bash "$TASK_CLEANUP" --cleanup-only
 
 if [ "$CRITICAL_FAILURE" -ne 0 ]; then
   print_report
