@@ -104,3 +104,19 @@
 **Verificación:** GitHub confirmó el backup `d5a6245` en `main`; se verificaron quince documentos en `backups/reporting/` y el generador en `scripts/ops/`. Drive confirmó las dieciséis operaciones con estado `trashed` y la carpeta técnica vacía antes de enviarla también a la papelera. La consulta final de la raíz mostró únicamente las once carpetas de áreas y la consulta de cada carpeta mostró exclusivamente documentos de reporte `.docx`; no quedó ningún Markdown técnico activo en la estructura de reportes.
 
 **Pendiente:** Ninguno.
+
+## 2026-07-30 17:43 -04 — Exigir plantillas canónicas en todo reporte
+
+**Estado:** ✅ Finalizada y verificada
+
+**Área sugerida:** Operaciones
+
+**Solicitud:** Asegurar que cada reporte DataSeed, tanto automático desde el cronjob como solicitado directamente, se construya usando las plantillas canónicas publicadas en el repositorio.
+
+**Qué se hizo:** El generador `daily-area-reports.js` ahora carga obligatoriamente desde `backups/reporting/` la plantilla base, la regla de salida y la plantilla específica del área. Valida que existan, no estén vacías, incluyan las once secciones base y contengan KPI sugeridos; si algo falta, termina con error antes de publicar. Los documentos adoptan los títulos de sección de las plantillas, incorporan los KPI sugeridos del área con `N/D` cuando la fuente no ofrece medición, y conservan resumen, salud, evidencia, hitos, riesgos, dependencias, decisiones, calidad, fuentes y registro de cambios. Documento y manifiesto registran nombres y SHA-256 de las tres fuentes. Se añadió la misma regla a `SOUL.md` para reportes solicitados directamente, se invalidó la caché del prompt sin borrar sesiones y se actualizó la guía y la regla técnica del repositorio.
+
+**Verificación:** En TDD, la prueba inicial falló porque el manifiesto no tenía trazabilidad de plantillas; después del cambio quedó verde. Una prueba negativa confirmó que una raíz de plantillas vacía produce error y no genera un reporte alternativo. El catálogo verificó once plantillas de área, nueve secciones por área, once secciones base y hasta cinco KPI por plantilla. Se inspeccionó el `.docx` resultante: contiene la plantilla de Operaciones, sus KPI sugeridos, las secciones 1–11 y las huellas. Las pruebas de integración y preservación del task-log permanecen verdes. GitHub publicó la versión `1.2.0` en `main` y el SHA-256 del generador remoto coincide con el runtime probado.
+
+**Autorización:** Una ejecución dry-run redundante del archivo ya publicado en el checkout del repositorio fue bloqueada por la capa de autorización. No se reintentó ni se buscó una vía alternativa. La equivalencia binaria con el runtime ya probado quedó verificada; repetir esa ejecución queda a la espera de autorización si se considera necesaria.
+
+**Pendiente:** Revisión independiente de código en segundo plano; la funcionalidad, pruebas locales y publicación ya quedaron completadas.
