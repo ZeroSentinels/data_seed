@@ -120,3 +120,19 @@
 **Autorización:** Una ejecución dry-run redundante del archivo ya publicado en el checkout del repositorio fue bloqueada por la capa de autorización. No se reintentó ni se buscó una vía alternativa. La equivalencia binaria con el runtime ya probado quedó verificada; repetir esa ejecución queda a la espera de autorización si se considera necesaria.
 
 **Pendiente:** Revisión independiente de código en segundo plano; la funcionalidad, pruebas locales y publicación ya quedaron completadas.
+
+## 2026-07-30 18:58 -04 — Fortalecer y publicar el sistema canónico de reportes diarios
+
+**Estado:** ✅ Finalizada y verificada
+
+**Área sugerida:** Operaciones
+
+**Solicitud:** Continuar la corrección del sistema diario de reportes hasta cerrar los hallazgos de las revisiones independientes, verificar la recuperación e idempotencia y publicar únicamente cuando todas las pruebas y la revisión final quedaran verdes.
+
+**Qué se hizo:** Se consolidó la versión `1.3.0` del generador. Se cerró la ruta de plantillas a la ubicación canónica en producción; se validan plantilla base, regla 1–9 y plantilla de área; documento y manifiesto registran nombres y SHA-256 completos. Se reforzaron allowlist y rechazo de destinatarios vacíos, modo de prueba exclusivamente `dry-run`, sanitización de passwords, JWT, Google, PEM y credenciales AWS permanentes, temporales y en JSON, y normalización de pendientes vacíos. Los reintentos fijan snapshots sanitizados de tareas y plantillas con SHA-256, usan estado `committing` antes de persistir huellas y `complete` al finalizar, y recuperan la misma transacción aunque la fuente cambie o la huella ya esté procesada. La huella de tarea ahora incluye solicitud, resultado, verificación y pendiente para evitar colisiones legítimas. Se invalidaron ocho prompts del sistema cacheados sin borrar sesiones. El backup incorporó veinte archivos de pruebas y documentación de recuperación.
+
+**Resultado:** Agent Vault publicó en `main` el commit `96b9ed1`. El runtime y la copia de recuperación quedaron idénticos con SHA-256 `541c41dbcbd9b2b2647e2f3013e5f4ec7ca4bef75ecac58cafc0d161c4f9fb5c`. No se cargaron documentos de prueba a Drive ni se enviaron correos durante esta corrección.
+
+**Verificación:** Pasaron sintaxis Node/Python/Bash; uso, ausencia y validación semántica de plantillas; ruta canónica de extremo a extremo; catálogo de once áreas, once secciones base y nueve requisitos; allowlist; redacción adversarial de secretos; orden transaccional; reintento determinista; snapshot de recuperación; colisiones de huellas; invariantes MIME+SHA de Drive; integración y preservación del task-log; escaneo de secretos en veinte archivos; paridad runtime/backup; `git diff --check`; y `backups/restore.sh --check`. La revisión independiente final devolvió `passed=true`, `security_concerns=[]` y `logic_errors=[]`. La comprobación posterior por Agent Vault confirmó `main` en `96b9ed1` y el clon dedicado quedó limpio.
+
+**Pendiente:** Ninguno.
