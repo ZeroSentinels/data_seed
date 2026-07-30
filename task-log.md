@@ -74,3 +74,19 @@
 **Verificación:** `bash -n` aprobó el wrapper, el orquestador y la limpieza del task-log; los tres archivos conservan permisos ejecutables. Una prueba del wrapper fuera de la ventana terminó sin salida y sin ejecutar las tareas. La lista posterior del scheduler confirmó `Demeter Daily Operations (5:00 AM Chile)` habilitado, recurrente, en modo `no_agent` y asociado a `daily-operations-wrapper.sh`. No se forzó una corrida manual para evitar limpiar anticipadamente el task-log o generar un backup fuera de horario.
 
 **Pendiente:** Verificar el resultado de la primera ejecución programada del 2026-07-31 a las 05:00 Chile.
+
+## 2026-07-30 17:12 -04 — Unificar reportes y limpieza en el cronjob de las 05:00
+
+**Estado:** ✅ Finalizada y verificada
+
+**Área sugerida:** Operaciones
+
+**Solicitud:** Corregir la carrera de datos detectada por el usuario: el task-log no puede limpiarse a las 05:00 y leerse después a las 05:20. Todo debe ejecutarse en un único cronjob y en el orden grafo, resumen, selección de áreas, reportes Drive, correos, limpieza y backup.
+
+**Qué se hizo:** Se retiró del scheduler el cronjob separado de reportes de las 05:20/05:40 y se deshabilitaron sus dos wrappers independientes para impedir ejecuciones duplicadas. El único cronjob operativo de cierre sigue siendo `Demeter Daily Operations (5:00 AM Chile)`. `daily-task-log-cleanup.sh` ahora admite fases `--summary-only` y `--cleanup-only`; `daily-operations.sh` genera primero el resumen sin borrar la fuente, ejecuta el clasificador y publicador de reportes, y solo limpia después de que Drive y Gmail terminan correctamente. El generador acepta una ruta de tracking inyectable para pruebas y recuperación. El backup operativo se amplió para conservar también el generador de reportes y su guía sanitizada en el repositorio de recuperación.
+
+**Orden efectivo:** 1) actualizar grafo multibranch; 2) generar y publicar resumen sin limpiar; 3) seleccionar áreas desde resumen y task-log; 4) generar y cargar documentos editables en Drive; 5) enviar y verificar correos con enlaces y highlights; 6) limpiar y publicar `task-log.md`; 7) ejecutar backup operativo. Si fallan resumen, clasificación, Drive o correo, el proceso termina con error y conserva el task-log.
+
+**Verificación:** La prueba de integración completa en un repositorio temporal confirmó el orden `grafo < resumen < reportes/correos < limpieza < backup`; el reportador comprobó que el task-log seguía presente durante la generación y la limpieza se comprobó después. Una prueba negativa forzó un fallo de reportes, obtuvo código no cero y confirmó que el task-log no se limpió. Las validaciones sintácticas de Bash, Node y Python quedaron verdes. Un dry-run real procesó cinco tareas, una área, cero cargas y cero correos. La lista final del scheduler confirmó que ya no existe el cronjob separado y que el único cierre diario está habilitado a las 05:00 Chile. Drive confirmó la guía actualizada `AUTOMATIZACION_UNIFICADA_DE_REPORTES__v2.md`.
+
+**Pendiente:** Verificar la primera ejecución productiva unificada del 2026-07-31 a las 05:00 Chile; no se forzó hoy para no limpiar anticipadamente el task-log ni enviar reportes productivos fuera del cierre.
