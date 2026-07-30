@@ -90,3 +90,17 @@
 **Verificación:** La prueba de integración completa en un repositorio temporal confirmó el orden `grafo < resumen < reportes/correos < limpieza < backup`; el reportador comprobó que el task-log seguía presente durante la generación y la limpieza se comprobó después. Una prueba negativa forzó un fallo de reportes, obtuvo código no cero y confirmó que el task-log no se limpió. Las validaciones sintácticas de Bash, Node y Python quedaron verdes. Un dry-run real procesó cinco tareas, una área, cero cargas y cero correos. La lista final del scheduler confirmó que ya no existe el cronjob separado y que el único cierre diario está habilitado a las 05:00 Chile. Drive confirmó la guía actualizada `AUTOMATIZACION_UNIFICADA_DE_REPORTES__v2.md`.
 
 **Pendiente:** Verificar la primera ejecución productiva unificada del 2026-07-31 a las 05:00 Chile; no se forzó hoy para no limpiar anticipadamente el task-log ni enviar reportes productivos fuera del cierre.
+
+## 2026-07-30 17:31 -04 — Reservar Drive exclusivamente para reportes
+
+**Estado:** ✅ Finalizada y verificada
+
+**Área sugerida:** Operaciones
+
+**Solicitud:** Mantener Google Drive únicamente para los reportes y trasladar la información técnica, las reglas, las plantillas y la guía al repositorio de GitHub.
+
+**Qué se hizo:** Se publicó en `main`, mediante el backup operativo y Agent Vault, el código del generador en `scripts/ops/daily-area-reports.js` y quince documentos internos bajo `backups/reporting/`: guía unificada, estándar del sistema, plantilla base, regla de salida y once plantillas por área. Se actualizó el contrato de la automatización para prohibir futuras cargas de guías, plantillas, scripts o documentación técnica a Drive. Posteriormente se enviaron a la papelera, de forma reversible, cinco archivos técnicos de `00_Estandar_y_Guia`, once plantillas Markdown de las carpetas de área y la carpeta técnica ya vacía.
+
+**Verificación:** GitHub confirmó el backup `d5a6245` en `main`; se verificaron quince documentos en `backups/reporting/` y el generador en `scripts/ops/`. Drive confirmó las dieciséis operaciones con estado `trashed` y la carpeta técnica vacía antes de enviarla también a la papelera. La consulta final de la raíz mostró únicamente las once carpetas de áreas y la consulta de cada carpeta mostró exclusivamente documentos de reporte `.docx`; no quedó ningún Markdown técnico activo en la estructura de reportes.
+
+**Pendiente:** Ninguno.
