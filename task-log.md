@@ -28,3 +28,13 @@
 **Qué se hizo:** Se generaron y publicaron once reportes `.docx`, uno dentro de la carpeta de cada área, con portada DataSeed, metadatos, semáforo, KPI, logros, hitos, riesgos, dependencias, decisiones y calidad de datos. Se añadió una guía `.md` que fija la regla de salida. Los once reportes de prueba `.md` incorrectos fueron enviados a la papelera de Drive de forma reversible; las plantillas `.md` se conservaron.
 
 **Verificación:** Cada carpeta de área contiene exactamente una plantilla `.md` y un reporte `.docx` visible mediante Google Docs. Drive confirmó ubicación y tipo MIME de los once documentos. Tres descargas remotas de control coincidieron byte por byte con sus fuentes locales. No se creó ni modificó ningún cronjob.
+
+## 2026-07-30 16:16 -04 — Compartir carpeta de reportes y avisar por correo
+
+**Estado:** ✅ Finalizada y verificada
+
+**Solicitud:** Dar acceso de lectura y edición a la carpeta `DataSeed - Reportes` a Matías, Arturo, Daniel, Eli y Javier, y avisarles desde el correo de Demeter que pueden escribir por WhatsApp ante dudas o sugerencias.
+
+**Qué se hizo:** Se concedió rol `writer` —lectura y edición— a `matias@dataseed.cl`, `arturo.barea@dataseed.cl`, `daniel.caignet@dataseed.cl`, `eli.gamboa@dataseed.cl` y `javier.rodriguez@dataseed.cl`. Luego se envió un correo individual desde `demeter@dataseed.cl` a cada persona con el enlace de la carpeta y el canal de contacto por WhatsApp.
+
+**Verificación:** Drive confirmó las cinco operaciones de acceso con estado `shared`. Gmail confirmó los cinco mensajes con estado `sent`, y una búsqueda posterior encontró cada mensaje bajo la etiqueta `SENT`. No se modificó ningún cronjob.
