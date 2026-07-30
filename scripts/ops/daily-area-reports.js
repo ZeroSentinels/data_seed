@@ -15,7 +15,8 @@ const DAILY_SUMMARY = path.join(TRACKING_REPO, 'daily-summary.md');
 const GAPI_PY = '/opt/hermes/.venv/bin/python';
 const GAPI_SCRIPT = '/opt/data/skills/productivity/google-workspace/scripts/google_api.py';
 const DRIVE_ROOT = '12nCWotIEOW4EMkCW0dHKKmSAEKrzGMpp';
-const VERSION = '1.1.0';
+const TEMPLATE_ROOT = process.env.DATASEED_REPORT_TEMPLATE_ROOT || '/opt/data/data_seed_daily_backup/backups/reporting';
+const VERSION = '1.2.0';
 
 const DEFAULT_RECIPIENTS = [
   { email: 'matias@dataseed.cl', name: 'Matias' },
@@ -82,6 +83,62 @@ const AREAS = [
     keywords: ['legal', 'riesgo', 'seguridad', 'ciberseguridad', 'cumplimiento', 'compliance', 'contrato', 'privacidad', 'proteccion de datos', 'vulnerabilidad', 'autenticacion', 'autorizacion', 'secreto', 'credencial'],
   },
 ];
+
+function sha256Text(text) {
+  return crypto.createHash('sha256').update(text, 'utf8').digest('hex');
+}
+
+function readRequiredTemplate(file) {
+  if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
+    throw new Error(`Plantilla obligatoria no encontrada: ${file}`);
+  }
+  const content = fs.readFileSync(file, 'utf8');
+  if (!content.trim()) throw new Error(`Plantilla obligatoria vacia: ${file}`);
+  return content;
+}
+
+function numberedSections(markdown) {
+  const sections = {};
+  for (const match of markdown.matchAll(/^##\s+(\d+)\.\s+(.+)$/gm)) sections[match[1]] = match[2].trim();
+  return sections;
+}
+
+function bulletsUnderHeading(markdown, heading) {
+  const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = markdown.match(new RegExp(`^##\\s+${escaped}\\s*$([\\s\\S]*?)(?=^##\\s+|\\Z)`, 'm'));
+  if (!match) return [];
+  return [...match[1].matchAll(/^[-*]\s+(.+)$/gm)].map(item => item[1].trim()).filter(Boolean);
+}
+
+function loadReportTemplate(area) {
+  const basePath = path.join(TEMPLATE_ROOT, 'PLANTILLA_BASE__REPORTE_DE_AREA__v1.md');
+  const rulePath = path.join(TEMPLATE_ROOT, 'REGLA_DE_SALIDA__REPORTES_COMO_DOCUMENTOS.md');
+  const areaPath = path.join(TEMPLATE_ROOT, 'areas', `PLANTILLA__${area.slug}__v1.md`);
+  const baseContent = readRequiredTemplate(basePath);
+  const ruleContent = readRequiredTemplate(rulePath);
+  const areaContent = readRequiredTemplate(areaPath);
+  const suggestedKpis = bulletsUnderHeading(areaContent, 'KPI sugeridos').slice(0, 5);
+  if (!suggestedKpis.length) throw new Error(`Plantilla de area sin KPI sugeridos: ${areaPath}`);
+  const sectionTitles = { ...numberedSections(baseContent), ...numberedSections(areaContent) };
+  for (let number = 1; number <= 11; number += 1) {
+    if (!sectionTitles[String(number)]) throw new Error(`Plantilla base incompleta: falta seccion ${number} en ${basePath}`);
+  }
+  return {
+    root: TEMPLATE_ROOT,
+    baseFile: path.relative(TEMPLATE_ROOT, basePath),
+    areaFile: path.relative(TEMPLATE_ROOT, areaPath),
+    ruleFile: path.relative(TEMPLATE_ROOT, rulePath),
+    baseSha256: sha256Text(baseContent),
+    areaSha256: sha256Text(areaContent),
+    ruleSha256: sha256Text(ruleContent),
+    suggestedKpis,
+    sectionTitles,
+  };
+}
+
+function sectionHeading(report, number) {
+  return `${number}. ${report.template.sectionTitles[String(number)]}`;
+}
 
 function parseArgs(argv) {
   const out = { dryRun: false, test: false, testId: null, reportDate: null, recipients: null };
@@ -264,18 +321,21 @@ function statusFor(tasks) {
 
 function buildReport(group, context) {
   const tasks = group.tasks;
+  const template = loadReportTemplate(group.area);
   const health = statusFor(tasks);
   const success = tasks.filter(t => !/❌|con error|fallida|fallido/i.test(t.state)).length;
   const failures = tasks.length - success;
   const verified = tasks.filter(t => t.verification || /verificada|verificado/i.test(t.state)).length;
   const pending = tasks.filter(t => t.pending).map(t => t.pending);
+  const dependencies = tasks.filter(t => /dependenc|interarea|otra area|espera de/i.test(`${t.request} ${t.outcome} ${t.pending}`));
+  const decisions = tasks.filter(t => /decision|autoriz|aprobacion|aprobación/i.test(`${t.request} ${t.outcome} ${t.pending}`));
   const highlights = [
     `${tasks.length} tarea(s) terminal(es) consolidada(s); ${success} cierre(s) correcto(s) y ${failures} con error.`,
     ...tasks.slice(0, 3).map(t => t.title),
   ].slice(0, 4);
   if (pending.length) highlights.push(`${pending.length} pendiente(s) histórico(s) registrado(s) al cierre; validar vigencia.`);
   return {
-    area: group.area, tasks, health, success, failures, verified, pending,
+    area: group.area, tasks, template, health, success, failures, verified, pending, dependencies, decisions,
     highlights: highlights.slice(0, 5), reportDate: context.reportDate,
     period: context.reportDate === context.today
       ? `${context.reportDate} 00:00 a ${context.cutoff} (corte parcial de prueba)`
@@ -343,17 +403,20 @@ function reportDocumentXml(report) {
     ['Área', report.area.display], ['Fecha informada', report.reportDate], ['Periodo', report.period],
     ['Corte', report.cutoff], ['Responsable', 'Demeter · DataSeed'], ['Cadencia', 'Diaria'],
     ['Confidencialidad', 'Interna'], ['Modo de datos', 'DATOS_REALES_OPERATIVOS'], ['Fuente', report.sourceKind],
+    ['Plantilla base', `${report.template.baseFile} · ${report.template.baseSha256.slice(0, 12)}`],
+    ['Plantilla de área', `${report.template.areaFile} · ${report.template.areaSha256.slice(0, 12)}`],
+    ['Regla de salida', `${report.template.ruleFile} · ${report.template.ruleSha256.slice(0, 12)}`],
     ['Version', VERSION],
   ], true));
   blocks.push(paragraph(`${report.health.label} — ${report.health.reason}`, 'Status', { shading: statusColors.fill, border: statusColors.border, run: { bold: true, color: statusColors.text } }));
 
-  blocks.push(paragraph('1. Resumen ejecutivo', 'Heading1', { keepNext: true }));
+  blocks.push(paragraph(sectionHeading(report, 1), 'Heading1', { keepNext: true }));
   for (const item of report.highlights) blocks.push(paragraph(item, 'Normal', { numbered: true }));
 
-  blocks.push(paragraph('2. Salud general', 'Heading1', { keepNext: true }));
+  blocks.push(paragraph(sectionHeading(report, 2), 'Heading1', { keepNext: true }));
   blocks.push(paragraph(`Estado: ${report.health.label}. ${report.health.reason}`));
 
-  blocks.push(paragraph('3. Indicadores operativos', 'Heading1', { keepNext: true }));
+  blocks.push(paragraph(sectionHeading(report, 3), 'Heading1', { keepNext: true }));
   blocks.push(tableXml([
     ['Indicador', 'Resultado', 'Lectura', 'Fuente'],
     ['Tareas terminales', String(report.tasks.length), 'Volumen consolidado; no equivale por si solo a impacto.', 'task-log'],
@@ -362,29 +425,57 @@ function reportDocumentXml(report) {
     ['Con verificacion explicita', `${report.verified}/${report.tasks.length}`, report.verified === report.tasks.length ? 'Cobertura completa.' : 'Cobertura parcial; completar evidencia.', 'Verificacion'],
     ['Siguientes pasos registrados', String(report.pending.length), report.pending.length ? 'Hay continuidad requerida.' : 'Sin pasos pendientes explicitos.', 'Pendiente'],
   ]));
+  blocks.push(paragraph(`KPI sugeridos por la plantilla de ${report.area.display}. Se usa N/D cuando el task-log no contiene una medición verificable.`));
+  const suggestedKpiRows = [['KPI sugerido', 'Resultado', 'Meta', 'Fuente canónica']];
+  for (const kpi of report.template.suggestedKpis) suggestedKpiRows.push([kpi, 'N/D', 'N/D', 'No medido en task-log']);
+  blocks.push(tableXml(suggestedKpiRows));
 
-  blocks.push(paragraph('4. Resultados y evidencia', 'Heading1', { keepNext: true }));
+  blocks.push(paragraph(sectionHeading(report, 4), 'Heading1', { keepNext: true }));
   const taskRows = [['Tarea', 'Resultado', 'Evidencia', 'Estado']];
   for (const task of report.tasks) taskRows.push([task.title, task.outcome, task.verification || 'Sin verificacion separada; revisar estado de cierre.', task.state]);
   blocks.push(tableXml(taskRows));
 
-  blocks.push(paragraph('5. Próximos pasos sugeridos', 'Heading1', { keepNext: true }));
+  blocks.push(paragraph(sectionHeading(report, 5), 'Heading1', { keepNext: true }));
   if (report.pending.length) {
-    blocks.push(paragraph('Los siguientes puntos fueron registrados al cerrar cada tarea; validar si una tarea posterior ya los resolvió.'));
-    for (const item of report.pending) blocks.push(paragraph(item, 'Normal', { numbered: true }));
-  }
-  else blocks.push(paragraph('No se registraron siguientes pasos obligatorios. Mantener la informacion actualizada si cambia el estado.'));
+    blocks.push(paragraph('Los siguientes compromisos fueron registrados al cerrar las tareas; validar responsable y fecha antes de ejecutarlos.'));
+    const milestoneRows = [['Hito/compromiso', 'Fecha', 'Estado', 'Dueño', 'Criterio de finalización']];
+    for (const item of report.pending) milestoneRows.push([item, 'N/D', 'Pendiente de validación', 'N/D', 'Confirmar cierre con evidencia verificable']);
+    blocks.push(tableXml(milestoneRows));
+  } else blocks.push(paragraph('No se registraron próximos compromisos obligatorios.'));
 
-  blocks.push(paragraph('6. Riesgos, dependencias y decisiones', 'Heading1', { keepNext: true }));
-  if (report.failures) blocks.push(paragraph(`${report.failures} cierre(s) con error requieren diagnostico y responsable de recuperacion.`, 'Normal', { numbered: true }));
-  if (report.pending.length) blocks.push(paragraph('Revalidar la vigencia de los pendientes históricos y, si siguen abiertos, asignar responsable y fecha.', 'Normal', { numbered: true }));
-  if (!report.failures && !report.pending.length) blocks.push(paragraph('No se registraron riesgos, dependencias o decisiones materiales en las tareas incluidas.'));
+  blocks.push(paragraph(sectionHeading(report, 6), 'Heading1', { keepNext: true }));
+  const riskRows = [['Riesgo/incidencia', 'Probabilidad', 'Impacto', 'Estado', 'Mitigación', 'Dueño', 'Fecha límite']];
+  if (report.failures) riskRows.push([`${report.failures} cierre(s) con error`, 'N/D', 'N/D', 'Abierto', 'Diagnosticar y asignar recuperación', 'N/D', 'N/D']);
+  if (report.pending.length) riskRows.push(['Pendientes históricos pueden perder vigencia', 'N/D', 'N/D', 'Abierto', 'Revalidar cada pendiente antes de actuar', 'N/D', 'N/D']);
+  if (riskRows.length === 1) riskRows.push(['Sin riesgos materiales registrados', 'N/D', 'N/D', 'N/D', 'Mantener monitoreo', 'N/D', 'N/D']);
+  blocks.push(tableXml(riskRows));
 
-  blocks.push(paragraph('7. Calidad, frescura y trazabilidad', 'Heading1', { keepNext: true }));
+  blocks.push(paragraph(sectionHeading(report, 7), 'Heading1', { keepNext: true }));
+  if (report.dependencies.length) {
+    const dependencyRows = [['Área requerida', 'Solicitud/entrega', 'Motivo', 'Responsable receptor', 'Fecha necesaria', 'Estado']];
+    for (const task of report.dependencies) dependencyRows.push(['N/D', task.pending || task.request, task.title, 'N/D', 'N/D', 'Pendiente de validación']);
+    blocks.push(tableXml(dependencyRows));
+  } else blocks.push(paragraph('No se identificaron dependencias interárea explícitas en la fuente.'));
+
+  blocks.push(paragraph(sectionHeading(report, 8), 'Heading1', { keepNext: true }));
+  if (report.decisions.length) {
+    const decisionRows = [['Decisión', 'Opciones', 'Recomendación', 'Decisor', 'Fecha límite', 'Impacto de no decidir']];
+    for (const task of report.decisions) decisionRows.push([task.pending || task.request, 'N/D', 'Revisar evidencia y resolver explícitamente', 'N/D', 'N/D', 'N/D']);
+    blocks.push(tableXml(decisionRows));
+  } else blocks.push(paragraph('No se registraron decisiones pendientes explícitas.'));
+
+  blocks.push(paragraph(sectionHeading(report, 9), 'Heading1', { keepNext: true }));
   blocks.push(paragraph(`Cobertura: ${report.tasks.length} tarea(s) terminal(es) nueva(s) encontradas en ${report.sourceKind}.`, 'Normal', { numbered: true }));
   blocks.push(paragraph(`Corte: ${report.cutoff}.`, 'Normal', { numbered: true }));
-  blocks.push(paragraph('Limitación: el reporte refleja exclusivamente información registrada en el task-log; no inventa KPI financieros ni de producto.', 'Normal', { numbered: true }));
+  blocks.push(paragraph('Limitación: el reporte refleja exclusivamente información registrada en el task-log; no inventa KPI financieros, comerciales ni de producto.', 'Normal', { numbered: true }));
   blocks.push(paragraph(`Huellas de trazabilidad: ${report.tasks.map(t => t.fingerprint.slice(0, 12)).join(', ')}.`, 'Normal', { numbered: true }));
+
+  blocks.push(paragraph(sectionHeading(report, 10), 'Heading1', { keepNext: true }));
+  blocks.push(paragraph(`Fuente operativa: ${report.sourceKind}.`, 'Normal', { numbered: true }));
+  blocks.push(paragraph('Repositorio canónico: task-log.md y daily-summary.md en feat/task-tracking-system.', 'Normal', { numbered: true }));
+
+  blocks.push(paragraph(sectionHeading(report, 11), 'Heading1', { keepNext: true }));
+  blocks.push(paragraph(`${report.reportDate} — Demeter — reporte generado con ${report.template.baseFile} y ${report.template.areaFile}; huellas ${report.template.baseSha256.slice(0, 12)} / ${report.template.areaSha256.slice(0, 12)}.`, 'Normal', { numbered: true }));
   blocks.push(paragraph('Documento diario DataSeed · Comunicación asíncrona orientada a decisiones', 'FooterNote'));
   blocks.push('<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr>');
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${blocks.join('')}</w:body></w:document>`;
@@ -577,7 +668,14 @@ function main() {
   const manifest = {
     version: VERSION, mode: args.dryRun ? 'dry-run' : (args.test ? 'test' : 'production'),
     reportDate, source: loaded.source, sourceKind: loaded.sourceKind,
-    taskCount: freshTasks.length, areas: reports.map(r => ({ key: r.area.key, display: r.area.display, health: r.health.label, taskCount: r.tasks.length, document: links[r.area.key] })),
+    taskCount: freshTasks.length, areas: reports.map(r => ({
+      key: r.area.key,
+      display: r.area.display,
+      health: r.health.label,
+      taskCount: r.tasks.length,
+      template: r.template,
+      document: links[r.area.key],
+    })),
     recipients: args.dryRun ? [] : recipients.map(r => r.email), driveRoot: DRIVE_ROOT,
   };
   saveJson(path.join(batchDir, 'manifest.json'), manifest);

@@ -6,6 +6,12 @@
 - No publicar reportes finales como archivos `.md`.
 - Los archivos `.md` se conservan exclusivamente como **guías internas y plantillas estructurales** para que Demeter mantenga el mismo estándar entre áreas y periodos.
 
+## Fuente obligatoria de estructura
+
+- Todo reporte DataSeed, ya sea automático o solicitado directamente, debe cargar desde el repositorio `backups/reporting/` la plantilla base, esta regla de salida y la plantilla específica del área.
+- Si cualquiera de esos archivos falta, está vacío o no contiene su estructura obligatoria, la generación debe terminar con error sin publicar un documento alternativo.
+- El reporte y su manifiesto deben registrar nombre y huella SHA-256 de las plantillas usadas.
+
 ## Estructura que debe conservarse
 
 1. Resumen ejecutivo.

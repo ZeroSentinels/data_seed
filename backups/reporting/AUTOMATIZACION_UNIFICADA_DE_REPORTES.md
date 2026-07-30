@@ -10,6 +10,8 @@ Esta automatización forma parte del **cronjob unificado de las 05:00 Chile**. E
 
 - **Google Drive:** exclusivamente reportes diarios editables por área; no se publican guías, plantillas, scripts ni documentación técnica.
 - **Repositorio GitHub:** código en `scripts/ops/` y documentación técnica, reglas y plantillas internas en `backups/reporting/`.
+- **Uso obligatorio de plantillas:** tanto el cronjob como cualquier generación solicitada directamente deben cargar `PLANTILLA_BASE__REPORTE_DE_AREA__v1.md`, `REGLA_DE_SALIDA__REPORTES_COMO_DOCUMENTOS.md` y `areas/PLANTILLA__<AREA>__v1.md` desde el repositorio. Si falta una, el reporte falla sin publicar ni limpiar el task-log.
+- **Trazabilidad:** cada documento y manifiesto registra nombres y SHA-256 de las plantillas utilizadas.
 - Los reportes finales son documentos `.docx` editables desde Google Docs.
 - Se crea un reporte únicamente para las áreas que tengan tareas terminales nuevas.
 - Cada tarea se asigna a exactamente un área principal.
@@ -61,6 +63,10 @@ Se envía un correo individual a los cinco integrantes autorizados. El correo fu
 - Canal de dudas y sugerencias por WhatsApp.
 
 El documento en Drive es la fuente de verdad; el correo evita duplicar el detalle completo.
+
+## Generación solicitada directamente
+
+Una petición manual o ad hoc debe usar el mismo ejecutable `scripts/ops/daily-area-reports.js`; no se debe redactar un reporte desde cero ni copiar una estructura anterior. El ejecutable carga la plantilla base, la regla y la plantilla del área desde `backups/reporting/`, valida sus secciones y registra sus SHA-256 en el documento y el manifiesto.
 
 ## Cronjob unificado y orden transaccional
 

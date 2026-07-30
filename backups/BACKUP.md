@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-07-30 21:28:36 UTC
-- Generado America/Santiago: 2026-07-30 17:28:36 -04
+- Generado UTC: 2026-07-30 21:41:30 UTC
+- Generado America/Santiago: 2026-07-30 17:41:30 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -16,7 +16,7 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
 - Repo/branch de tracking: `/opt/data/data_seed_tasklog_worktree` / `feat/task-tracking-system`.
 - Daily summary: `daily-summary.md` (79.7 KB, sha256 88783fde91a6bb8a).
-- Task log actual: `task-log.md` (11.0 KB, sha256 445a1e53136ac4fa).
+- Task log actual: `task-log.md` (12.5 KB, sha256 d81906c61ab9d6bb).
 - Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (594.0 B, sha256 6fd18874fbd0ad90).
 
 Regla operativa: el log diario registra detalles; el resumen diario consolida tareas y pendientes; el backup de las 05:00 AM solo guarda ciclos grandes completados y una referencia hacia el resumen diario.
@@ -39,7 +39,7 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 - Hermes binary: `/opt/hermes/.venv/bin/hermes`
 - Disk snapshot:
   `Filesystem      Size  Used Avail Use% Mounted on`
-  `/dev/sda1        96G   17G   80G  17% /opt/data`
+  `/dev/sda1        96G   18G   79G  19% /opt/data`
 
 ## Configuración Hermes sanitizada
 
@@ -184,10 +184,10 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 No se copia el contenido de estos archivos; solo tamaño y huella para validación.
 
 - `config.yaml`: 16.4 KB, sha256 66a5ccb914c67fb1
-- `memories/MEMORY.md`: 2.1 KB, sha256 f74cbb20a6b1c377
+- `memories/MEMORY.md`: 2.1 KB, sha256 7d76de027a88e645
 - `memories/USER.md`: 1.3 KB, sha256 8edb89e606ba3319
-- `channel_directory.json`: 785.0 B, sha256 61100d38edc23dd3
-- `gateway_state.json`: 544.0 B, sha256 fb3524219170cc7f
+- `channel_directory.json`: 785.0 B, sha256 2cd877d4f8e8011c
+- `gateway_state.json`: 544.0 B, sha256 a0b0542a1e2ed419
 - `cron/jobs.json`: 2.7 KB, sha256 e475aea0205aa850
 
 ## Grafo de conocimiento del proyecto (Graphify)
