@@ -58,3 +58,19 @@
 **Observación operativa:** El cronjob diario previo citado por el usuario no aparece en la lista actual del programador de Hermes, aunque sus scripts y resúmenes históricos siguen presentes. No se recreó ni modificó para evitar alterar su alcance. La automatización nueva no depende de su presencia porque puede leer directamente el task-log.
 
 **Pendiente:** Supervisar el primer cierre productivo; si el cronjob diario previo debía seguir activo, restaurarlo solo con autorización específica y conservando exactamente sus tareas anteriores.
+
+## 2026-07-30 16:58 -04 — Restaurar el cronjob crítico de las 05:00 Chile
+
+**Estado:** ✅ Finalizada y verificada
+
+**Área sugerida:** Operaciones
+
+**Solicitud:** Confirmar el estado del cronjob de las 05:00, identificado por el usuario como el proceso diario importante, y asegurar que continúe activo sin cambiar las tareas que realizaba.
+
+**Qué se hizo:** La consulta en vivo confirmó que el job histórico ya no figuraba en el scheduler. Se recuperó su configuración desde registros verificables: nombre `Demeter Daily Operations (5:00 AM Chile)`, modo `no_agent`, entrega al chat de origen y script `daily-operations-wrapper.sh`. Se creó nuevamente como job independiente y habilitado. Para mantener las 05:00 de Chile durante horario de invierno y verano, el scheduler lo invoca a las 08:00 y 09:00 UTC; el wrapper existente permite ejecutar solo en la ventana 05:00–05:04 `America/Santiago` y la otra invocación termina silenciosamente.
+
+**Tareas preservadas:** Se mantuvo exactamente el flujo de `daily-operations.sh`: actualización del grafo multibranch, generación del resumen diario y limpieza de `task-log.md`, y backup operativo. No se modificaron esos scripts ni su orden. El nuevo proceso de reportes por área continúa separado y comienza después, a las 05:20 Chile.
+
+**Verificación:** `bash -n` aprobó el wrapper, el orquestador y la limpieza del task-log; los tres archivos conservan permisos ejecutables. Una prueba del wrapper fuera de la ventana terminó sin salida y sin ejecutar las tareas. La lista posterior del scheduler confirmó `Demeter Daily Operations (5:00 AM Chile)` habilitado, recurrente, en modo `no_agent` y asociado a `daily-operations-wrapper.sh`. No se forzó una corrida manual para evitar limpiar anticipadamente el task-log o generar un backup fuera de horario.
+
+**Pendiente:** Verificar el resultado de la primera ejecución programada del 2026-07-31 a las 05:00 Chile.
