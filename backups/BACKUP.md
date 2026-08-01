@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-07-31 09:00:45 UTC
-- Generado America/Santiago: 2026-07-31 05:00:45 -04
+- Generado UTC: 2026-08-01 09:00:29 UTC
+- Generado America/Santiago: 2026-08-01 05:00:29 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -73,8 +73,8 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `2073a6cc3d6e` [active]
   - Nombre: Demeter Daily Operations (5:00 AM Chile)
   - Schedule: 0 8,9 * * *
-  - Next run UTC: 2026-08-01T08:00:00+00:00
-  - Last run UTC/status: 2026-07-31T08:00:17.854767+00:00 / ok
+  - Next run UTC: 2026-08-02T08:00:00+00:00
+  - Last run UTC/status: 2026-08-01T08:00:25.190909+00:00 / ok
   - Mode: no-agent
   - Script: daily-operations-wrapper.sh
 
@@ -186,9 +186,9 @@ No se copia el contenido de estos archivos; solo tamaño y huella para validaci�
 - `config.yaml`: 16.4 KB, sha256 66a5ccb914c67fb1
 - `memories/MEMORY.md`: 2.2 KB, sha256 b3a976d8dea35dfb
 - `memories/USER.md`: 1.3 KB, sha256 bf1ae26473033298
-- `channel_directory.json`: 785.0 B, sha256 fe69f39f85276ca7
+- `channel_directory.json`: 785.0 B, sha256 5253f6b29194c64d
 - `gateway_state.json`: 544.0 B, sha256 e46e532d89db3b0a
-- `cron/jobs.json`: 2.7 KB, sha256 48a0bb29c92f3934
+- `cron/jobs.json`: 2.7 KB, sha256 8aa6035ea38ced0f
 
 ## Grafo de conocimiento del proyecto (Graphify)
 
