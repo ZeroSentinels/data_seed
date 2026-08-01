@@ -27,3 +27,10 @@
 - **Estado:** a la espera de autorización.
 - **Verificación:** GitHub API vía Agent Vault confirmó identidad `contacto101`, cero invitaciones pendientes, dos repositorios visibles y ausencia de `danielcaignet-dataseed/mcp-mercado-publico`.
 - **Pendientes:** Autorizar en Agent Vault una credencial GitHub con acceso explícito al nuevo repositorio, idealmente mediante GitHub App o credencial limitada solo a ese repositorio; no enviar tokens por WhatsApp. Luego verificar lectura y permisos efectivos.
+
+## 2026-08-01 19:21:37 -04 — Hito para reportes: primera versión del MCP Mercado Público
+- **Solicitud:** Registrar para los reportes DataSeed que fue creada la primera versión del MCP de Mercado Público, desarrollada y probada con Claude, y que las indicaciones de uso están en `https://github.com/danielcaignet-dataseed/mcp-mercado-publico/`.
+- **Resultado:** El hito quedó incorporado al registro operativo como antecedente para los próximos reportes DataSeed, atribuido a la información entregada por Daniel Caignet.
+- **Estado:** completada con verificación limitada.
+- **Verificación:** Mensaje directo de Daniel Caignet en el grupo DataSeed con el repositorio canónico. El intento de lectura del repositorio mediante GitHub API y Agent Vault devolvió HTTP 404 porque la credencial brokerizada aún no tiene alcance sobre ese repositorio; por ello no se verificó de forma independiente el código, las pruebas ni la documentación interna.
+- **Pendientes:** Autorizar en Agent Vault acceso limitado al repositorio para revisar las indicaciones y validar técnicamente la versión antes de elevar el hito como verificado de forma independiente en un reporte final.
