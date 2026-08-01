@@ -6,3 +6,10 @@
 ---
 
 <!-- ENTRADAS -->
+
+## 2026-08-01 19:07:55 -04 — Invitación al repositorio MCP Mercado Público
+- **Solicitud:** Revisar y aceptar la invitación enviada por correo para colaborar en `danielcaignet-dataseed/mcp-mercado-publico`.
+- **Resultado:** Se encontró el correo de invitación dirigido a `demeter@dataseed.cl`, pero no fue posible aceptarla con la identidad GitHub disponible mediante Agent Vault: la sesión autenticada corresponde a `contacto101` y no registra invitaciones pendientes.
+- **Estado:** a la espera de autorización.
+- **Verificación:** Gmail confirmó el mensaje de GitHub para el repositorio indicado; GitHub API consultada mediante Agent Vault confirmó la identidad `contacto101`, cero invitaciones de repositorio y cero membresías de organización pendientes.
+- **Pendientes:** Reenviar la invitación directamente al usuario GitHub `contacto101`, o habilitar mediante Agent Vault una identidad GitHub asociada a `demeter@dataseed.cl`; luego aceptar y verificar acceso al repositorio.
