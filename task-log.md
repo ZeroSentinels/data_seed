@@ -20,3 +20,10 @@
 - **Estado:** a la espera de autorización.
 - **Verificación:** Invitación confirmada en Gmail; GitHub API vía Agent Vault confirmó `contacto101` sin invitaciones y devolvió HTTP 403 al consultar `/user/emails`; el flujo web de GitHub no quedó autenticado mediante Google Workspace.
 - **Pendientes:** Enviar la invitación al usuario GitHub `contacto101` (opción mínima recomendada), o configurar en Agent Vault una identidad GitHub asociada y autorizada para `demeter@dataseed.cl`.
+
+## 2026-08-01 19:15:10 -04 — Verificación posterior a aceptación de invitación
+- **Solicitud:** Confirmar el acceso después de que `contacto101` aceptó por correo la invitación a `danielcaignet-dataseed/mcp-mercado-publico`.
+- **Resultado:** La invitación ya no aparece pendiente, pero la credencial GitHub actualmente brokerizada por Agent Vault no puede ver el repositorio. La consulta directa al repositorio devolvió HTTP 404 y el repositorio no aparece entre los recursos visibles para esa credencial.
+- **Estado:** a la espera de autorización.
+- **Verificación:** GitHub API vía Agent Vault confirmó identidad `contacto101`, cero invitaciones pendientes, dos repositorios visibles y ausencia de `danielcaignet-dataseed/mcp-mercado-publico`.
+- **Pendientes:** Autorizar en Agent Vault una credencial GitHub con acceso explícito al nuevo repositorio, idealmente mediante GitHub App o credencial limitada solo a ese repositorio; no enviar tokens por WhatsApp. Luego verificar lectura y permisos efectivos.
