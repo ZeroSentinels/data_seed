@@ -299,11 +299,11 @@ function fieldMap(block) {
   const fields = {};
   let current = null;
   for (const line of lines) {
-    const match = line.match(/^\*\*([^*]+):\*\*\s*(.*)$/);
+    const match = line.match(/^(?:[-*+]\s+)?\*\*([^*]+):\*\*\s*(.*)$/);
     if (match) {
       current = match[1].trim();
       fields[current] = match[2].trim();
-    } else if (current && line.trim() && !/^#{1,6}\s/.test(line)) {
+    } else if (current && line.trim() && !/^#{1,6}\s/.test(line) && !/^[-*_]{3,}\s*$/.test(line.trim())) {
       fields[current] = `${fields[current]} ${line.trim()}`.trim();
     }
   }
@@ -332,7 +332,7 @@ function parseTasks(section) {
     }
     const outcome = fields['Qué se hizo'] || fields.Acción || fields.Resultado || fields.Solicitud || title;
     const verification = fields.Verificación || '';
-    const pending = meaningfulPending(fields.Pendiente || '');
+    const pending = meaningfulPending(fields.Pendiente || fields.Pendientes || '');
     const request = fields.Solicitud || fields.Tarea || title;
     const task = {
       date: head.slice(0, 10), title: sanitize(title, 400), request: sanitize(request, 700),

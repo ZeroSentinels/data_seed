@@ -138,13 +138,13 @@ if [ -z "$(printf '%s' "$ENTRIES" | tr -d '[:space:]')" ]; then
 fi
 
 SUCCESS=$(printf '%s
-' "$ENTRIES" | grep -ciE '^\*\*Estado:\*\*.*(✅|finalizada exitosamente|exitosamente|completada)' || true)
+' "$ENTRIES" | grep -ciE '^([-*+][[:space:]]+)?\*\*Estado:\*\*.*(✅|finalizada exitosamente|exitosamente|completada)' || true)
 ERRORS=$(printf '%s
-' "$ENTRIES" | grep -ciE '^\*\*Estado:\*\*.*(❌|error|fallida)' || true)
+' "$ENTRIES" | grep -ciE '^([-*+][[:space:]]+)?\*\*Estado:\*\*.*(❌|error|fallida)' || true)
 ACTIVE=$(printf '%s
-' "$ENTRIES" | grep -ciE '^\*\*Estado:\*\*.*(🔄|(^|[^[:alpha:]])activa([^[:alpha:]]|$)|en progreso|in_progress)' || true)
+' "$ENTRIES" | grep -ciE '^([-*+][[:space:]]+)?\*\*Estado:\*\*.*(🔄|(^|[^[:alpha:]])activa([^[:alpha:]]|$)|en progreso|in_progress)' || true)
 PENDING=$(printf '%s
-' "$ENTRIES" | grep -ciE '^\*\*Estado:\*\*.*(⏳|⚠️|espera|pendiente|waiting|bloquead)' || true)
+' "$ENTRIES" | grep -ciE '^([-*+][[:space:]]+)?\*\*Estado:\*\*.*(⏳|⚠️|espera|pendiente|waiting|bloquead)' || true)
 
 if [ "$MODE" = "--all" ] || [ "$MODE" = "--summary-only" ]; then
   if grep -Fqx "## Resumen $DATE" "$DAILY_SUMMARY"; then
