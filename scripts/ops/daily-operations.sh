@@ -93,19 +93,31 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CANONICAL_REPO="${DATASEED_CANONICAL_REPO_DIR:-/opt/data/data_seed}"
 
 if [ -n "${DATASEED_TASK_TRACKING_REPO_DIR:-}" ]; then
-  TRACKING_REPO="$DATASEED_TASK_TRACKING_REPO_DIR"
+  TRACKING_SOURCE_REPO="$DATASEED_TASK_TRACKING_REPO_DIR"
 elif [ -f "/opt/data/data_seed_tasklog_worktree/task-log.md" ]; then
-  TRACKING_REPO="/opt/data/data_seed_tasklog_worktree"
+  TRACKING_SOURCE_REPO="/opt/data/data_seed_tasklog_worktree"
 elif [ -f "/tmp/data_seed_tasklog_worktree/task-log.md" ]; then
-  TRACKING_REPO="/tmp/data_seed_tasklog_worktree"
+  TRACKING_SOURCE_REPO="/tmp/data_seed_tasklog_worktree"
 else
-  TRACKING_REPO="$CANONICAL_REPO"
+  TRACKING_SOURCE_REPO="$CANONICAL_REPO"
 fi
+TRACKING_REPO="$TRACKING_SOURCE_REPO"
 
 GRAPH_GENERATOR="${DATASEED_GRAPH_GENERATOR:-$SCRIPT_DIR/generate-multibranch-graph.py}"
 TASK_CLEANUP="${DATASEED_TASK_CLEANUP_SCRIPT:-$SCRIPT_DIR/daily-task-log-cleanup.sh}"
 AREA_REPORTER="${DATASEED_AREA_REPORTER:-/opt/data/automations/daily-area-reporting/daily-area-reports.js}"
 BACKUP_SCRIPT="${DATASEED_DAILY_BACKUP_SCRIPT:-$SCRIPT_DIR/demeter_daily_backup.py}"
+GITHUB_HELPER="${DATASEED_GITHUB_API_COMMIT_HELPER:-$SCRIPT_DIR/github_api_commit.py}"
+TRACKING_BRANCH="${DATASEED_TASK_TRACKING_BRANCH:-feat/task-tracking-system}"
+TRACKING_REPOSITORY="${DATASEED_TRACKING_REPOSITORY:-contacto101/data_seed}"
+TRACKING_ISOLATION="${DATASEED_TRACKING_ISOLATION:-auto}"
+if [ "$TRACKING_ISOLATION" = "auto" ]; then
+  if [ "${DATASEED_CLEANUP_PUSH:-1}" = "0" ]; then
+    TRACKING_ISOLATION=0
+  else
+    TRACKING_ISOLATION=1
+  fi
+fi
 LOG_DIR="${DATASEED_DAILY_LOG_DIR:-/opt/data/logs/demeter-daily-operations}"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/daily-operations-$RUN_ID.log"
@@ -186,6 +198,46 @@ run_step() {
   fi
 }
 
+prepare_tracking_workspace() {
+  if [ "$TRACKING_ISOLATION" = "0" ]; then
+    TRACKING_REPO="$TRACKING_SOURCE_REPO"
+    return 0
+  fi
+  if [ "$TRACKING_ISOLATION" != "1" ]; then
+    echo "ERROR: DATASEED_TRACKING_ISOLATION debe ser auto, 0 o 1; valor: $TRACKING_ISOLATION"
+    return 2
+  fi
+  if [ ! -f "$GITHUB_HELPER" ]; then
+    echo "ERROR: no existe helper GitHub API: $GITHUB_HELPER"
+    return 1
+  fi
+
+  local isolated_repo="$TMP_DIR/tracking-workspace"
+  python3 "$GITHUB_HELPER" \
+    --repo-dir "$TRACKING_SOURCE_REPO" \
+    --repo "$TRACKING_REPOSITORY" \
+    --branch "$TRACKING_BRANCH" \
+    --materialize-dir "$isolated_repo" \
+    task-log.md daily-summary.md
+  git init -q "$isolated_repo"
+  git -C "$isolated_repo" config user.name "Demeter Ops Bot"
+  git -C "$isolated_repo" config user.email "demeter@dataseed.local"
+  git -C "$isolated_repo" remote add origin "https://github.com/${TRACKING_REPOSITORY}.git"
+  git -C "$isolated_repo" add task-log.md daily-summary.md
+  git -C "$isolated_repo" commit -qm "chore: isolated tracking snapshot $RUN_ID"
+  TRACKING_REPO="$isolated_repo"
+  log_line "Workspace tracking aislado: $TRACKING_REPO"
+}
+
+run_summary_phase() {
+  prepare_tracking_workspace || return $?
+  env \
+    REPO_DIR="$TRACKING_REPO" \
+    DATASEED_TASK_TRACKING_REPO_DIR="$TRACKING_REPO" \
+    DATASEED_GITHUB_API_COMMIT_HELPER="$GITHUB_HELPER" \
+    bash "$TASK_CLEANUP" --summary-only
+}
+
 first_alert_line() {
   local file="$1"
   grep -Eai 'ERROR|WARNING|WARN|fatal:|abort|Traceback|HUMAN_REQUIRED' "$file" \
@@ -217,9 +269,13 @@ extract_alerts() {
         printf -- '- %s: no se completaron clasificación, Drive o correos; task-log preservado. Primer indicio: %s\n' "$label" "$clipped"
         ;;
       cleanup)
-        line="$(first_alert_line "${STEP_OUTPUTS[$idx]}")"
-        clipped="$(clip_text "${line:-sin detalle de error en stdout}" 180)"
-        printf -- '- %s: no se pudo limpiar el task-log después de distribuir reportes. Primer indicio: %s\n' "$label" "$clipped"
+        if grep -Fq 'actualización concurrente preservada; limpieza diferida' "${STEP_OUTPUTS[$idx]}"; then
+          printf -- '- %s: se preservó una entrada concurrente y la limpieza se reintentará en el siguiente ciclo.\n' "$label"
+        else
+          line="$(first_alert_line "${STEP_OUTPUTS[$idx]}")"
+          clipped="$(clip_text "${line:-sin detalle de error en stdout}" 180)"
+          printf -- '- %s: no se pudo limpiar el task-log después de distribuir reportes. Primer indicio: %s\n' "$label" "$clipped"
+        fi
         ;;
       backup)
         line="$(first_alert_line "${STEP_OUTPUTS[$idx]}")"
@@ -319,7 +375,7 @@ for path in candidates:
     except Exception:
         continue
     branches = data.get('branches') or data.get('included_branches') or data.get('refs') or []
-    branch_count = len(branches) if isinstance(branches, list) else data.get('branch_count')
+    branch_count = len(branches) if isinstance(branches, (list, dict)) else data.get('branch_count')
     nodes = data.get('nodes') or data.get('node_count') or data.get('total_nodes')
     links = data.get('links') or data.get('edge_count') or data.get('total_links')
     pieces = []
@@ -382,7 +438,9 @@ step_note() {
       fi
       ;;
     cleanup)
-      if [[ "$status" == *OK* ]]; then
+      if grep -Fq 'actualización concurrente preservada; limpieza diferida' "$out"; then
+        printf 'actualización concurrente preservada; limpieza diferida al siguiente ciclo'
+      elif [[ "$status" == *OK* ]]; then
         printf 'task-log limpiado después de reportes y correos'
       else
         printf 'falló la limpieza posterior; backup omitido'
@@ -484,7 +542,7 @@ if [ ! -f "$TASK_CLEANUP" ]; then
   EXEC_STATUS="RED"
   CRITICAL_FAILURE=1
 else
-  run_step "summary" "Resumen diario" 1 env REPO_DIR="$TRACKING_REPO" DATASEED_TASK_TRACKING_REPO_DIR="$TRACKING_REPO" bash "$TASK_CLEANUP" --summary-only
+  run_step "summary" "Resumen diario" 1 run_summary_phase
 fi
 
 if [ "$CRITICAL_FAILURE" -ne 0 ]; then
@@ -503,7 +561,7 @@ if [ ! -f "$AREA_REPORTER" ]; then
   EXEC_STATUS="RED"
   CRITICAL_FAILURE=1
 else
-  run_step "reports" "Áreas, reportes Drive y correos" 1 /usr/local/bin/node "$AREA_REPORTER"
+  run_step "reports" "Áreas, reportes Drive y correos" 1 env DATASEED_TASK_TRACKING_REPO_DIR="$TRACKING_REPO" /usr/local/bin/node "$AREA_REPORTER"
 fi
 
 if [ "$CRITICAL_FAILURE" -ne 0 ]; then
@@ -511,7 +569,7 @@ if [ "$CRITICAL_FAILURE" -ne 0 ]; then
   exit 1
 fi
 
-run_step "cleanup" "Limpieza del task-log" 1 env REPO_DIR="$TRACKING_REPO" DATASEED_TASK_TRACKING_REPO_DIR="$TRACKING_REPO" bash "$TASK_CLEANUP" --cleanup-only
+run_step "cleanup" "Limpieza del task-log" 1 env REPO_DIR="$TRACKING_REPO" DATASEED_TASK_TRACKING_REPO_DIR="$TRACKING_REPO" DATASEED_GITHUB_API_COMMIT_HELPER="$GITHUB_HELPER" bash "$TASK_CLEANUP" --cleanup-only
 
 if [ "$CRITICAL_FAILURE" -ne 0 ]; then
   print_report

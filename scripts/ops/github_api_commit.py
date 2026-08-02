@@ -19,12 +19,15 @@ import os
 import re
 import subprocess
 import sys
+import time
 import urllib.parse
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 
 API_ROOT = "https://api.github.com"
+MAX_REF_UPDATE_ATTEMPTS = 3
+REF_UPDATE_RETRY_DELAY_SECONDS = 0.5
 SENSITIVE_PATTERNS = [
     re.compile(r"github_pat_[A-Za-z0-9_]{20,}"),
     re.compile(r"gh[pousr]_[A-Za-z0-9_]{20,}"),
@@ -41,7 +44,28 @@ def sanitize(text: str) -> str:
     return out
 
 
-def fail(message: str, code: int = 1) -> None:
+class GitHubAPIError(RuntimeError):
+    """Typed GitHub API error used for bounded ref-update retries."""
+
+    def __init__(self, status: int, method: str, path: str, detail: str) -> None:
+        self.status = status
+        self.method = method
+        self.path = path
+        self.detail = detail
+        super().__init__(f"GitHub API {method} {path} failed HTTP {status}: {detail}")
+
+
+class RemoteFileChanged(RuntimeError):
+    """Raised when an optimistic per-file precondition no longer matches."""
+
+    def __init__(self, path: str, expected: str, actual: str) -> None:
+        self.path = path
+        self.expected = expected
+        self.actual = actual
+        super().__init__(f"remote file changed: {path} expected {expected} actual {actual}")
+
+
+def fail(message: str, code: int = 1) -> NoReturn:
     print(f"github_api_commit ERROR: {sanitize(message)}", file=sys.stderr)
     raise SystemExit(code)
 
@@ -185,7 +209,15 @@ def api(env: dict[str, str], method: str, path: str, payload: dict[str, Any] | N
     except ValueError:
         fail(f"GitHub API {method} {path} returned unparsable status: {status_text!r}")
     if proc.returncode != 0 or status >= 400:
-        fail(f"GitHub API {method} {path} failed HTTP {status} rc={proc.returncode}: {stderr.strip()} {body[:2000]}")
+        detail = f"rc={proc.returncode}: {stderr.strip()} {body[:2000]}"
+        if (
+            proc.returncode == 0
+            and status == 422
+            and method == "PATCH"
+            and "not a fast forward" in body.lower()
+        ):
+            raise GitHubAPIError(status=status, method=method, path=path, detail=detail)
+        fail(f"GitHub API {method} {path} failed HTTP {status} {detail}")
     if not body.strip():
         return {}
     try:
@@ -210,6 +242,65 @@ def get_head(env: dict[str, str], owner: str, repo: str, branch: str) -> tuple[s
     return commit_sha, tree_sha
 
 
+def get_remote_file(
+    env: dict[str, str], owner: str, repo: str, branch: str, path: str
+) -> tuple[bytes, str]:
+    rel = path.strip().lstrip("/")
+    if not rel or rel.startswith("../") or "/../" in rel:
+        fail(f"Unsafe repo path: {rel!r}")
+    ref = urllib.parse.quote(branch, safe="")
+    obj = api(env, "GET", f"/repos/{owner}/{repo}/contents/{github_path(rel)}?ref={ref}")
+    sha = obj.get("sha")
+    content = obj.get("content")
+    encoding = obj.get("encoding")
+    if not isinstance(sha, str) or not sha:
+        fail(f"No blob sha returned for remote file {rel}")
+    if encoding != "base64" or not isinstance(content, str):
+        fail(f"Unsupported content response for remote file {rel}")
+    try:
+        raw = base64.b64decode(content, validate=False)
+    except Exception as exc:
+        fail(f"Invalid base64 content for remote file {rel}: {exc}")
+    return raw, sha
+
+
+def materialize_files(
+    repo_dir: Path,
+    branch: str,
+    paths: list[str],
+    repo_override: str | None,
+    output_dir: Path,
+) -> str:
+    owner, repo = parse_repo(repo_dir, repo_override)
+    env = require_agent_vault_proxy()
+    root = output_dir.resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    file_shas: dict[str, str] = {}
+    for path in paths:
+        rel = path.strip().lstrip("/")
+        if not rel or rel.startswith("../") or "/../" in rel:
+            fail(f"Unsafe repo path: {rel!r}")
+        target = (root / rel).resolve()
+        try:
+            target.relative_to(root)
+        except ValueError:
+            fail(f"Path escapes materialization dir: {rel}")
+        raw, sha = get_remote_file(env, owner, repo, branch, rel)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(raw)
+        file_shas[rel] = sha
+    state = {
+        "repository": f"{owner}/{repo}",
+        "branch": branch,
+        "files": file_shas,
+    }
+    (root / ".dataseed-remote-files.json").write_text(
+        json.dumps(state, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return f"github_api_commit OK: materialized {len(file_shas)} files from {owner}/{repo}@{branch}"
+
+
 def create_blob(env: dict[str, str], owner: str, repo: str, path: Path) -> str:
     raw = path.read_bytes()
     body = {"content": base64.b64encode(raw).decode("ascii"), "encoding": "base64"}
@@ -220,12 +311,21 @@ def create_blob(env: dict[str, str], owner: str, repo: str, path: Path) -> str:
     return sha
 
 
-def commit_files(repo_dir: Path, branch: str, message: str, paths: list[str], repo_override: str | None, dry_check: bool = False) -> str:
+def commit_files(
+    repo_dir: Path,
+    branch: str,
+    message: str,
+    paths: list[str],
+    repo_override: str | None,
+    dry_check: bool = False,
+    expected_remote_files: dict[str, str] | None = None,
+) -> str:
     owner, repo = parse_repo(repo_dir, repo_override)
     env = require_agent_vault_proxy()
-    head_sha, base_tree = get_head(env, owner, repo, branch)
     if dry_check:
+        head_sha, _ = get_head(env, owner, repo, branch)
         return f"github_api_commit CHECK OK: repo={owner}/{repo} branch={branch} head={head_sha[:7]}"
+
     tree_entries: list[dict[str, str]] = []
     normalized_paths: list[str] = []
     for rel in paths:
@@ -243,42 +343,111 @@ def commit_files(repo_dir: Path, branch: str, message: str, paths: list[str], re
         mode = "100755" if os.access(full, os.X_OK) else "100644"
         tree_entries.append({"path": rel, "mode": mode, "type": "blob", "sha": blob_sha})
         normalized_paths.append(rel)
+
     if not tree_entries:
+        head_sha, _ = get_head(env, owner, repo, branch)
         return f"github_api_commit OK: no files requested; branch {branch} unchanged at {head_sha[:7]}"
-    tree = api(env, "POST", f"/repos/{owner}/{repo}/git/trees", {"base_tree": base_tree, "tree": tree_entries})
-    tree_sha = tree.get("sha")
-    if not tree_sha:
-        fail("No tree sha returned")
-    if tree_sha == base_tree:
-        return f"github_api_commit OK: sin cambios remotos; branch {branch} HEAD {head_sha[:7]}"
-    commit = api(
-        env,
-        "POST",
-        f"/repos/{owner}/{repo}/git/commits",
-        {"message": message, "tree": tree_sha, "parents": [head_sha]},
-    )
-    new_sha = commit.get("sha")
-    if not new_sha:
-        fail("No commit sha returned")
-    api(env, "PATCH", f"/repos/{owner}/{repo}/git/refs/heads/{github_path(branch)}", {"sha": new_sha, "force": False})
-    return f"github_api_commit OK: commit {new_sha[:7]} enviado a {branch}; archivos: {', '.join(normalized_paths)}"
+
+    for attempt in range(1, MAX_REF_UPDATE_ATTEMPTS + 1):
+        head_sha, base_tree = get_head(env, owner, repo, branch)
+        for expected_path, expected_sha in (expected_remote_files or {}).items():
+            _, actual_sha = get_remote_file(env, owner, repo, branch, expected_path)
+            if actual_sha != expected_sha:
+                raise RemoteFileChanged(expected_path, expected_sha, actual_sha)
+        tree = api(env, "POST", f"/repos/{owner}/{repo}/git/trees", {"base_tree": base_tree, "tree": tree_entries})
+        tree_sha = tree.get("sha")
+        if not tree_sha:
+            fail("No tree sha returned")
+        if tree_sha == base_tree:
+            return f"github_api_commit OK: sin cambios remotos; branch {branch} HEAD {head_sha[:7]}"
+        commit = api(
+            env,
+            "POST",
+            f"/repos/{owner}/{repo}/git/commits",
+            {"message": message, "tree": tree_sha, "parents": [head_sha]},
+        )
+        new_sha = commit.get("sha")
+        if not new_sha:
+            fail("No commit sha returned")
+        try:
+            api(env, "PATCH", f"/repos/{owner}/{repo}/git/refs/heads/{github_path(branch)}", {"sha": new_sha, "force": False})
+        except GitHubAPIError as exc:
+            if exc.status != 422 or attempt >= MAX_REF_UPDATE_ATTEMPTS:
+                raise
+            time.sleep(REF_UPDATE_RETRY_DELAY_SECONDS * attempt)
+            continue
+        return f"github_api_commit OK: commit {new_sha[:7]} enviado a {branch}; archivos: {', '.join(normalized_paths)}"
+
+    raise AssertionError("unreachable ref-update retry state")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Commit files via Agent Vault-brokered GitHub API")
+    parser = argparse.ArgumentParser(description="Commit or materialize files through the GitHub API")
     parser.add_argument("--repo-dir", default=".")
     parser.add_argument("--repo", default=None, help="owner/name override")
     parser.add_argument("--branch", required=True)
-    parser.add_argument("--message", default="chore: update files via Agent Vault GitHub API")
+    parser.add_argument("--message", default="chore: update files through the GitHub API")
     parser.add_argument("--check", action="store_true", help="read-only check only")
+    parser.add_argument("--materialize-dir", default=None, help="read remote files into an isolated directory")
+    parser.add_argument("--expect-remote-state", default=None, help="JSON state written by --materialize-dir")
+    parser.add_argument("--expect-path", action="append", default=[], help="path whose recorded remote SHA must still match")
     parser.add_argument("paths", nargs="*")
     args = parser.parse_args()
     repo_dir = Path(args.repo_dir).resolve()
-    if not (repo_dir / ".git").exists():
-        fail(f"Not a git repo: {repo_dir}")
+    if not (repo_dir / ".git").exists() and not args.repo:
+        fail(f"Not a git repo and no --repo override supplied: {repo_dir}")
     try:
-        print(commit_files(repo_dir, args.branch, args.message, args.paths, args.repo, dry_check=args.check))
+        if args.materialize_dir:
+            if not args.paths:
+                fail("--materialize-dir requires at least one path")
+            print(
+                materialize_files(
+                    repo_dir,
+                    args.branch,
+                    args.paths,
+                    args.repo,
+                    Path(args.materialize_dir).resolve(),
+                )
+            )
+            return 0
+
+        expected_remote_files: dict[str, str] = {}
+        if args.expect_remote_state:
+            state_path = Path(args.expect_remote_state).resolve()
+            try:
+                state = json.loads(state_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as exc:
+                fail(f"Could not read remote state {state_path}: {exc}")
+            state_files = state.get("files")
+            if not isinstance(state_files, dict):
+                fail(f"Remote state has no files map: {state_path}")
+            selected_paths = args.expect_path or list(state_files)
+            for path in selected_paths:
+                sha = state_files.get(path)
+                if not isinstance(sha, str) or not sha:
+                    fail(f"Remote state has no SHA for expected path: {path}")
+                expected_remote_files[path] = sha
+        elif args.expect_path:
+            fail("--expect-path requires --expect-remote-state")
+
+        print(
+            commit_files(
+                repo_dir,
+                args.branch,
+                args.message,
+                args.paths,
+                args.repo,
+                dry_check=args.check,
+                expected_remote_files=expected_remote_files,
+            )
+        )
         return 0
+    except RemoteFileChanged as exc:
+        print(
+            f"github_api_commit DEFERRED: concurrent remote update preserved for {exc.path}",
+            file=sys.stderr,
+        )
+        return 3
     except SystemExit:
         raise
     except Exception as exc:

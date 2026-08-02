@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 bash -n /opt/data/scripts/daily-operations.sh
 bash -n /opt/data/scripts/daily-task-log-cleanup.sh
 node --check /opt/data/automations/daily-area-reporting/daily-area-reports.js
@@ -9,8 +10,8 @@ node --check /opt/data/automations/daily-area-reporting/tests/fake-reporter.js
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/tracking" "$TMP/canonical" "$TMP/logs"
-cp /opt/data/data_seed_tasklog_worktree/task-log.md "$TMP/tracking/task-log.md"
-cp /opt/data/data_seed_tasklog_worktree/daily-summary.md "$TMP/tracking/daily-summary.md"
+cp "$TEST_DIR/fixtures/task-log-template.md" "$TMP/tracking/task-log.md"
+cp "$TEST_DIR/fixtures/daily-summary-empty.md" "$TMP/tracking/daily-summary.md"
 
 git -C "$TMP/tracking" init -q
 git -C "$TMP/tracking" config user.name 'Integration Test'

@@ -21,6 +21,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 from collections import defaultdict
 from dataclasses import dataclass, asdict
 from pathlib import Path, PurePosixPath
@@ -142,6 +143,7 @@ LIGHTWEIGHT_OUTPUTS = [
 OPTIONAL_LOCAL_OUTPUTS = [
     "graph.html",
     "graph.json",
+    "multibranch_manifest.json",
 ]
 
 
@@ -378,6 +380,37 @@ def run_graphify(snapshot: Path) -> None:
         raise RuntimeError(f"graphify failed with {result.returncode}")
 
 
+def write_multibranch_manifest(snapshot: Path, manifest: dict[str, object]) -> Path:
+    """Persist current corpus metadata together with Graphify metrics."""
+    generated = snapshot / "graphify-out"
+    graph_path = generated / "graph.json"
+    if not graph_path.exists():
+        raise RuntimeError("graphify-out/graph.json was not generated")
+    graph_data = json.loads(graph_path.read_text(encoding="utf-8", errors="ignore"))
+    nodes = graph_data.get("nodes", [])
+    links = graph_data.get("links", [])
+    enriched = dict(manifest)
+    enriched.update(
+        {
+            "generated_at": time.strftime("%Y-%m-%d %H:%M:%S +0000", time.gmtime()),
+            "nodes": len(nodes) if isinstance(nodes, list) else 0,
+            "links": len(links) if isinstance(links, list) else 0,
+            "communities": len(
+                {
+                    node.get("community")
+                    for node in nodes
+                    if isinstance(node, dict) and node.get("community") is not None
+                }
+            )
+            if isinstance(nodes, list)
+            else 0,
+        }
+    )
+    output = generated / "multibranch_manifest.json"
+    write_text(output, json.dumps(enriched, indent=2, ensure_ascii=False))
+    return output
+
+
 def copy_outputs(snapshot: Path) -> None:
     generated = snapshot / "graphify-out"
     if not generated.exists():
@@ -397,6 +430,7 @@ def main() -> int:
     print(f"Shared mappings: {manifest['shared_mappings_count']}")
     print(f"Unique branch files: {manifest['unique_file_count']}")
     run_graphify(snapshot)
+    write_multibranch_manifest(snapshot, manifest)
     copy_outputs(snapshot)
     print(f"Graph outputs copied to: {OUTPUT_DIR}")
     print("Snapshot manifest:")

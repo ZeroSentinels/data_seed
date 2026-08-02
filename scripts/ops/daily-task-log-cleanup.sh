@@ -69,18 +69,26 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 push_tracking_branch() {
   local message="$1"
   local helper="${DATASEED_GITHUB_API_COMMIT_HELPER:-$SCRIPT_DIR/github_api_commit.py}"
+  local -a precondition_args=()
   if [ "${DATASEED_GIT_PUSH_MODE:-api}" = "git" ]; then
     git push origin feat/task-tracking-system
     return
   fi
   if [ ! -f "$helper" ]; then
-    echo "[$TIMESTAMP] ERROR: no existe helper Agent Vault GitHub API: $helper"
+    echo "[$TIMESTAMP] ERROR: no existe helper GitHub API: $helper"
     return 1
+  fi
+  if { [ "$MODE" = "--cleanup-only" ] || [ "$MODE" = "--all" ]; } && [ -f "$REPO_DIR/.dataseed-remote-files.json" ]; then
+    precondition_args=(
+      --expect-remote-state "$REPO_DIR/.dataseed-remote-files.json"
+      --expect-path task-log.md
+    )
   fi
   python3 "$helper" \
     --repo-dir "$REPO_DIR" \
     --branch feat/task-tracking-system \
     --message "$message" \
+    "${precondition_args[@]}" \
     task-log.md daily-summary.md
 }
 
@@ -194,7 +202,16 @@ else
   if [ "$PUSH_ENABLED" = "0" ]; then
     echo "[$TIMESTAMP] Push deshabilitado por DATASEED_CLEANUP_PUSH=0."
   else
+    set +e
     push_tracking_branch "$COMMIT_MESSAGE"
+    PUSH_RC=$?
+    set -e
+    if [ "$PUSH_RC" -eq 3 ]; then
+      echo "[$TIMESTAMP] WARNING: actualización concurrente preservada; limpieza diferida."
+      exit 0
+    elif [ "$PUSH_RC" -ne 0 ]; then
+      exit "$PUSH_RC"
+    fi
   fi
 fi
 
