@@ -20,3 +20,10 @@
 - **Estado:** Finalizada con verificación completa de GitHub y verificación de lectura/ubicación en Drive.
 - **Verificación:** Consultas directas a GitHub y Google Drive; metadata, MIME, carpeta padre y enlaces remotos confirmados. Suite del pipeline 20/20 y corrida real VERDE.
 - **Pendientes:** Una nueva escritura controlada en Drive requeriría autorización explícita para crear un documento de prueba; no es necesaria para la operación normal y no se realizó para evitar contaminar la carpeta.
+
+## 2026-08-02 10:30:49 -0400 — Recuperación del hito MCP Mercado Público omitido en reporte
+- **Solicitud:** Investigar por qué el hito de la primera versión del MCP/API de Mercado Público estaba en `task-log.md` pero no apareció en el reporte diario.
+- **Resultado:** Se confirmó que el resumen sí conservaba las cuatro entradas, pero el reporter rechazaba campos con viñeta como `- **Estado:**`; además no reconocía `Pendientes` en plural. Se corrigieron ambos parsers, el conteo del resumen y los separadores Markdown. Se generó un reporte compensatorio local de Ingeniería y Tecnología con una tarea, evidencia, pendiente y las tres plantillas canónicas con SHA-256 completos. La corrección fue publicada en `main` como `78093df`.
+- **Estado:** a la espera de autorización.
+- **Verificación:** Regresión RED/GREEN con el formato real; suite 21/21; dry-run real detectó el hito MCP y lo clasificó en Ingeniería y Tecnología; restore y paridad runtime/backup OK.
+- **Pendientes:** Autorizar la creación del reporte compensatorio en Drive y decidir si se envía también el correo normal a los destinatarios configurados.
