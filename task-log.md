@@ -30,3 +30,11 @@
 - **Estado:** a la espera de autorización.
 - **Verificación:** El script fuente pasó validación sintáctica al escribirse, pero no fue autorizado para ejecutarse; no existe aún una verificación OOXML ni una lectura de control del documento final.
 - **Pendientes:** Autorizar la ejecución bloqueada o ejecutar manualmente el generador para crear `/opt/data/Plantilla_correo_leads_construccion_DataSeed.docx`; luego validar estructura, contenido y ausencia de firma antes de entregarlo.
+
+## 2026-08-03 13:03 CLT — Plantilla comercial publicada en Google Docs
+
+- **Solicitud:** Generar en Google Docs la plantilla de correo para leads de la industria de la construcción.
+- **Resultado:** Se creó el documento editable “DataSeed - Plantilla de correo para leads de construcción”, sin firma, con asuntos sugeridos, borrador del mensaje, casos de uso y campos de personalización para el equipo. Esta entrega reemplaza como destino solicitado al Word previamente bloqueado.
+- **Estado:** completada.
+- **Verificación:** Relectura directa mediante Google Docs API del documento `1nokB26qB-BPQ3A_ebe3e4ssZ24QzHl_7eZdUhFNTNC8`; título y contenido coinciden, los placeholders están presentes y no se incluyó una firma personal.
+- **Pendientes:** El equipo debe personalizar los campos entre corchetes y agregar la firma del remitente antes de cada envío. No se enviaron correos ni se contactaron leads.
