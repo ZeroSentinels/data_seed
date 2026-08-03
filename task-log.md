@@ -22,3 +22,11 @@
 - **Estado:** completada.
 - **Verificación:** El texto fue contrastado con el playbook comercial vigente de DataSeed y revisado para evitar promesas de ROI, automatización sin control humano y lenguaje genérico de IA. No se enviaron correos ni se contactaron leads.
 - **Pendientes:** Personalizar la primera línea, elegir un único dolor por lead y completar nombre, empresa, cargo, proyecto y firma antes del envío humano.
+
+## 2026-08-03 12:55 CLT — Plantilla Word de correo para leads de construcción
+
+- **Solicitud:** Generar un archivo Word sin firma con el borrador de correo, reutilizable por el equipo.
+- **Resultado:** Se preparó el generador local de la plantilla con asuntos sugeridos, cuerpo editable, campos entre corchetes y guía de personalización. La ejecución que debía producir y validar el `.docx` fue bloqueada por vencimiento de autorización, por lo que no se entrega un archivo no verificado.
+- **Estado:** a la espera de autorización.
+- **Verificación:** El script fuente pasó validación sintáctica al escribirse, pero no fue autorizado para ejecutarse; no existe aún una verificación OOXML ni una lectura de control del documento final.
+- **Pendientes:** Autorizar la ejecución bloqueada o ejecutar manualmente el generador para crear `/opt/data/Plantilla_correo_leads_construccion_DataSeed.docx`; luego validar estructura, contenido y ausencia de firma antes de entregarlo.
