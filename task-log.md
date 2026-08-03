@@ -14,3 +14,11 @@
 - **Estado:** completada.
 - **Verificación:** Lectura directa del Google Doc `16sbaAOwkytOWvkySdgNml8lKpRWaE6BxZcxnmGYHI1w`; no se modificaron archivos de Drive ni eventos de Calendar. El envío del correo y el agendamiento se registran como realizados según confirmación del solicitante.
 - **Pendientes:** En la reunión del jueves, acordar un primer piloto, KPI de éxito, fuentes/sistemas involucrados, alcance de seguridad, responsable y plazo.
+
+## 2026-08-03 12:53 CLT — Correo tipo para prospección en construcción
+
+- **Solicitud:** Redactar un correo reutilizable para buscar leads en la industria de la construcción.
+- **Resultado:** Se preparó un correo frío breve y personalizable, centrado en control de costos y desviaciones por obra, integración de ERP/Presto/Excel, implementación acotada con supervisión humana y una llamada de 15 minutos como siguiente paso.
+- **Estado:** completada.
+- **Verificación:** El texto fue contrastado con el playbook comercial vigente de DataSeed y revisado para evitar promesas de ROI, automatización sin control humano y lenguaje genérico de IA. No se enviaron correos ni se contactaron leads.
+- **Pendientes:** Personalizar la primera línea, elegir un único dolor por lead y completar nombre, empresa, cargo, proyecto y firma antes del envío humano.
