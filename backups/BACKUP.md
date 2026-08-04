@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-08-03 09:03:28 UTC
-- Generado America/Santiago: 2026-08-03 05:03:28 -04
+- Generado UTC: 2026-08-04 09:01:34 UTC
+- Generado America/Santiago: 2026-08-04 05:01:34 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -14,8 +14,8 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - El `daily-summary.md` conserva el resumen diario y debe consultarse para tareas diarias, pendientes y bloqueos.
 - El backup diario de las 05:00 AM NO copia `task-log.md` ni `daily-summary.md`; solo deja esta referencia para consultarlos en el repo de tracking.
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
-- Repo/branch de tracking: `/tmp/tmp.be5dCtY2ip/tracking-workspace` / `feat/task-tracking-system`.
-- Daily summary: `daily-summary.md` (105.1 KB, sha256 8ce102c2182d704a).
+- Repo/branch de tracking: `/tmp/tmp.sphEaOcW4A/tracking-workspace` / `feat/task-tracking-system`.
+- Daily summary: `daily-summary.md` (109.2 KB, sha256 93c1ef5c43caa6cb).
 - Task log actual: `task-log.md` (213.0 B, sha256 1512ddaa0df19af1).
 - Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (missing, sha256 missing).
 
@@ -73,8 +73,8 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `2073a6cc3d6e` [active]
   - Nombre: Demeter Daily Operations (5:00 AM Chile)
   - Schedule: 0 8,9 * * *
-  - Next run UTC: 2026-08-04T08:00:00+00:00
-  - Last run UTC/status: 2026-08-03T08:00:39.254246+00:00 / ok
+  - Next run UTC: 2026-08-05T08:00:00+00:00
+  - Last run UTC/status: 2026-08-04T08:00:46.204881+00:00 / ok
   - Mode: no-agent
   - Script: daily-operations-wrapper.sh
 
@@ -89,6 +89,7 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `codex` (autonomous-ai-agents/codex) — Delegate coding to OpenAI Codex CLI (features, PRs).
 - `hermes-agent` (autonomous-ai-agents/hermes-agent) — Configure, extend, or contribute to Hermes Agent.
 - `opencode` (autonomous-ai-agents/opencode) — Delegate coding to OpenCode CLI (features, PR review).
+- `b2b-sales-outreach` (business-development/b2b-sales-outreach) — Design concise, personalized B2B cold emails, DMs, follow-ups, and diagnostic/pilot invitations without unverified claims or premature promises.
 - `computer-use` (computer-use) — |
 - `architecture-diagram` (creative/architecture-diagram) — Dark-themed SVG architecture/cloud/infra diagrams as HTML.
 - `ascii-art` (creative/ascii-art) — ASCII art: pyfiglet, cowsay, boxes, image-to-ascii.
@@ -186,9 +187,9 @@ No se copia el contenido de estos archivos; solo tamaño y huella para validaci�
 - `config.yaml`: 16.4 KB, sha256 66a5ccb914c67fb1
 - `memories/MEMORY.md`: 2.1 KB, sha256 5f96de7910d2ae79
 - `memories/USER.md`: 1.3 KB, sha256 bf1ae26473033298
-- `channel_directory.json`: 785.0 B, sha256 e2433008d46acfe1
-- `gateway_state.json`: 544.0 B, sha256 946d3e656e13500c
-- `cron/jobs.json`: 2.7 KB, sha256 740602a62a39b5f9
+- `channel_directory.json`: 785.0 B, sha256 37455072342b2df5
+- `gateway_state.json`: 544.0 B, sha256 274189d580ed09fe
+- `cron/jobs.json`: 2.7 KB, sha256 e8c75ee550aede18
 
 ## Grafo de conocimiento del proyecto (Graphify)
 

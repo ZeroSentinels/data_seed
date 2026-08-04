@@ -1,11 +1,11 @@
-# Graph Report - dataseed-multibranch-snapshot-hbrt6dqn  (2026-08-03)
+# Graph Report - dataseed-multibranch-snapshot-qd58kws4  (2026-08-04)
 
 ## Corpus Check
-- 219 files · ~167,830 words
+- 219 files · ~168,420 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1910 nodes · 2572 edges · 209 communities (160 shown, 49 thin omitted)
+- 1916 nodes · 2578 edges · 210 communities (160 shown, 50 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 44 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -200,9 +200,10 @@
 - [[_COMMUNITY_Community 189|Community 189]]
 - [[_COMMUNITY_Community 190|Community 190]]
 - [[_COMMUNITY_Community 191|Community 191]]
+- [[_COMMUNITY_Community 192|Community 192]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `Daily Summary - Demeter` - 62 edges
+1. `Daily Summary - Demeter` - 66 edges
 2. `main()` - 20 edges
 3. `Resumen 2026-06-17` - 20 edges
 4. `Resumen 2026-06-14 (recuperado)` - 17 edges
@@ -230,7 +231,7 @@
 - 1-file cycle: `branches/feat/task-tracking-system/scripts/demeter_daily_backup.py -> branches/feat/task-tracking-system/scripts/demeter_daily_backup.py`
 - 1-file cycle: `branches/main/scripts/ops/demeter_daily_backup.py -> branches/main/scripts/ops/demeter_daily_backup.py`
 
-## Communities (209 total, 49 thin omitted)
+## Communities (210 total, 50 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
@@ -258,7 +259,7 @@ Nodes (47): Any, datetime, Path, assert_no_secret_values(), backup_outputs_summa
 
 ### Community 6 - "Community 6"
 Cohesion: 0.04
-Nodes (44): 2026-06-17, 2026-06-18, 2026-06-29 14:37 - Daniel Caignet, 2026-06-29 14:39 - Daniel Caignet, 2026-06-29 15:03 - Daniel Caignet, 2026-06-29 15:04 - Daniel Caignet, 2026-06-29 15:33 - Daniel Caignet, 2026-06-29 15:33 - Daniel Caignet (+36 more)
+Nodes (47): 2026-06-17, 2026-06-18, 2026-06-29 14:37 - Daniel Caignet, 2026-06-29 14:39 - Daniel Caignet, 2026-06-29 15:03 - Daniel Caignet, 2026-06-29 15:04 - Daniel Caignet, 2026-06-29 15:33 - Daniel Caignet, 2026-06-29 15:33 - Daniel Caignet (+39 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.08
@@ -653,44 +654,44 @@ Cohesion: 0.33
 Nodes (5): Estado, Hallazgo principal, Regla activa, Revisión de riesgo — portal/reportes públicos, Riesgos
 
 ### Community 105 - "Community 105"
-Cohesion: 0.40
-Nodes (3): migrationUrl, resourceTables, tenantTables
+Cohesion: 0.33
+Nodes (5): 2026-08-03 12:50 CLT — Resumen de reunión del bloque comercial, 2026-08-03 12:53 CLT — Correo tipo para prospección en construcción, 2026-08-03 12:55 CLT — Plantilla Word de correo para leads de construcción, 2026-08-03 13:03 CLT — Plantilla comercial publicada en Google Docs, Task Log - Demeter
 
 ### Community 106 - "Community 106"
 Cohesion: 0.40
-Nodes (4): 2026-08-01 19:21:37 -04 — Hito para reportes: primera versión del MCP Mercado Público, Daily Summary - Demeter, Detalle de tareas, Resumen 2026-08-02
+Nodes (3): migrationUrl, resourceTables, tenantTables
 
 ### Community 107 - "Community 107"
 Cohesion: 0.40
-Nodes (4): 12 ideas iniciales, Cadencia 4 semanas, Estrategia LinkedIn Founder-led Content — DataSeed, Pilares
+Nodes (4): 2026-08-01 19:21:37 -04 — Hito para reportes: primera versión del MCP Mercado Público, Daily Summary - Demeter, Detalle de tareas, Resumen 2026-08-02
 
 ### Community 108 - "Community 108"
 Cohesion: 0.40
-Nodes (4): devDependencies, scripts, test, validate:publica
+Nodes (4): 12 ideas iniciales, Cadencia 4 semanas, Estrategia LinkedIn Founder-led Content — DataSeed, Pilares
 
-### Community 110 - "Community 110"
+### Community 109 - "Community 109"
 Cohesion: 0.40
-Nodes (5): 3.1 Oportunidades de optimización comercial, 3.2 Oportunidades de automatización operativa, 3.3 Oportunidades de inteligencia competitiva, 3.4 Oportunidades de IA aplicada, 3. Problemas de negocio que DataSeed puede atacar
+Nodes (4): devDependencies, scripts, test, validate:publica
 
 ### Community 111 - "Community 111"
 Cohesion: 0.40
-Nodes (5): 6.1 Estado actual del repositorio, 6.2 Arquitectura web actual, 6.3 Integraciones actuales/parciales, 6.4 Pendientes técnicos críticos, 6. Visión técnica
+Nodes (5): 3.1 Oportunidades de optimización comercial, 3.2 Oportunidades de automatización operativa, 3.3 Oportunidades de inteligencia competitiva, 3.4 Oportunidades de IA aplicada, 3. Problemas de negocio que DataSeed puede atacar
 
 ### Community 112 - "Community 112"
 Cohesion: 0.40
-Nodes (5): 8. Links y rutas relevantes, Documentación estratégica en repo, Documentación local generada, Páginas principales dentro del repo, Repositorio
+Nodes (5): 6.1 Estado actual del repositorio, 6.2 Arquitectura web actual, 6.3 Integraciones actuales/parciales, 6.4 Pendientes técnicos críticos, 6. Visión técnica
 
 ### Community 113 - "Community 113"
 Cohesion: 0.40
-Nodes (5): 9.1 Prioridad 1: Validar Pública AI con mercado real, 9.2 Prioridad 2: Cerrar infraestructura comercial mínima, 9.3 Prioridad 3: Construir login solo si habilita valor de producto, 9.4 Prioridad 4: Crear una URL privada de validación, 9. Recomendaciones ejecutivas
+Nodes (5): 8. Links y rutas relevantes, Documentación estratégica en repo, Documentación local generada, Páginas principales dentro del repo, Repositorio
 
 ### Community 114 - "Community 114"
 Cohesion: 0.40
-Nodes (4): headers, redirects, rewrites, $schema
+Nodes (5): 9.1 Prioridad 1: Validar Pública AI con mercado real, 9.2 Prioridad 2: Cerrar infraestructura comercial mínima, 9.3 Prioridad 3: Construir login solo si habilita valor de producto, 9.4 Prioridad 4: Crear una URL privada de validación, 9. Recomendaciones ejecutivas
 
 ### Community 115 - "Community 115"
 Cohesion: 0.40
-Nodes (4): 2026-08-02 09:37:26 -0400 — Reparación e aislamiento del cronjob Demeter Daily Operations, 2026-08-02 09:49:59 -0400 — Verificación operativa de reportes Drive y actualización GitHub, 2026-08-02 10:30:49 -0400 — Recuperación del hito MCP Mercado Público omitido en reporte, Task Log - Demeter
+Nodes (4): headers, redirects, rewrites, $schema
 
 ### Community 116 - "Community 116"
 Cohesion: 0.50
@@ -797,14 +798,14 @@ Cohesion: 0.67
 Nodes (3): 2026-06-25 11:47 - Daniel Caignet, Detalle de tareas, Resumen 2026-06-26
 
 ## Knowledge Gaps
-- **921 isolated node(s):** `defaultProvider`, `config`, `config`, `config`, `config` (+916 more)
+- **926 isolated node(s):** `defaultProvider`, `config`, `config`, `config`, `config` (+921 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **49 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **50 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Daily Summary - Demeter` connect `Community 6` to `Community 191`, `Community 184`, `Community 138`, `Community 48`, `Community 17`, `Community 49`, `Community 148`, `Community 149`, `Community 150`, `Community 151`, `Community 24`, `Community 185`, `Community 186`, `Community 187`, `Community 188`, `Community 189`, `Community 190`, `Community 63`?**
+- **Why does `Daily Summary - Demeter` connect `Community 6` to `Community 138`, `Community 17`, `Community 148`, `Community 149`, `Community 150`, `Community 151`, `Community 24`, `Community 48`, `Community 49`, `Community 184`, `Community 185`, `Community 186`, `Community 187`, `Community 188`, `Community 189`, `Community 190`, `Community 191`, `Community 192`, `Community 63`?**
   _High betweenness centrality (0.005) - this node is a cross-community bridge._
 - **Why does `Resumen 2026-06-17` connect `Community 17` to `Community 6`?**
   _High betweenness centrality (0.003) - this node is a cross-community bridge._
@@ -813,7 +814,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Are the 34 inferred relationships involving `RuntimeError` (e.g. with `main()` and `branch_commit()`) actually correct?**
   _`RuntimeError` has 34 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `defaultProvider`, `config`, `config` to the rest of the system?**
-  _954 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _959 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.05590386624869383 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
