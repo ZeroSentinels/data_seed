@@ -38,3 +38,11 @@
 - **Estado:** a la espera de autorización.
 - **Verificación:** La prueba local con iframes de ancho fijo mostró `scrollWidth: 374` frente a `clientWidth: 305` a 320 px, además de controles de 34–42 px. No se modificó ni desplegó producción.
 - **Pendientes:** Registrar la autorización con el comando exacto `/approve` sin espacio; luego implementar las pruebas RED, corregir la landing, ejecutar validación doble, publicar y verificar el sitio real.
+
+## 2026-08-04 21:17:14 -04 — Implementación móvil validada localmente, publicación pendiente
+
+- **Solicitud:** Completar la optimización de `dataseed.cl` para Android e iOS y publicarla directamente en `main`.
+- **Resultado:** Se implementaron ajustes responsive y de accesibilidad en `site/index.html`, junto con una nueva regresión en `tests/ui/landing-mobile.test.js`. La landing quedó sin desborde horizontal en las verificaciones de 320, 375, 390, 430 y 600 px; se corrigieron grillas, CTA, controles táctiles, campos de formulario, áreas seguras, viewport dinámico y controles semánticos de la demo. La inspección final previa al commit fue bloqueada por el sistema de autorizaciones, por lo que no se hizo commit, push ni despliegue en producción.
+- **Estado:** a la espera de autorización.
+- **Verificación:** `npm run check` y `npm test` finalizaron con 61/61 pruebas aprobadas, incluyendo 3 regresiones móviles. La revisión visual de Android 320 px e iOS 390 px no mostró solapamientos ni cortes en hero y servicios. `graphify diagnose multigraph --json` reportó 876 nodos, 1184 aristas y cero duplicados, extremos faltantes, aristas colgantes o autoenlaces.
+- **Pendientes:** Autorizar la inspección final; luego revisar el diff generado por Graphify, ejecutar la revisión independiente, integrar sobre la última versión de `origin/main`, hacer push, verificar el SHA remoto y comprobar el despliegue real en `https://dataseed.cl`.
