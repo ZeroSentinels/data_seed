@@ -30,3 +30,11 @@
 - **Estado:** completada.
 - **Verificación:** El script pasó compilación y prueba funcional de dos días, permaneció silencioso en el segundo intento del mismo día y emitió nuevamente al cambiar de fecha. La corrida real del cron terminó con `last_status: ok`, sin error de entrega, y quedó habilitado con destino al grupo autorizado de WhatsApp.
 - **Pendientes:** Monitorear el primer envío automático; no quedan pendientes técnicos de configuración.
+
+## 2026-08-04 20:55:14 -04 — Optimización móvil de dataseed.cl
+
+- **Solicitud:** Optimizar el sitio público dataseed.cl para celulares Android y iOS.
+- **Resultado:** Se inició una rama y worktree aislados desde `origin/main`, se auditó la landing activa y se detectaron desbordes reales a 320–390 px, grillas demasiado densas y objetivos táctiles menores al mínimo recomendado. La auditoría directa de producción no pudo completarse porque el navegador informó `ERR_CERT_AUTHORITY_INVALID` y el comando de diagnóstico HTTPS quedó bloqueado por el sistema de autorizaciones.
+- **Estado:** a la espera de autorización.
+- **Verificación:** La prueba local con iframes de ancho fijo mostró `scrollWidth: 374` frente a `clientWidth: 305` a 320 px, además de controles de 34–42 px. No se modificó ni desplegó producción.
+- **Pendientes:** Registrar la autorización con el comando exacto `/approve` sin espacio; luego implementar las pruebas RED, corregir la landing, ejecutar validación doble, publicar y verificar el sitio real.
