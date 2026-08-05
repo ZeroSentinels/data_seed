@@ -611,7 +611,7 @@ h1 em{font-style:normal;color:var(--g);text-shadow:0 0 50px rgba(0,255,65,.3);}
 .demo-input:focus{border-color:rgba(0,255,65,.2);}
 .demo-send{background:var(--g);border:none;border-radius:8px;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;transition:opacity .15s;color:#030a03;font-family:'Inter',sans-serif;font-weight:900;}
 .demo-send:hover{opacity:.8;}
-@media(max-width:900px){.prod-grid{grid-template-columns:1fr;}.demo-body{grid-template-columns:1fr;}.demo-sidebar{display:none;}}
+@media(max-width:1024px){.prod-grid{grid-template-columns:1fr;}.demo-body{grid-template-columns:1fr;}.demo-sidebar{display:none;}}
 
 /* FAQ */
 #faq{
@@ -966,7 +966,7 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
 
 @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
-@media(max-width:1100px) and (min-width:901px){
+@media(max-width:1100px) and (min-width:1025px){
   nav{padding-left:1.5rem;padding-right:1.5rem;}
   .desktop-nav{gap:.45rem;}
   .desktop-nav a{font-size:.76rem;}
@@ -976,7 +976,7 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
   .nav-login-full,.nav-cta-full{display:none;}
   .nav-login-short,.nav-cta-short{display:inline;}
 }
-@media(max-width:900px){
+@media(max-width:1024px){
   nav{padding-top:calc(1rem + env(safe-area-inset-top));padding-right:calc(1.5rem + env(safe-area-inset-right));padding-bottom:1rem;padding-left:calc(1.5rem + env(safe-area-inset-left));}
   .desktop-nav{display:none;}
   .nav-actions>.nav-login,.nav-actions>.nav-cta{display:none;}
@@ -1069,7 +1069,7 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
   nav{padding-top:calc(.9rem + env(safe-area-inset-top));padding-right:calc(1rem + env(safe-area-inset-right));padding-left:calc(1rem + env(safe-area-inset-left));}
 }
 section[id]{scroll-margin-top:calc(6rem + env(safe-area-inset-top));}
-@supports(min-height:100dvh){@media(min-width:901px){#hero{min-height:100dvh;}}}
+@supports(min-height:100dvh){@media(min-width:1025px){#hero{min-height:100dvh;}}}
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto;}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}
@@ -1688,7 +1688,7 @@ document.querySelectorAll('.faq-trigger').forEach((trigger) => {
       else if(!focusable.includes(active)){event.preventDefault();focusable[1]?.focus();}
     }
   });
-  window.addEventListener('resize',()=>{if(window.innerWidth>900)setMenu(false);});
+  window.addEventListener('resize',()=>{if(window.innerWidth>1024)setMenu(false);});
 })();
 </script>
 <script>
