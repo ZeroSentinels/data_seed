@@ -54,3 +54,11 @@
 - **Estado:** a la espera de autorización.
 - **Verificación:** Árbol staged `2bf5ec1bf913c604412f090df0981eed907d012c`; revisión independiente aprobada sin problemas lógicos ni de seguridad; `npm run check` y `npm test` aprobaron 63/63 pruebas cada uno; Graphify reportó 876 nodos, 1184 aristas y cero inconsistencias; mediciones reales en 320, 600, 768 y 900 px confirmaron cero overflow, targets de 44–48 px e inputs de 16 px. PR: `https://github.com/contacto101/data_seed/pull/9`.
 - **Pendientes:** Autorizar la continuación sin borrar archivos temporales; luego mergear el PR #9, verificar el SHA de `origin/main`, esperar el despliegue y comprobar `https://dataseed.cl` en viewports móviles reales.
+
+## 2026-08-04 22:21:42 -04 — Optimización móvil desplegada en producción
+
+- **Solicitud:** Completar la publicación en `main` de la optimización Android/iOS y el menú hamburguesa de `dataseed.cl`, verificando que los cambios queden visibles en producción.
+- **Resultado:** Con autorización explícita se fusionó el PR #9 y `main` quedó en `226875fc5efabb20bf456cd80138764d7680c173`. Vercel completó el deployment de producción `5754632083`; la landing activa `/site/index.html` ya contiene el menú hamburguesa accesible, hero compacto, safe areas y objetivos táctiles para el rango 320–900 px.
+- **Estado:** completada.
+- **Verificación:** GitHub API y `origin/main` coincidieron en `226875fc5efabb20bf456cd80138764d7680c173`; Vercel informó estado `success`; `https://dataseed.cl/site/index.html` respondió HTTP 200 con SHA-256 `4842cc0e72f9b3cc683c722deec501ab9cca431eb186784c80f689436b1f68bb`, idéntica a la copia materializada desde `main`, y confirmó `menuToggle`, `mobileMenu`, navegación etiquetada y gestión `inert` del foco. La validación final aprobó 63/63 pruebas dos veces, revisión independiente verde, Graphify sin inconsistencias y cero overflow en 320, 600, 768 y 900 px. El navegador automatizado no pudo abrir los dominios HTTPS por `ERR_CERT_AUTHORITY_INVALID` propio de su entorno, pero la verificación HTTPS directa sí completó con certificado aceptado y contenido idéntico.
+- **Pendientes:** No quedan pendientes técnicos de implementación o despliegue; se recomienda recargar la página sin caché en el dispositivo si aún conserva la versión anterior.
