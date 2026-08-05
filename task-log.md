@@ -22,3 +22,11 @@
 - **Estado:** completada.
 - **Verificación:** El bridge de WhatsApp informó estado `connected` y `hermes send` confirmó `success: true` para el grupo autorizado, con ID de mensaje `3EB053631E88A190BB82CD`.
 - **Pendientes:** El equipo debe evaluar y acordar el foco comercial propuesto; no quedan pendientes técnicos del envío.
+
+## 2026-08-04 20:44:57 -04 — Mensaje diario de foco aleatorio para el grupo DataSeed
+
+- **Solicitud:** Programar el envío de un mensaje corto de foco al equipo una vez al día, en un horario aleatorio, al grupo de WhatsApp DataSeed.
+- **Resultado:** Se creó el cronjob `39dd84d97546` (`DataSeed — foco diario aleatorio`) con ejecución cada 15 minutos y un script con estado persistente que elige un único bloque aleatorio diario en la zona `America/Santiago`, evita envíos duplicados y rota mensajes breves sin repetir los recientes.
+- **Estado:** completada.
+- **Verificación:** El script pasó compilación y prueba funcional de dos días, permaneció silencioso en el segundo intento del mismo día y emitió nuevamente al cambiar de fecha. La corrida real del cron terminó con `last_status: ok`, sin error de entrega, y quedó habilitado con destino al grupo autorizado de WhatsApp.
+- **Pendientes:** Monitorear el primer envío automático; no quedan pendientes técnicos de configuración.
