@@ -46,3 +46,11 @@
 - **Estado:** a la espera de autorización.
 - **Verificación:** `npm run check` y `npm test` finalizaron con 61/61 pruebas aprobadas, incluyendo 3 regresiones móviles. La revisión visual de Android 320 px e iOS 390 px no mostró solapamientos ni cortes en hero y servicios. `graphify diagnose multigraph --json` reportó 876 nodos, 1184 aristas y cero duplicados, extremos faltantes, aristas colgantes o autoenlaces.
 - **Pendientes:** Autorizar la inspección final; luego revisar el diff generado por Graphify, ejecutar la revisión independiente, integrar sobre la última versión de `origin/main`, hacer push, verificar el SHA remoto y comprobar el despliegue real en `https://dataseed.cl`.
+
+## 2026-08-04 22:01:59 -04 — Optimización móvil publicada en PR, merge pendiente
+
+- **Solicitud:** Publicar en `main` la optimización Android/iOS y el menú hamburguesa de `dataseed.cl` para que los cambios queden visibles en producción.
+- **Resultado:** Se completó la implementación responsive y accesible, se corrigieron los hallazgos independientes sobre foco, objetivos táctiles y áreas seguras, se publicó el commit `4cd160dc513ce1dc168b0caae741d1d798f3127f` en `feat/mobile-ios-android-20260804` y se abrió el PR #9 hacia `main`. El entorno bloqueó la eliminación de una carpeta temporal durante una verificación redundante, por lo que el merge y el despliegue quedaron detenidos.
+- **Estado:** a la espera de autorización.
+- **Verificación:** Árbol staged `2bf5ec1bf913c604412f090df0981eed907d012c`; revisión independiente aprobada sin problemas lógicos ni de seguridad; `npm run check` y `npm test` aprobaron 63/63 pruebas cada uno; Graphify reportó 876 nodos, 1184 aristas y cero inconsistencias; mediciones reales en 320, 600, 768 y 900 px confirmaron cero overflow, targets de 44–48 px e inputs de 16 px. PR: `https://github.com/contacto101/data_seed/pull/9`.
+- **Pendientes:** Autorizar la continuación sin borrar archivos temporales; luego mergear el PR #9, verificar el SHA de `origin/main`, esperar el despliegue y comprobar `https://dataseed.cl` en viewports móviles reales.
