@@ -140,7 +140,7 @@ body{
   text-rendering:optimizeLegibility;
 }
 
-#bgc{position:fixed;inset:0;z-index:0;}
+#bgc{position:fixed;inset:0;z-index:0;width:100%;height:100%;}
 .orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(100px);}
 .orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,255,65,.1),transparent 70%);top:-150px;right:-150px;}
 .orb2{width:450px;height:450px;background:radial-gradient(circle,rgba(0,180,40,.07),transparent 70%);bottom:5%;left:-100px;}
@@ -151,9 +151,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .logo img{height:40px;filter:drop-shadow(0 0 10px rgba(0,255,65,.4));}
 .logo-t{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;color:var(--text);letter-spacing:-.01em;}
 .logo-s{display:block;font-size:.5rem;letter-spacing:.35em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
-nav ul{display:flex;gap:2.2rem;list-style:none;}
-nav ul a{color:var(--sub);text-decoration:none;font-size:.84rem;font-weight:400;letter-spacing:.01em;transition:color .2s;}
-nav ul a:hover{color:var(--g);}
+.desktop-nav{display:flex;gap:2.2rem;list-style:none;}
+.desktop-nav a{color:var(--sub);text-decoration:none;font-size:.84rem;font-weight:400;letter-spacing:.01em;transition:color .2s;}
+.desktop-nav a:hover{color:var(--g);}
 .nav-actions{display:flex;align-items:center;justify-content:flex-end;gap:.65rem;}
 .nav-login,.nav-cta{display:inline-flex;align-items:center;justify-content:center;min-height:44px;white-space:nowrap;}
 .nav-login{background:rgba(0,255,65,.035);color:var(--text);border:1px solid rgba(0,255,65,.2);padding:.56rem 1.15rem;border-radius:100px;font-size:.82rem;font-weight:500;text-decoration:none;transition:background .2s,border-color .2s,color .2s,transform .2s;}
@@ -168,6 +168,17 @@ nav ul a:hover{color:var(--g);}
 .theme-toggle .sun{display:none;}
 html[data-theme="light"] .theme-toggle .moon{display:none;}
 html[data-theme="light"] .theme-toggle .sun{display:inline;}
+.menu-toggle,.mobile-menu{display:none;}
+.menu-toggle{align-items:center;justify-content:center;flex-direction:column;gap:5px;width:48px;height:48px;border:1px solid rgba(0,255,65,.24);border-radius:14px;background:rgba(0,255,65,.055);color:var(--g);cursor:pointer;}
+.menu-toggle span{display:block;width:22px;height:2px;border-radius:2px;background:currentColor;transition:transform .2s ease,opacity .2s ease;}
+.menu-toggle[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.menu-toggle[aria-expanded="true"] span:nth-child(2){opacity:0;}
+.menu-toggle[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.menu-toggle:focus-visible,.mobile-menu a:focus-visible{outline:2px solid var(--g);outline-offset:3px;}
+.mobile-menu[hidden]{display:none;}
+body.menu-open{overflow:hidden;}
+html[data-theme="light"] .mobile-menu{background:rgba(247,252,248,.98);border-color:rgba(0,143,44,.16);}
+html[data-theme="light"] .menu-toggle{background:rgba(0,143,44,.07);border-color:rgba(0,143,44,.24);}
 
 section,div.ticker-wrap,div.stats-row{position:relative;z-index:2;}
 @supports(content-visibility:auto){
@@ -957,8 +968,8 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
 
 @media(max-width:1100px) and (min-width:901px){
   nav{padding-left:1.5rem;padding-right:1.5rem;}
-  nav ul{gap:.45rem;}
-  nav ul a{font-size:.76rem;}
+  .desktop-nav{gap:.45rem;}
+  .desktop-nav a{font-size:.76rem;}
   .nav-actions{gap:.4rem;}
   .nav-login{padding:.5rem .8rem;font-size:.72rem;}
   .nav-cta{padding:.52rem .9rem;font-size:.72rem;}
@@ -966,8 +977,25 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
   .nav-login-short,.nav-cta-short{display:inline;}
 }
 @media(max-width:900px){
-  nav{padding:1rem 1.5rem;}
-  nav ul{display:none;}
+  nav{padding-top:calc(1rem + env(safe-area-inset-top));padding-right:calc(1.5rem + env(safe-area-inset-right));padding-bottom:1rem;padding-left:calc(1.5rem + env(safe-area-inset-left));}
+  .desktop-nav{display:none;}
+  .nav-actions>.nav-login,.nav-actions>.nav-cta{display:none;}
+  .menu-toggle{display:inline-flex;flex:0 0 48px;}
+  .theme-toggle{width:44px;height:44px;flex:0 0 44px;}
+  .mobile-menu:not([hidden]){position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;gap:1.5rem;overflow-y:auto;padding:calc(6.5rem + env(safe-area-inset-top)) calc(1.5rem + env(safe-area-inset-right)) calc(2rem + env(safe-area-inset-bottom)) calc(1.5rem + env(safe-area-inset-left));background:rgba(5,14,6,.98);border-bottom:1px solid rgba(0,255,65,.14);}
+  .mobile-menu ul{display:flex;flex-direction:column;gap:.45rem;list-style:none;}
+  .mobile-menu ul a{display:flex;align-items:center;min-height:52px;padding:.8rem 1rem;border:1px solid rgba(0,255,65,.12);border-radius:14px;color:var(--text);font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;text-decoration:none;background:rgba(0,255,65,.025);}
+  .mobile-menu-actions{display:grid;grid-template-columns:1fr;gap:.75rem;margin-top:auto;}
+  .mobile-menu-actions a{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:999px;text-decoration:none;font-weight:700;}
+  .mobile-menu-login{color:var(--text);border:1px solid rgba(0,255,65,.24);}
+  .mobile-menu-cta{color:#030a03;background:var(--g);box-shadow:0 0 28px rgba(0,255,65,.24);}
+  #hero{min-height:auto;justify-content:flex-start;padding-top:calc(6.5rem + env(safe-area-inset-top));}
+  html[data-platform="android"] #hero{min-height:auto;}
+  #hero .ticker-wrap{width:auto;margin:0 -1.5rem 2rem;}
+  .demo-chip{min-height:44px;}
+  .demo-input,.contact-input,.contact-textarea{font-size:16px;}
+  .demo-send{width:48px;height:48px;}
+  html[data-platform="android"] .demo-input,html[data-platform="android"] .contact-input,html[data-platform="android"] .contact-textarea{font-size:16px;}
   .inner,.stats-row,#hero{padding-left:1.5rem;padding-right:1.5rem;}
   h1{font-size:2.8rem;}
   .hero-strip,.srv-grid,.types-grid,.kpi-row{grid-template-columns:1fr 1fr;}
@@ -1000,16 +1028,19 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
   .nav-cta{padding:.52rem .9rem;font-size:.72rem;}
   .nav-login-full,.nav-cta-full{display:none;}
   .nav-login-short,.nav-cta-short{display:inline;}
-  .theme-toggle{width:36px;height:36px;flex:0 0 36px;}
-  #hero{padding-top:7.4rem;}
+  #hero{padding-top:calc(7.4rem + env(safe-area-inset-top));}
   .hero-btns{gap:.7rem;}
   .btn-p,.btn-o{width:100%;text-align:center;}
+  .hero-strip,.srv-grid,.types-grid,.kpi-row,.stats-row{grid-template-columns:1fr;}
+  .prod-card-foot{flex-direction:column;align-items:stretch;}
+  .prod-card-foot .prod-cta{width:100%;white-space:normal;text-align:center;}
   .demo-shell{border-radius:16px;}
   .demo-topbar{align-items:flex-start;gap:.8rem;}
+  .demo-topbar{flex-wrap:wrap;}
   .demo-live{font-size:.62rem;white-space:nowrap;}
   .demo-messages{min-height:260px;max-height:52svh;padding:16px;}
   .demo-input-row{padding:10px 12px;}
-  .demo-send{width:42px;height:42px;}
+  .demo-chat,.demo-input{min-width:0;}
 }
 @media(max-width:380px){
   nav{padding:.85rem .8rem;gap:.45rem;}
@@ -1017,11 +1048,10 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
   .nav-actions{gap:.25rem;}
   .nav-login{padding:.48rem .65rem;font-size:.68rem;}
   .nav-cta{padding:.5rem .72rem;font-size:.66rem;}
-  .theme-toggle{width:34px;height:34px;flex-basis:34px;}
+  .theme-toggle{width:44px;height:44px;flex-basis:44px;}
 }
 @media(max-width:340px){
   nav{padding-left:.65rem;padding-right:.65rem;}
-  .logo>div{display:none;}
   .nav-actions{gap:.2rem;}
   .nav-login{padding:.45rem .55rem;}
   .nav-cta{padding:.45rem .6rem;}
@@ -1036,6 +1066,14 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
   html[data-platform="ios"] #hero{padding-top:calc(7.4rem + env(safe-area-inset-top));}
   html[data-platform="ios"] .demo-messages{max-height:50svh;}
   html[data-platform="android"] .demo-messages{max-height:50dvh;}
+  nav{padding-top:calc(.9rem + env(safe-area-inset-top));padding-right:calc(1rem + env(safe-area-inset-right));padding-left:calc(1rem + env(safe-area-inset-left));}
+}
+section[id]{scroll-margin-top:calc(6rem + env(safe-area-inset-top));}
+@supports(min-height:100dvh){@media(min-width:901px){#hero{min-height:100dvh;}}}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}
+  .ticker{animation:none!important;transform:none!important;}
 }
 </style>
 </head>
@@ -1049,7 +1087,7 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
     <img src="assets/dataseed_logo_black.png" alt="Dataseed" width="40" height="40" decoding="async" fetchpriority="high">
     <div><span class="logo-t">Dataseed</span><span class="logo-s">Data Driven</span></div>
   </a>
-  <ul>
+  <ul class="desktop-nav">
     <li><a href="#services">Servicios</a></li>
     <li><a href="#how">Cómo funciona</a></li>
     <li><a href="#products" class="nav-active">Productos</a></li>
@@ -1060,8 +1098,23 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
     <a href="login.html" class="nav-login" data-track="nav_login"><span class="nav-login-full">Iniciar sesión</span><span class="nav-login-short">Ingresar</span></a>
     <a href="https://calendly.com/dataseed/30min" target="_blank" rel="noopener noreferrer" class="nav-cta"><span class="nav-cta-full">Reservar diagnóstico</span><span class="nav-cta-short">Diagnóstico</span></a>
     <button class="theme-toggle" type="button" id="themeToggle" aria-label="Cambiar a tema claro" aria-pressed="false"><span class="moon">☾</span><span class="sun">☀</span></button>
+    <button class="menu-toggle" type="button" id="menuToggle" aria-label="Abrir menú" aria-controls="mobileMenu" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 </nav>
+
+<div class="mobile-menu" id="mobileMenu" role="navigation" aria-label="Navegación móvil" hidden>
+  <ul>
+    <li><a href="#services">Servicios</a></li>
+    <li><a href="#how">Cómo funciona</a></li>
+    <li><a href="#products">Productos</a></li>
+    <li><a href="#types">Analítica</a></li>
+    <li><a href="#cta">Contacto</a></li>
+  </ul>
+  <div class="mobile-menu-actions">
+    <a href="login.html" class="mobile-menu-login" data-track="mobile_nav_login">Iniciar sesión</a>
+    <a href="https://calendly.com/dataseed/30min" target="_blank" rel="noopener noreferrer" class="mobile-menu-cta">Reservar diagnóstico</a>
+  </div>
+</div>
 
 <!-- HERO -->
 <section id="hero">
@@ -1339,11 +1392,11 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
       </div>
       <div class="demo-sources">
         <span class="demo-src-lbl">Fuentes demo</span>
-        <div class="demo-chip on" onclick="tcChip(this)"><span class="demo-chip-dot"></span>SAP ERP</div>
-        <div class="demo-chip on" onclick="tcChip(this)"><span class="demo-chip-dot"></span>SAS Analytics</div>
-        <div class="demo-chip on" onclick="tcChip(this)"><span class="demo-chip-dot"></span>Oracle CRM</div>
-        <div class="demo-chip" onclick="tcChip(this)"><span class="demo-chip-dot"></span>Salesforce</div>
-        <div class="demo-chip" onclick="tcChip(this)"><span class="demo-chip-dot"></span>Legacy CSV</div>
+        <button type="button" class="demo-chip on" onclick="tcChip(this)" aria-pressed="true"><span class="demo-chip-dot"></span>SAP ERP</button>
+        <button type="button" class="demo-chip on" onclick="tcChip(this)" aria-pressed="true"><span class="demo-chip-dot"></span>SAS Analytics</button>
+        <button type="button" class="demo-chip on" onclick="tcChip(this)" aria-pressed="true"><span class="demo-chip-dot"></span>Oracle CRM</button>
+        <button type="button" class="demo-chip" onclick="tcChip(this)" aria-pressed="false"><span class="demo-chip-dot"></span>Salesforce</button>
+        <button type="button" class="demo-chip" onclick="tcChip(this)" aria-pressed="false"><span class="demo-chip-dot"></span>Legacy CSV</button>
       </div>
       <div class="demo-body">
         <div class="demo-sidebar">
@@ -1603,6 +1656,43 @@ document.querySelectorAll('.faq-trigger').forEach((trigger) => {
 </script>
 <script>
 (function(){
+  const menuToggle=document.getElementById('menuToggle');
+  const mobileMenu=document.getElementById('mobileMenu');
+  if(!menuToggle||!mobileMenu)return;
+  const backgroundElements=[
+    ...[...document.body.children].filter((element)=>element!==mobileMenu&&element.tagName!=='NAV'&&element.tagName!=='SCRIPT'),
+    document.querySelector('nav>.logo'),
+    document.querySelector('nav>.desktop-nav'),
+    ...document.querySelectorAll('.nav-actions>:not(#menuToggle)')
+  ].filter(Boolean);
+  let returnFocus=null;
+  function setMenu(open){
+    if(open)returnFocus=document.activeElement;
+    mobileMenu.hidden=!open;
+    document.body.classList.toggle('menu-open',open);
+    menuToggle.setAttribute('aria-expanded',String(open));
+    menuToggle.setAttribute('aria-label',open?'Cerrar menú':'Abrir menú');
+    backgroundElements.forEach((element)=>{element.inert=open;});
+    if(open)requestAnimationFrame(()=>mobileMenu.querySelector('a')?.focus());
+    if(!open)requestAnimationFrame(()=>{returnFocus?.focus();returnFocus=null;});
+  }
+  menuToggle.addEventListener('click',()=>setMenu(menuToggle.getAttribute('aria-expanded')!=='true'));
+  mobileMenu.addEventListener('click',(event)=>{if(event.target.closest('a'))setMenu(false);});
+  document.addEventListener('keydown',(event)=>{
+    if(event.key==='Escape')setMenu(false);
+    if(event.key==='Tab'&&menuToggle.getAttribute('aria-expanded')==='true'){
+      const focusable=[menuToggle,...mobileMenu.querySelectorAll('a[href]')];
+      const first=focusable[0],last=focusable[focusable.length-1],active=document.activeElement;
+      if(event.shiftKey&&active===first){event.preventDefault();last.focus();}
+      else if(!event.shiftKey&&active===last){event.preventDefault();first.focus();}
+      else if(!focusable.includes(active)){event.preventDefault();focusable[1]?.focus();}
+    }
+  });
+  window.addEventListener('resize',()=>{if(window.innerWidth>900)setMenu(false);});
+})();
+</script>
+<script>
+(function(){
   const toggle=document.getElementById('themeToggle');
   if(!toggle)return;
   function sync(){
@@ -1675,7 +1765,7 @@ FORMATO DE RESPUESTA:
 - Debe terminar siempre con el CTA de contacto.`;
 
 let dHist=[],dBusy=false;
-function tcChip(el){el.classList.toggle('on');el.querySelector('.demo-chip-dot').style.background=el.classList.contains('on')?'var(--g)':'#0d260d';}
+function tcChip(el){const active=el.classList.toggle('on');el.setAttribute('aria-pressed',String(active));el.querySelector('.demo-chip-dot').style.background=active?'var(--g)':'#0d260d';}
 function pickQ(el){document.querySelectorAll('.demo-q').forEach(q=>q.classList.remove('sel'));el.classList.add('sel');document.getElementById('dinp').value=el.textContent.trim();dSend();}
 function dSend(){if(dBusy)return;const inp=document.getElementById('dinp');const q=inp.value.trim();if(!q)return;inp.value='';document.getElementById('dempty')?.remove();dAppend('u',q,true);dHist.push({role:'user',content:q});dTyping();dBusy=true;dAsk();}
 function dAppend(role,html,plain){const box=document.getElementById('dmsgs');const d=document.createElement('div');d.className='demo-msg';d.innerHTML=`<div class="demo-lbl ${role}">${role==='u'?'Tú':'Asistente DataSeed'}</div><div class="demo-bubble ${role}">${plain?html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):html}</div>`;box.appendChild(d);box.scrollTop=box.scrollHeight;}
