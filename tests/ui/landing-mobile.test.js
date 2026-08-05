@@ -63,12 +63,12 @@ test('mobile controls use readable text, semantic buttons and 44px or larger tar
   );
 });
 
-test('tablet hamburger mode keeps safe areas and touch targets through 900px', async () => {
+test('large-phone landscape and desktop-mode viewports keep mobile behavior through 1024px', async () => {
   const html = await readLanding();
 
   assert.match(
     html,
-    /@media\(max-width:900px\)\{\n  nav\{padding-top:calc\(1rem \+ env\(safe-area-inset-top\)\);padding-right:calc\(1\.5rem \+ env\(safe-area-inset-right\)\);padding-bottom:1rem;padding-left:calc\(1\.5rem \+ env\(safe-area-inset-left\)\);\}/,
+    /@media\(max-width:1024px\)\{\n  nav\{padding-top:calc\(1rem \+ env\(safe-area-inset-top\)\);padding-right:calc\(1\.5rem \+ env\(safe-area-inset-right\)\);padding-bottom:1rem;padding-left:calc\(1\.5rem \+ env\(safe-area-inset-left\)\);\}/,
   );
   assert.match(
     html,
@@ -82,6 +82,9 @@ test('tablet hamburger mode keeps safe areas and touch targets through 900px', a
     html,
     /@media\(max-width:600px\)\{[\s\S]*?#hero\{padding-top:calc\(7\.4rem \+ env\(safe-area-inset-top\)\);\}/,
   );
+  assert.match(html, /@supports\(min-height:100dvh\)\{@media\(min-width:1025px\)\{#hero\{min-height:100dvh;\}\}\}/);
+  assert.match(html, /window\.innerWidth>1024/);
+  assert.doesNotMatch(html, /max-width:900px|min-width:901px|innerWidth>900/);
 });
 
 test('iOS and Android layout respects safe areas, dynamic viewport and reduced motion', async () => {
@@ -92,7 +95,7 @@ test('iOS and Android layout respects safe areas, dynamic viewport and reduced m
     /nav\{padding-top:calc\(\.9rem \+ env\(safe-area-inset-top\)\);padding-right:calc\(1rem \+ env\(safe-area-inset-right\)\);padding-left:calc\(1rem \+ env\(safe-area-inset-left\)\);\}/,
   );
   assert.match(html, /section\[id\]\{scroll-margin-top:calc\(6rem \+ env\(safe-area-inset-top\)\);\}/);
-  assert.match(html, /@supports\(min-height:100dvh\)\{@media\(min-width:901px\)\{#hero\{min-height:100dvh;\}\}\}/);
+  assert.match(html, /@supports\(min-height:100dvh\)\{@media\(min-width:1025px\)\{#hero\{min-height:100dvh;\}\}\}/);
   assert.match(html, /#hero \.ticker-wrap\{width:auto;margin:0 -1\.5rem 2rem;\}/);
   assert.match(html, /@media\(prefers-reduced-motion:reduce\)/);
   assert.match(html, /\.ticker\{animation:none!important;transform:none!important;\}/);
