@@ -20,3 +20,10 @@
 - Estado: auditoría completada; remediación a la espera de autorización.
 - Verificación: SHA-256 del token idéntico en todas las copias; permisos verificados con stat; ningún valor de token fue impreso ni registrado.
 - Pendientes: rotar el token GitHub (recomendado), chmod 600 a archivos 777, eliminar/redactar JSON y backups con token, unificar scripts al patrón Agent Vault, verificar contenedor hermes-workspace-xip3.
+
+## 2026-08-06 18:47 -04 (America/Santiago)
+- Solicitud: Publicar el tablero de construcción (`tablero-construccion.jsx`) del repositorio `contacto101/data_seed` en una dirección de Vercel, usando el repo tal cual (proyecto existente, sin reconstruir).
+- Resultado: El componente se compiló a página estática autocontenida (`site/tablero-construccion.html`, 162 KB, React + Tailwind inline) y se publicó en el proyecto Vercel existente `data-seed` (linkeado a `contacto101/data_seed`, producción main). Commit `b331f15d` subido vía API GitHub; deploy de producción READY (`data-seed-hfgs7u8dy-dataseed-s-projects.vercel.app`). Dirección pública: `https://dataseed.cl/site/tablero-construccion.html`.
+- Estado: completado.
+- Verificación: HTTP 200 en producción; SHA-256 `2e3c5bd5...` idéntico entre el archivo servido y el build local renderizado en browser (KPIs, paneles, tabla y filtro OK). No se modificó `vercel.json` ni la config del proyecto.
+- Pendientes: Ninguno. Opcional: agregar redirect `/tablero-construccion` → `site/tablero-construccion.html` en `vercel.json` para URL más corta.
