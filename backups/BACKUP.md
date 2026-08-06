@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-08-05 09:01:33 UTC
-- Generado America/Santiago: 2026-08-05 05:01:33 -04
+- Generado UTC: 2026-08-06 09:00:41 UTC
+- Generado America/Santiago: 2026-08-06 05:00:41 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -14,7 +14,7 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - El `daily-summary.md` conserva el resumen diario y debe consultarse para tareas diarias, pendientes y bloqueos.
 - El backup diario de las 05:00 AM NO copia `task-log.md` ni `daily-summary.md`; solo deja esta referencia para consultarlos en el repo de tracking.
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
-- Repo/branch de tracking: `/tmp/tmp.IjdCTSKDdK/tracking-workspace` / `feat/task-tracking-system`.
+- Repo/branch de tracking: `/tmp/tmp.Tn2pGHU5tN/tracking-workspace` / `feat/task-tracking-system`.
 - Daily summary: `daily-summary.md` (120.5 KB, sha256 9d0cb2d327f41f29).
 - Task log actual: `task-log.md` (213.0 B, sha256 1512ddaa0df19af1).
 - Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (missing, sha256 missing).
@@ -43,9 +43,9 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 
 ## Configuración Hermes sanitizada
 
-- Config path: `/opt/data/config.yaml` (16.4 KB, sha256 66a5ccb914c67fb1)
-- Model provider: `openai-codex`
-- Model default: `gpt-5.6-sol`
+- Config path: `/opt/data/config.yaml` (17.6 KB, sha256 8fcbed6f310d5087)
+- Model provider: `deepseek`
+- Model default: `deepseek-v4-pro`
 - Agent max_turns: `60`
 - Agent reasoning_effort: `xhigh`
 - Display personality: `concise`
@@ -56,7 +56,7 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 
 ## Cron jobs configurados y estado
 
-Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
+Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 
 - `0fffb87e5be9` [paused]
   - Nombre: DataSeed Agent Factory Funnel Revenue Builder/Tester
@@ -73,17 +73,10 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `2073a6cc3d6e` [active]
   - Nombre: Demeter Daily Operations (5:00 AM Chile)
   - Schedule: 0 8,9 * * *
-  - Next run UTC: 2026-08-06T08:00:00+00:00
-  - Last run UTC/status: 2026-08-05T08:00:53.872269+00:00 / ok
+  - Next run UTC: 2026-08-07T08:00:00+00:00
+  - Last run UTC/status: 2026-08-06T08:00:35.263704+00:00 / ok
   - Mode: no-agent
   - Script: daily-operations-wrapper.sh
-- `39dd84d97546` [active]
-  - Nombre: DataSeed — foco diario aleatorio
-  - Schedule: every 15m
-  - Next run UTC: 2026-08-05T09:04:54.169803+00:00
-  - Last run UTC/status: 2026-08-05T08:49:54.169803+00:00 / ok
-  - Mode: no-agent
-  - Script: dataseed-daily-focus.py
 
 ## Skills instalados
 
@@ -191,12 +184,12 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 
 No se copia el contenido de estos archivos; solo tamaño y huella para validación.
 
-- `config.yaml`: 16.4 KB, sha256 66a5ccb914c67fb1
+- `config.yaml`: 17.6 KB, sha256 8fcbed6f310d5087
 - `memories/MEMORY.md`: 2.1 KB, sha256 5f96de7910d2ae79
 - `memories/USER.md`: 1.3 KB, sha256 bf1ae26473033298
-- `channel_directory.json`: 785.0 B, sha256 2fab5655e223f63c
-- `gateway_state.json`: 544.0 B, sha256 ec0922f037c69365
-- `cron/jobs.json`: 4.2 KB, sha256 d3b9c4ed49732190
+- `channel_directory.json`: 785.0 B, sha256 49b72a1d0cdaa4b3
+- `gateway_state.json`: 545.0 B, sha256 7127ff80971dc03b
+- `cron/jobs.json`: 2.7 KB, sha256 83ffcc8d94495d63
 
 ## Grafo de conocimiento del proyecto (Graphify)
 
@@ -280,7 +273,6 @@ Se genera con `scripts/generate-multibranch-graph.py`, que crea un snapshot temp
 ## Scripts/documentos pendientes de aprobación humana
 
 - `daily-operations-wrapper.sh`: pendiente; existe pero NO se copia como copia dura sin aprobación explícita en `/opt/data/backup_hardcopy_allowlist.txt`.
-- `dataseed-daily-focus.py`: pendiente; existe pero NO se copia como copia dura sin aprobación explícita en `/opt/data/backup_hardcopy_allowlist.txt`.
 
 ## Exclusiones estrictas
 
