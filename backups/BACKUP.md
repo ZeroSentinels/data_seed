@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-08-06 09:00:41 UTC
-- Generado America/Santiago: 2026-08-06 05:00:41 -04
+- Generado UTC: 2026-08-07 09:00:13 UTC
+- Generado America/Santiago: 2026-08-07 05:00:13 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -14,8 +14,8 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - El `daily-summary.md` conserva el resumen diario y debe consultarse para tareas diarias, pendientes y bloqueos.
 - El backup diario de las 05:00 AM NO copia `task-log.md` ni `daily-summary.md`; solo deja esta referencia para consultarlos en el repo de tracking.
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
-- Repo/branch de tracking: `/tmp/tmp.Tn2pGHU5tN/tracking-workspace` / `feat/task-tracking-system`.
-- Daily summary: `daily-summary.md` (120.5 KB, sha256 9d0cb2d327f41f29).
+- Repo/branch de tracking: `/tmp/tmp.QZdPIuhhRV/tracking-workspace` / `feat/task-tracking-system`.
+- Daily summary: `daily-summary.md` (124.0 KB, sha256 50a0c5c5319152be).
 - Task log actual: `task-log.md` (213.0 B, sha256 1512ddaa0df19af1).
 - Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (missing, sha256 missing).
 
@@ -43,9 +43,9 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 
 ## Configuración Hermes sanitizada
 
-- Config path: `/opt/data/config.yaml` (17.6 KB, sha256 8fcbed6f310d5087)
+- Config path: `/opt/data/config.yaml` (17.6 KB, sha256 eec5bdb287a9d13f)
 - Model provider: `deepseek`
-- Model default: `deepseek-v4-pro`
+- Model default: `deepseek-v4-flash`
 - Agent max_turns: `60`
 - Agent reasoning_effort: `xhigh`
 - Display personality: `concise`
@@ -73,8 +73,8 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `2073a6cc3d6e` [active]
   - Nombre: Demeter Daily Operations (5:00 AM Chile)
   - Schedule: 0 8,9 * * *
-  - Next run UTC: 2026-08-07T08:00:00+00:00
-  - Last run UTC/status: 2026-08-06T08:00:35.263704+00:00 / ok
+  - Next run UTC: 2026-08-08T08:00:00+00:00
+  - Last run UTC/status: 2026-08-07T08:00:03.016450+00:00 / ok
   - Mode: no-agent
   - Script: daily-operations-wrapper.sh
 
@@ -110,10 +110,12 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `songwriting-and-ai-music` (creative/songwriting-and-ai-music) — Songwriting craft and Suno AI music prompts.
 - `touchdesigner-mcp` (creative/touchdesigner-mcp) — Control a running TouchDesigner instance via twozero MCP — create operators, set parameters, wire connections, execute Python, build real-time visuals. 36 native tools.
 - `jupyter-live-kernel` (data-science/jupyter-live-kernel) — Iterative Python via live Jupyter kernel (hamelnb).
+- `credential-exposure-audit` (devops/credential-exposure-audit) — Audit where secrets and tokens live (env vars, .env files, git credential stores, configs, logs, session DBs, scripts) and characterize exposure WITHOUT printing values — for suspected leaks, post-incident review, and secret-hygiene checks. Covers redacted fingerprinting, permission/versioning checks, distinguishing real tokens from scanner regexes, and credential-broker (Agent Vault) vs direct-read patterns.
 - `deployment-platform-verification` (devops/deployment-platform-verification) — Verify deployment-platform connections and recover deployment URLs safely using current provider, project, source, and live evidence without exposing secrets.
 - `kanban-agent-workflows` (devops/kanban-agent-workflows) — Use when orchestrating Kanban-style multi-agent work: board setup, task decomposition, worker prompts, status transitions, and recovery.
 - `operational-recovery-backups` (devops/operational-recovery-backups) — Build and maintain safe operational recovery backups for Hermes/DataSeed: cron reconstruction, non-secret GitHub snapshots, rollback docs, Graphify backup, and transactional graph-summary-report-cleanup-backup operations.
 - `safe-mcp-api-integrations` (devops/safe-mcp-api-integrations) — Build and configure MCP API integrations with a safety proxy that preserves operational access while blocking irreversible actions.
+- `vercel-deployments` (devops/vercel-deployments) — Deploy static sites/builds (Vite, React, HTML) to Vercel via REST API from the DataSeed VPS. Use when asked to
 - `whatsapp-gateway-config` (devops/whatsapp-gateway-config) — WhatsApp gateway configuration for Hermes Agent — require_mention, dm_policy, group_policy, allow_from, mention_patterns, group_sessions_per_user, and all platform-specific settings.
 - `dogfood` (dogfood) — Exploratory QA of web apps: find bugs, evidence, reports.
 - `himalaya` (email/himalaya) — Himalaya CLI: IMAP/SMTP email from terminal.
@@ -184,12 +186,12 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 
 No se copia el contenido de estos archivos; solo tamaño y huella para validación.
 
-- `config.yaml`: 17.6 KB, sha256 8fcbed6f310d5087
-- `memories/MEMORY.md`: 2.1 KB, sha256 5f96de7910d2ae79
-- `memories/USER.md`: 1.3 KB, sha256 bf1ae26473033298
-- `channel_directory.json`: 785.0 B, sha256 49b72a1d0cdaa4b3
-- `gateway_state.json`: 545.0 B, sha256 7127ff80971dc03b
-- `cron/jobs.json`: 2.7 KB, sha256 83ffcc8d94495d63
+- `config.yaml`: 17.6 KB, sha256 eec5bdb287a9d13f
+- `memories/MEMORY.md`: 2.2 KB, sha256 635acc9c8fecc011
+- `memories/USER.md`: 1.3 KB, sha256 4a2acaf88ceb782c
+- `channel_directory.json`: 785.0 B, sha256 ed40718aa184bf5a
+- `gateway_state.json`: 545.0 B, sha256 e0377a7fedcdadd9
+- `cron/jobs.json`: 2.7 KB, sha256 5d23f6237b1ff67b
 
 ## Grafo de conocimiento del proyecto (Graphify)
 
