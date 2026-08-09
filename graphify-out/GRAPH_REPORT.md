@@ -1,11 +1,11 @@
-# Graph Report - dataseed-multibranch-snapshot-_wymxw8i  (2026-08-08)
+# Graph Report - dataseed-multibranch-snapshot-e178s021  (2026-08-09)
 
 ## Corpus Check
-- 219 files · ~176,097 words
+- 219 files · ~176,319 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1866 nodes · 2385 edges · 214 communities (160 shown, 54 thin omitted)
+- 1867 nodes · 2386 edges · 214 communities (160 shown, 54 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 32 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -168,12 +168,12 @@
 - [[_COMMUNITY_Community 155|Community 155]]
 - [[_COMMUNITY_Community 156|Community 156]]
 - [[_COMMUNITY_Community 157|Community 157]]
-- [[_COMMUNITY_Community 159|Community 159]]
+- [[_COMMUNITY_Community 158|Community 158]]
 - [[_COMMUNITY_Community 160|Community 160]]
 - [[_COMMUNITY_Community 161|Community 161]]
 - [[_COMMUNITY_Community 162|Community 162]]
 - [[_COMMUNITY_Community 163|Community 163]]
-- [[_COMMUNITY_Community 165|Community 165]]
+- [[_COMMUNITY_Community 164|Community 164]]
 - [[_COMMUNITY_Community 166|Community 166]]
 - [[_COMMUNITY_Community 167|Community 167]]
 - [[_COMMUNITY_Community 168|Community 168]]
@@ -808,7 +808,7 @@ Nodes (3): 2026-06-25 11:47 - Daniel Caignet, Detalle de tareas, Resumen 2026-06
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Daily Summary - Demeter` connect `Community 2` to `Community 138`, `Community 16`, `Community 150`, `Community 22`, `Community 151`, `Community 153`, `Community 152`, `Community 47`, `Community 48`, `Community 184`, `Community 185`, `Community 186`, `Community 187`, `Community 188`, `Community 189`, `Community 190`, `Community 62`, `Community 192`, `Community 193`, `Community 194`, `Community 195`, `Community 191`?**
+- **Why does `Daily Summary - Demeter` connect `Community 2` to `Community 138`, `Community 16`, `Community 150`, `Community 22`, `Community 151`, `Community 153`, `Community 152`, `Community 47`, `Community 48`, `Community 185`, `Community 186`, `Community 187`, `Community 188`, `Community 189`, `Community 190`, `Community 62`, `Community 192`, `Community 193`, `Community 194`, `Community 195`, `Community 196`, `Community 191`?**
   _High betweenness centrality (0.011) - this node is a cross-community bridge._
 - **Why does `Resumen 2026-06-14 (recuperado)` connect `Community 22` to `Community 2`?**
   _High betweenness centrality (0.004) - this node is a cross-community bridge._

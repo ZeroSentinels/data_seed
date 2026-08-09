@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-08-08 09:00:15 UTC
-- Generado America/Santiago: 2026-08-08 05:00:15 -04
+- Generado UTC: 2026-08-09 09:00:35 UTC
+- Generado America/Santiago: 2026-08-09 05:00:35 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -14,8 +14,8 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - El `daily-summary.md` conserva el resumen diario y debe consultarse para tareas diarias, pendientes y bloqueos.
 - El backup diario de las 05:00 AM NO copia `task-log.md` ni `daily-summary.md`; solo deja esta referencia para consultarlos en el repo de tracking.
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
-- Repo/branch de tracking: `/tmp/tmp.HQZQogitDT/tracking-workspace` / `feat/task-tracking-system`.
-- Daily summary: `daily-summary.md` (124.0 KB, sha256 50a0c5c5319152be).
+- Repo/branch de tracking: `/tmp/tmp.enJ6lmHUVC/tracking-workspace` / `feat/task-tracking-system`.
+- Daily summary: `daily-summary.md` (125.8 KB, sha256 43b1029128a1816f).
 - Task log actual: `task-log.md` (213.0 B, sha256 1512ddaa0df19af1).
 - Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (missing, sha256 missing).
 
@@ -39,11 +39,11 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 - Hermes binary: `/opt/hermes/.venv/bin/hermes`
 - Disk snapshot:
   `Filesystem      Size  Used Avail Use% Mounted on`
-  `/dev/sda1        96G   19G   77G  20% /opt/data`
+  `/dev/sda1        96G   23G   74G  24% /opt/data`
 
 ## Configuración Hermes sanitizada
 
-- Config path: `/opt/data/config.yaml` (17.6 KB, sha256 eec5bdb287a9d13f)
+- Config path: `/opt/data/config.yaml` (17.7 KB, sha256 c03203802f4e4a38)
 - Model provider: `deepseek`
 - Model default: `deepseek-v4-flash`
 - Agent max_turns: `60`
@@ -73,8 +73,8 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `2073a6cc3d6e` [active]
   - Nombre: Demeter Daily Operations (5:00 AM Chile)
   - Schedule: 0 8,9 * * *
-  - Next run UTC: 2026-08-09T08:00:00+00:00
-  - Last run UTC/status: 2026-08-08T08:00:09.875337+00:00 / ok
+  - Next run UTC: 2026-08-10T08:00:00+00:00
+  - Last run UTC/status: 2026-08-09T08:00:25.477869+00:00 / ok
   - Mode: no-agent
   - Script: daily-operations-wrapper.sh
 
@@ -87,16 +87,16 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `ai-coding-agent-orchestration` (autonomous-ai-agents/ai-coding-agent-orchestration) — Use when delegating software work to external AI coding CLIs such as Claude Code, Codex, or OpenCode, including one-shot, background, interactive, PR review, and parallel worktree workflows.
 - `claude-code` (autonomous-ai-agents/claude-code) — Delegate coding to Claude Code CLI (features, PRs).
 - `codex` (autonomous-ai-agents/codex) — Delegate coding to OpenAI Codex CLI (features, PRs).
-- `hermes-agent` (autonomous-ai-agents/hermes-agent) — Configure, extend, or contribute to Hermes Agent.
+- `computer-use` (autonomous-ai-agents/computer-use) — Drive the desktop in the background without stealing focus.
+- `hermes-agent` (autonomous-ai-agents/hermes-agent) — Use, configure, theme, extend, and orchestrate Hermes Agent.
 - `opencode` (autonomous-ai-agents/opencode) — Delegate coding to OpenCode CLI (features, PR review).
 - `b2b-sales-outreach` (business-development/b2b-sales-outreach) — Design concise, personalized B2B cold emails, DMs, follow-ups, and diagnostic/pilot invitations without unverified claims or premature promises.
-- `computer-use` (computer-use) — |
 - `architecture-diagram` (creative/architecture-diagram) — Dark-themed SVG architecture/cloud/infra diagrams as HTML.
 - `ascii-art` (creative/ascii-art) — ASCII art: pyfiglet, cowsay, boxes, image-to-ascii.
 - `ascii-video` (creative/ascii-video) — ASCII video: convert video/audio to colored ASCII MP4/GIF.
 - `baoyu-infographic` (creative/baoyu-infographic) — Infographics: 21 layouts x 21 styles (信息图, 可视化).
 - `claude-design` (creative/claude-design) — Design one-off HTML artifacts (landing, deck, prototype).
-- `comfyui` (creative/comfyui) — Generate images, video, and audio with ComfyUI — install, launch, manage nodes/models, run workflows with parameter injection. Uses the official comfy-cli for lifecycle and direct REST/WebSocket API for execution.
+- `comfyui` (creative/comfyui) — Generate images, video, and audio via diffusion workflows.
 - `design-md` (creative/design-md) — Author/validate/export Google
 - `excalidraw` (creative/excalidraw) — Hand-drawn Excalidraw JSON diagrams (arch, flow, seq).
 - `humanizer` (creative/humanizer) — Humanize text: strip AI-isms and add real voice.
@@ -105,23 +105,26 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `manim-video` (creative/manim-video) — Manim CE animations: 3Blue1Brown math/algo videos.
 - `p5js` (creative/p5js) — p5.js sketches: gen art, shaders, interactive, 3D.
 - `popular-web-designs` (creative/popular-web-designs) — 54 real design systems (Stripe, Linear, Vercel) as HTML/CSS.
-- `pretext` (creative/pretext) — Use when building creative browser demos with @chenglou/pretext — DOM-free text layout for ASCII art, typographic flow around obstacles, text-as-geometry games, kinetic typography, and text-powered generative art. Produces single-file HTML demos by default.
+- `pretext` (creative/pretext) — Build creative browser demos with DOM-free text layout.
 - `sketch` (creative/sketch) — Throwaway HTML mockups: 2-3 design variants to compare.
 - `songwriting-and-ai-music` (creative/songwriting-and-ai-music) — Songwriting craft and Suno AI music prompts.
-- `touchdesigner-mcp` (creative/touchdesigner-mcp) — Control a running TouchDesigner instance via twozero MCP — create operators, set parameters, wire connections, execute Python, build real-time visuals. 36 native tools.
+- `touchdesigner-mcp` (creative/touchdesigner-mcp) — Control TouchDesigner via twozero MCP.
 - `jupyter-live-kernel` (data-science/jupyter-live-kernel) — Iterative Python via live Jupyter kernel (hamelnb).
 - `credential-exposure-audit` (devops/credential-exposure-audit) — Audit where secrets and tokens live (env vars, .env files, git credential stores, configs, logs, session DBs, scripts) and characterize exposure WITHOUT printing values — for suspected leaks, post-incident review, and secret-hygiene checks. Covers redacted fingerprinting, permission/versioning checks, distinguishing real tokens from scanner regexes, and credential-broker (Agent Vault) vs direct-read patterns.
+- `dataseed-daily-ops-pipeline` (devops/dataseed-daily-ops-pipeline) — Operate, verify and troubleshoot the DataSeed daily operations pipeline (Demeter cron 05:00 Chile — tasklog, daily summary, Drive reports/emails, cleanup, backup). Use when checking whether task-log.md is still being written, investigating missing entries, distinguishing pipeline errors from idle days, creating test task entries, or verifying the cron fired without manual intervention.
+- `dataseed-tasklog` (devops/dataseed-tasklog) — Write, publish, verify, and troubleshoot DataSeed task-log entries (task-log.md on feat/task-tracking-system) and its 05:00 Chile daily pipeline. Use whenever an operational task must be logged, when checking why entries/summaries are missing, or when asked to verify the tasklog system itself.
 - `deployment-platform-verification` (devops/deployment-platform-verification) — Verify deployment-platform connections and recover deployment URLs safely using current provider, project, source, and live evidence without exposing secrets.
 - `kanban-agent-workflows` (devops/kanban-agent-workflows) — Use when orchestrating Kanban-style multi-agent work: board setup, task decomposition, worker prompts, status transitions, and recovery.
 - `operational-recovery-backups` (devops/operational-recovery-backups) — Build and maintain safe operational recovery backups for Hermes/DataSeed: cron reconstruction, non-secret GitHub snapshots, rollback docs, Graphify backup, and transactional graph-summary-report-cleanup-backup operations.
 - `safe-mcp-api-integrations` (devops/safe-mcp-api-integrations) — Build and configure MCP API integrations with a safety proxy that preserves operational access while blocking irreversible actions.
 - `vercel-deployments` (devops/vercel-deployments) — Deploy static sites/builds (Vite, React, HTML) to Vercel via REST API from the DataSeed VPS. Use when asked to
 - `whatsapp-gateway-config` (devops/whatsapp-gateway-config) — WhatsApp gateway configuration for Hermes Agent — require_mention, dm_policy, group_policy, allow_from, mention_patterns, group_sessions_per_user, and all platform-specific settings.
-- `dogfood` (dogfood) — Exploratory QA of web apps: find bugs, evidence, reports.
+- `email-inbox-triage` (email/email-inbox-triage) — Triage an inbox: prioritize threads, draft replies safely.
 - `himalaya` (email/himalaya) — Himalaya CLI: IMAP/SMTP email from terminal.
 - `codebase-inspection` (github/codebase-inspection) — Inspect codebases w/ pygount: LOC, languages, ratios.
 - `github-auth` (github/github-auth) — GitHub auth setup: HTTPS tokens, SSH keys, gh CLI login.
 - `github-code-review` (github/github-code-review) — Review PRs: diffs, inline comments via gh or REST.
+- `github-issue-to-pr` (github/github-issue-to-pr) — Carry a GitHub issue to a verified PR with honest CI state.
 - `github-issues` (github/github-issues) — Create, triage, label, assign GitHub issues via gh or REST.
 - `github-pr-workflow` (github/github-pr-workflow) — GitHub PR lifecycle: branch, commit, open, CI, merge.
 - `github-repo-management` (github/github-repo-management) — Clone/create/fork repos; manage remotes, releases.
@@ -132,12 +135,12 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `heartmula` (media/heartmula) — HeartMuLa: Suno-like song generation from lyrics + tags.
 - `songsee` (media/songsee) — Audio spectrograms/features (mel, chroma, MFCC) via CLI.
 - `youtube-content` (media/youtube-content) — YouTube transcripts to summaries, threads, blogs.
-- `evaluating-llms-harness` (mlops/evaluation/lm-evaluation-harness) — lm-eval-harness: benchmark LLMs (MMLU, GSM8K, etc.).
+- `evaluating-llms-harness` (mlops/evaluation/evaluating-llms-harness) — lm-eval-harness: benchmark LLMs (MMLU, GSM8K, etc.).
 - `weights-and-biases` (mlops/evaluation/weights-and-biases) — W&B: log ML experiments, sweeps, model registry, dashboards.
 - `huggingface-hub` (mlops/huggingface-hub) — HuggingFace hf CLI: search/download/upload models, datasets.
 - `llama-cpp` (mlops/inference/llama-cpp) — llama.cpp local GGUF inference + HF Hub model discovery.
 - `obliteratus` (mlops/inference/obliteratus) — OBLITERATUS: abliterate LLM refusals (diff-in-means).
-- `serving-llms-vllm` (mlops/inference/vllm) — vLLM: high-throughput LLM serving, OpenAI API, quantization.
+- `serving-llms-vllm` (mlops/inference/serving-llms-vllm) — vLLM: high-throughput LLM serving, OpenAI API, quantization.
 - `audiocraft-audio-generation` (mlops/models/audiocraft) — AudioCraft: MusicGen text-to-music, AudioGen text-to-sound.
 - `segment-anything-model` (mlops/models/segment-anything) — SAM: zero-shot image segmentation via points, boxes, masks.
 - `obsidian` (note-taking/obsidian) — Read, search, create, and edit notes in the Obsidian vault.
@@ -145,35 +148,43 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `apple-platform-automation` (productivity/apple-platform-automation) — Use when automating Apple/macOS apps and services from Hermes: Notes, Reminders, Messages, Find My, and visual computer-use workflows.
 - `business-reporting-systems` (productivity/business-reporting-systems) — Design, standardize, publish, validate, and automate cross-functional reporting systems for companies and startups. Use for area reports, executive status packs, KPI schemas, RAG health reporting, synthetic samples, and report folders in shared document systems.
 - `cross-functional-business-reporting` (productivity/cross-functional-business-reporting) — Design, create, validate, and automate standardized reporting systems across business or startup areas, including Drive folder structures, Markdown guides, editable document deliverables, KPI/RAG conventions, and cross-area dependencies.
-- `docx` (productivity/docx) — Create, read, edit Word .docx documents and templates.
+- `document-to-action-items` (productivity/document-to-action-items) — Extract cited obligations, deadlines, tasks from documents.
+- `docx` (productivity/docx) — Create, read, edit, template, and review Word .docx files.
 - `google-workspace` (productivity/google-workspace) — Gmail, Calendar, Drive, Docs, Sheets via gws CLI or Python.
 - `maps` (productivity/maps) — Geocode, POIs, routes, timezones via OpenStreetMap/OSRM.
-- `nano-pdf` (productivity/nano-pdf) — Edit PDF text/typos/titles via nano-pdf CLI (NL prompts).
+- `meeting-action-items` (productivity/meeting-action-items) — Turn meeting notes into cited decisions, owners, tickets.
+- `nano-pdf` (productivity/nano-pdf) — Edit text in existing PDFs via natural-language prompts.
 - `notion` (productivity/notion) — Notion API + ntn CLI: pages, databases, markdown, Workers.
 - `ocr-and-documents` (productivity/ocr-and-documents) — Extract text from PDFs/scans (pymupdf, marker-pdf).
-- `pdf` (productivity/pdf) — Create, merge, split, fill, and secure PDF files.
+- `pdf` (productivity/pdf) — Create, read, merge, fill, and secure PDF files.
 - `petdex` (productivity/petdex) — Install and select animated petdex mascots for Hermes.
-- `powerpoint` (productivity/powerpoint) — Create, read, edit .pptx decks, slides, notes, templates.
-- `teams-meeting-pipeline` (productivity/teams-meeting-pipeline) — Operate the Teams meeting summary pipeline via Hermes CLI — summarize meetings, inspect pipeline status, replay jobs, manage Microsoft Graph subscriptions.
+- `powerpoint` (productivity/powerpoint) — Create, read, edit .pptx decks with python-pptx.
+- `product-price-monitor` (productivity/product-price-monitor) — Watch product, flight, or listing prices; alert on target.
+- `teams-meeting-pipeline` (productivity/teams-meeting-pipeline) — Teams meeting summaries, job replay, Graph subscriptions.
 - `tui-widgets` (productivity/tui-widgets) — Author live widget apps for the Hermes TUI dock.
-- `xlsx` (productivity/xlsx) — Create, read, edit Excel .xlsx spreadsheets and CSVs.
+- `weekly-review-planning` (productivity/weekly-review-planning) — Weekly reset: commitments, stalled work, next-week plan.
+- `xlsx` (productivity/xlsx) — Create, read, edit Excel .xlsx workbooks and CSVs.
 - `godmode` (red-teaming/godmode) — Jailbreak LLMs: Parseltongue, GODMODE, ULTRAPLINIAN.
 - `arxiv` (research/arxiv) — Search arXiv papers by keyword, author, category, or ID.
 - `blogwatcher` (research/blogwatcher) — Monitor blogs and RSS/Atom feeds via blogwatcher-cli tool.
+- `competitor-news-monitor` (research/competitor-news-monitor) — Watch named companies for material news; cited digests.
+- `grounded-citations` (research/grounded-citations) — Ground answers and documents in cited, verifiable sources.
 - `llm-wiki` (research/llm-wiki) — Karpathy
 - `polymarket` (research/polymarket) — Query Polymarket: markets, prices, orderbooks, history.
 - `research-paper-writing` (research/research-paper-writing) — Write ML papers for NeurIPS/ICML/ICLR: design→submit.
 - `openhue` (smart-home/openhue) — Control Philips Hue lights, scenes, rooms via OpenHue CLI.
-- `xurl` (social-media/xurl) — X/Twitter via xurl CLI: post, search, DM, media, v2 API.
-- `hermes-agent-skill-authoring` (software-development/hermes-agent-skill-authoring) — Author in-repo SKILL.md: frontmatter, validator, structure, and writing-quality principles.
+- `xurl` (social-media/xurl) — X/Twitter via xurl CLI: raw post search, posting, DM, media.
+- `dogfood` (software-development/dogfood) — Exploratory QA of web apps: find bugs, evidence, reports.
+- `hermes-agent-skill-authoring` (software-development/hermes-agent-skill-authoring) — Author in-repo SKILL.md files: frontmatter and structure.
+- `inspecting-hermes-desktop-dom` (software-development/inspecting-hermes-desktop-dom) — Read the live Hermes desktop DOM/CSS over CDP.
 - `knowledge-graph-codebase-navigation` (software-development/knowledge-graph-codebase-navigation) — Build and use local knowledge graphs for codebase/navigation tasks, especially via Graphify, MCP, and agent skills.
 - `live-documentation-mcp` (software-development/live-documentation-mcp) — Configure and use live documentation sources such as Context7 for coding agents via MCP or CLI fallback.
 - `node-inspect-debugger` (software-development/node-inspect-debugger) — Debug Node.js via --inspect + Chrome DevTools Protocol CLI.
-- `plan` (software-development/plan) — Plan mode: write an actionable markdown plan to .hermes/plans/, no execution. Bite-sized tasks, exact paths, complete code.
+- `plan` (software-development/plan) — Write a markdown plan to .hermes/plans/; no execution.
 - `python-debugpy` (software-development/python-debugpy) — Debug Python: pdb REPL + debugpy remote (DAP).
 - `requesting-code-review` (software-development/requesting-code-review) — Pre-commit review: security scan, quality gates, auto-fix.
 - `secure-multitenant-web-auth` (software-development/secure-multitenant-web-auth) — Design, implement, test, and deploy secure multi-tenant authentication for web applications, especially static frontends backed by serverless APIs and an external auth/Postgres provider.
-- `simplify-code` (software-development/simplify-code) — Parallel 3-agent cleanup of recent code changes.
+- `simplify-code` (software-development/simplify-code) — Parallel 4-agent cleanup of recent code changes.
 - `software-debugging-and-quality` (software-development/software-debugging-and-quality) — Use when improving software correctness: root-cause debugging, TDD, debugger attachment, pre-commit review, simplification passes, and throwaway validation spikes.
 - `spike` (software-development/spike) — Throwaway experiments to validate an idea before build.
 - `systematic-debugging` (software-development/systematic-debugging) — 4-phase root cause debugging: understand bugs before fixing.
@@ -186,12 +197,12 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 
 No se copia el contenido de estos archivos; solo tamaño y huella para validación.
 
-- `config.yaml`: 17.6 KB, sha256 eec5bdb287a9d13f
+- `config.yaml`: 17.7 KB, sha256 c03203802f4e4a38
 - `memories/MEMORY.md`: 2.2 KB, sha256 635acc9c8fecc011
 - `memories/USER.md`: 1.3 KB, sha256 4a2acaf88ceb782c
-- `channel_directory.json`: 785.0 B, sha256 f2c61d498e8343f7
-- `gateway_state.json`: 545.0 B, sha256 e0377a7fedcdadd9
-- `cron/jobs.json`: 2.7 KB, sha256 1c8ed57b51da6136
+- `channel_directory.json`: 785.0 B, sha256 e8be7803e5d71d08
+- `gateway_state.json`: 545.0 B, sha256 252cbcbb7c34c18e
+- `cron/jobs.json`: 2.7 KB, sha256 309c145543cef5a5
 
 ## Grafo de conocimiento del proyecto (Graphify)
 
