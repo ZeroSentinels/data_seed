@@ -28,6 +28,30 @@ El nombre Demeter hace referencia a la diosa asociada a la agricultura y la fert
 - Mantener referencias a personas específicas fuera de la documentación técnica, salvo cuando sean imprescindibles para permisos o responsabilidades legales.
 - Usar lenguaje impersonal para procesos, configuración y peticiones.
 - En documentos técnicos, la narrativa de marca debe ocupar aproximadamente un 5% del contenido.
+
+## Formato canónico del task-log (obligatorio, sin excepción)
+
+Toda entrada escrita en `task-log.md` usa campos con negrita y prefijo de lista:
+
+```md
+## YYYY-MM-DD HH:MM -04 (America/Santiago)
+- **Solicitud:** <qué se pidió>
+- **Resultado:** <qué se hizo y cómo terminó>
+- **Estado:** completada | ❌ con error | 🔄 activa | ⏳ a la espera de autorización
+- **Verificación:** <evidencia concreta y verificable>
+- **Pendientes:** <pendientes o "Ninguno">
+```
+
+Reglas:
+
+- Los nombres de campo SIEMPRE llevan `**` y `:` — nunca `- Solicitud:` sin asteriscos.
+- El formato sin negrita es invisible para `daily-task-log-cleanup.sh` (regex `\*\*Estado:\*\*`) y para `daily-area-reports.js` (`terminal=false`): produce resúmenes 0/0/0/0 y cero documentos Drive/correos aunque el detalle exista.
+- `**Estado:**` debe incluir un marcador terminal (`completada`, `finalizada`, `✅`, `❌`, `con error`, `fallida`) para que la tarea genere reporte; solo `a la espera de autorización` es pendiente, no terminal.
+- La cabecera fechada mantiene `## YYYY-MM-DD HH:MM -04 (America/Santiago)`; el prefijo de fecha es la fecha de la tarea.
+- Verificación al cerrar: `grep -c '\*\*Estado:\*\*' task-log.md` debe igualar el número de entradas.
+
+Referencia: `backups/reporting/AUTOMATIZACION_UNIFICADA_DE_REPORTES.md` (sección "Formato canónico de entrada").
+
 - En documentos comerciales, mercado o estrategia, la narrativa de marca puede ocupar aproximadamente un 30% del contenido.
 
 ## Estructura de la landing
