@@ -26,6 +26,28 @@ Esta automatización forma parte del **cronjob unificado de las 05:00 Chile**. E
 4. Un registro global de huellas evita reprocesar tareas si el task-log no fue limpiado.
 5. Periodo operativo: desde las 05:00 del día informado hasta las 05:00 del día siguiente, hora `America/Santiago`.
 
+## Formato canónico de entrada en task-log.md (obligatorio)
+
+Toda entrada escrita por Demeter en `task-log.md` usa campos con negrita y prefijo de lista. Sin excepción:
+
+```md
+## YYYY-MM-DD HH:MM -04 (America/Santiago)
+- **Solicitud:** <qué se pidió>
+- **Resultado:** <qué se hizo y cómo terminó>
+- **Estado:** completada | ❌ con error | 🔄 activa | ⏳ a la espera de autorización
+- **Verificación:** <evidencia concreta y verificable>
+- **Pendientes:** <pendientes o "Ninguno">
+```
+
+Reglas:
+
+- Los nombres de campo SIEMPRE llevan `**` y `:` — nunca `- Solicitud:` sin asteriscos. Una entrada sin negrita es invisible para el conteo del resumen y para el reporter de áreas (`terminal=false` → cero reportes y cero correos).
+- `**Estado:**` debe contener un marcador terminal (`completada`, `finalizada`, `✅`, `❌`, `con error`, `fallida`) para generar reporte; solo `a la espera de autorización` cuenta como pendiente, no terminal.
+- La cabecera fechada mantiene el formato `## YYYY-MM-DD HH:MM -04 (America/Santiago)`; el prefijo de fecha es la fecha de la tarea para el parser.
+- Al cerrar la entrada, verificar: `grep -c '\*\*Estado:\*\*' task-log.md` debe coincidir con el número de entradas.
+
+Incidencia registrada: entradas sin `**` entre 2026-08-06 y 2026-08-08 produjeron resúmenes con conteo 0/0/0/0 y ausencia total de documentos Drive y correos, pese a que el detalle de tareas estaba presente. El formato anterior a 2026-08-06 (con `**Campo:**`) sí generaba reportes y correos normalmente.
+
 ## Áreas
 
 1. Dirección y Estrategia
