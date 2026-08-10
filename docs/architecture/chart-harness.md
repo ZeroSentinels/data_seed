@@ -11,8 +11,18 @@ El agente NUNCA escribe HTML ni opciones de ECharts. Genera un **spec JSON corto
 
 Capas:
 1. **Agente (Demeter)**: petición del cliente → spec JSON (`type`, `title`, `categories`, `series`, `options`).
-2. **Validador** (`validarSpec`): whitelist de tipos, límites (≤20 categorías, ≤6 en pie/donut, ≤2 series, nombres ≤60 chars, valores numéricos). Spec inválido → **fallback determinista a tabla** (nunca se pierde información, nunca gráfico roto).
-3. **Render** (`renderChart` + helpers): solo helpers ECharts con grid/axis/truncado predefinidos. Nombres completos en el eje (truncado elegante "…" + tooltip completo), `grid.right` reservado para etiquetas, eje X con 15% de respiro (`max: v.max*1.15`).
+2. **Validador** (`validarSpecArnés`): whitelist de tipos, límites (≤20 categorías, ≤6 en pie/donut, ≤2 series, nombres ≤60 chars, valores numéricos). Spec inválido → **fallback determinista a tabla** (nunca se pierde información, nunca gráfico roto).
+3. **Render** (`renderSpecArnés` + helpers): solo helpers ECharts con grid/axis/truncado predefinidos. Nombres completos en el eje (truncado elegante "…" + tooltip completo), `grid.right` reservado para etiquetas, eje X con 15% de respiro (`max: v.max*1.15`).
+
+## Integración backend/frontend (decisión final)
+
+El arnés NO es una página de prueba separada: **se integra como backend de render dentro del frontend de la PoC** (`poc-electrored.html`). La página despliega:
+
+- **Frontend completo** del dashboard (KPIs, 4 charts, Top 3, tabla, roadmap, consultas, sidebar, chat Demeter) — todo lo que ve el cliente.
+- **Sección "🤖 Generado por petición"** (oculta por defecto) que se activa con `?spec=<urlencoded-json>` en la URL: el validador + render del arnés dibujan el gráfico pedido (bar-h, bar-v, line, pie ≤6, donut ≤6) o el fallback tabla si el spec es inválido.
+- El agente responde a una petición del cliente generando el spec y entregando la URL con `?spec=` — el render ocurre 100% client-side, sin servidor.
+
+URL pública (entorno aislado PoC): https://dataseed-chart-harness.vercel.app (index.html = poc-electrored.html con arnés integrado).
 
 ## Catálogo de tipos soportados
 
@@ -29,10 +39,11 @@ Contrato mínimo: `{ type, title?, subtitle?, categories[], series[{name?, value
 
 ## Entregables (PoC desplegada)
 
-- **Arnés**: `/opt/data/harness/chart-harness.html` — autocontenido (ECharts inline ~1 MB), validador + 6 helpers + ejemplos (pastel, línea, inválido→tabla, nombres largos).
+- **Frontend integrado**: `/opt/data/dashboards/poc-electrored.html` — dashboard completo + arnés (validador `validarSpecArnés` + render `renderSpecArnés` + sección "Generado por petición" con `?spec=`).
 - **URL pública (Vercel, entorno aislado)**: https://dataseed-chart-harness.vercel.app
-  - Raíz: `index.html` (misma página).
-  - Petición directa: `?spec=<urlencoded-json>` → la página carga y renderiza ese spec.
+  - Raíz: `index.html` = PoC completa con arnés integrado (verificado sha256 idéntico al local).
+  - Petición directa: `?spec=<urlencoded-json>` → renderiza el gráfico pedido o fallback tabla.
+- **Seguridad**: el proyecto `dataseed-chart-harness` es el ÚNICO con SSO desactivado (solo para la demo pública de la PoC). Verificado por escaneo del HTML servido: 0 tokens, 0 API keys, 0 emails, 0 RUTs, 0 credenciales. Los proyectos `data-seed` y `dataseed-tablero-construccion` NO fueron modificados (mantienen su protección).
 - **Deploy**: script `/opt/data/harness/deploy_harness.py` (template `deploy_vercel_inline.py` de la skill vercel-deployments).
 
 ## Verificación end-to-end (real, 2026-08-10)
