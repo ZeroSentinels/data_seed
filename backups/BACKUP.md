@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-08-10 09:00:52 UTC
-- Generado America/Santiago: 2026-08-10 05:00:52 -04
+- Generado UTC: 2026-08-11 13:09:49 UTC
+- Generado America/Santiago: 2026-08-11 09:09:49 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -14,10 +14,10 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - El `daily-summary.md` conserva el resumen diario y debe consultarse para tareas diarias, pendientes y bloqueos.
 - El backup diario de las 05:00 AM NO copia `task-log.md` ni `daily-summary.md`; solo deja esta referencia para consultarlos en el repo de tracking.
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
-- Repo/branch de tracking: `/tmp/tmp.snIGgEiMfQ/tracking-workspace` / `feat/task-tracking-system`.
-- Daily summary: `daily-summary.md` (125.8 KB, sha256 43b1029128a1816f).
-- Task log actual: `task-log.md` (213.0 B, sha256 1512ddaa0df19af1).
-- Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (missing, sha256 missing).
+- Repo/branch de tracking: `/opt/data/data_seed_tasklog_worktree` / `feat/task-tracking-system`.
+- Daily summary: `daily-summary.md` (120.5 KB, sha256 9d0cb2d327f41f29).
+- Task log actual: `task-log.md` (29.4 KB, sha256 748f5c098594a8ca).
+- Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (594.0 B, sha256 6fd18874fbd0ad90).
 
 Regla operativa: el log diario registra detalles; el resumen diario consolida tareas y pendientes; el backup de las 05:00 AM solo guarda ciclos grandes completados y una referencia hacia el resumen diario.
 
@@ -39,11 +39,11 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 - Hermes binary: `/opt/hermes/.venv/bin/hermes`
 - Disk snapshot:
   `Filesystem      Size  Used Avail Use% Mounted on`
-  `/dev/sda1        96G   23G   74G  24% /opt/data`
+  `/dev/sda1        96G   24G   73G  25% /opt/data`
 
 ## Configuración Hermes sanitizada
 
-- Config path: `/opt/data/config.yaml` (17.7 KB, sha256 c03203802f4e4a38)
+- Config path: `/opt/data/config.yaml` (16.7 KB, sha256 18359c6b9ecee4d8)
 - Model provider: `deepseek`
 - Model default: `deepseek-v4-flash`
 - Agent max_turns: `60`
@@ -56,7 +56,7 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 
 ## Cron jobs configurados y estado
 
-Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
+Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 
 - `0fffb87e5be9` [paused]
   - Nombre: DataSeed Agent Factory Funnel Revenue Builder/Tester
@@ -73,10 +73,17 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `2073a6cc3d6e` [active]
   - Nombre: Demeter Daily Operations (5:00 AM Chile)
   - Schedule: 0 8,9 * * *
-  - Next run UTC: 2026-08-11T08:00:00+00:00
-  - Last run UTC/status: 2026-08-10T08:00:47.158084+00:00 / ok
+  - Next run UTC: 2026-08-12T08:00:00+00:00
+  - Last run UTC/status: 2026-08-11T09:00:27.888520+00:00 / error
   - Mode: no-agent
   - Script: daily-operations-wrapper.sh
+- `89e2d5c6bd6b` [paused]
+  - Nombre: ElectroRed Monitor (equipo)
+  - Schedule: every 5m
+  - Next run UTC: 2026-08-10T22:18:57.889351+00:00
+  - Last run UTC/status: 2026-08-10T22:13:57.889351+00:00 / ok
+  - Mode: no-agent
+  - Script: electrored-monitor-cron.py
 
 ## Skills instalados
 
@@ -109,13 +116,19 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `sketch` (creative/sketch) — Throwaway HTML mockups: 2-3 design variants to compare.
 - `songwriting-and-ai-music` (creative/songwriting-and-ai-music) — Songwriting craft and Suno AI music prompts.
 - `touchdesigner-mcp` (creative/touchdesigner-mcp) — Control TouchDesigner via twozero MCP.
+- `interactive-data-dashboards` (data-science/interactive-data-dashboards) — Build interactive dashboards from MCP/API data.
 - `jupyter-live-kernel` (data-science/jupyter-live-kernel) — Iterative Python via live Jupyter kernel (hamelnb).
+- `mercado-publico-analytics` (data-science/mercado-publico-analytics) — Use when analyzing ChileCompra via mcp__mercado_publico MCP.
+- `agent-editable-dashboards` (devops/agent-editable-dashboards) — Use when building dashboards an LLM agent edits at runtime.
 - `credential-exposure-audit` (devops/credential-exposure-audit) — Audit where secrets and tokens live (env vars, .env files, git credential stores, configs, logs, session DBs, scripts) and characterize exposure WITHOUT printing values — for suspected leaks, post-incident review, and secret-hygiene checks. Covers redacted fingerprinting, permission/versioning checks, distinguishing real tokens from scanner regexes, and credential-broker (Agent Vault) vs direct-read patterns.
 - `dataseed-daily-ops-pipeline` (devops/dataseed-daily-ops-pipeline) — Operate, verify and troubleshoot the DataSeed daily operations pipeline (Demeter cron 05:00 Chile — tasklog, daily summary, Drive reports/emails, cleanup, backup). Use when checking whether task-log.md is still being written, investigating missing entries, distinguishing pipeline errors from idle days, creating test task entries, or verifying the cron fired without manual intervention.
 - `dataseed-tasklog` (devops/dataseed-tasklog) — Write, publish, verify, and troubleshoot DataSeed task-log entries (task-log.md on feat/task-tracking-system) and its 05:00 Chile daily pipeline. Use whenever an operational task must be logged, when checking why entries/summaries are missing, or when asked to verify the tasklog system itself.
 - `deployment-platform-verification` (devops/deployment-platform-verification) — Verify deployment-platform connections and recover deployment URLs safely using current provider, project, source, and live evidence without exposing secrets.
+- `hermes-api-server-bridge` (devops/hermes-api-server-bridge) — Bridge dashboard chat to Hermes agent via api_server.
+- `hermes-browser-setup` (devops/hermes-browser-setup) — Use when Hermes browser tools fail or show cert errors.
 - `kanban-agent-workflows` (devops/kanban-agent-workflows) — Use when orchestrating Kanban-style multi-agent work: board setup, task decomposition, worker prompts, status transitions, and recovery.
 - `operational-recovery-backups` (devops/operational-recovery-backups) — Build and maintain safe operational recovery backups for Hermes/DataSeed: cron reconstruction, non-secret GitHub snapshots, rollback docs, Graphify backup, and transactional graph-summary-report-cleanup-backup operations.
+- `public-llm-agent-security` (devops/public-llm-agent-security) — Use when securing a public LLM agent chat with real tools.
 - `safe-mcp-api-integrations` (devops/safe-mcp-api-integrations) — Build and configure MCP API integrations with a safety proxy that preserves operational access while blocking irreversible actions.
 - `vercel-deployments` (devops/vercel-deployments) — Deploy static sites/builds (Vite, React, HTML) to Vercel via REST API from the DataSeed VPS. Use when asked to
 - `whatsapp-gateway-config` (devops/whatsapp-gateway-config) — WhatsApp gateway configuration for Hermes Agent — require_mention, dm_policy, group_policy, allow_from, mention_patterns, group_sessions_per_user, and all platform-specific settings.
@@ -197,12 +210,12 @@ Total jobs: 3. Sensitive fields excluded: prompt, deliver, delivery targets.
 
 No se copia el contenido de estos archivos; solo tamaño y huella para validación.
 
-- `config.yaml`: 17.7 KB, sha256 c03203802f4e4a38
-- `memories/MEMORY.md`: 2.2 KB, sha256 635acc9c8fecc011
-- `memories/USER.md`: 1.3 KB, sha256 4a2acaf88ceb782c
-- `channel_directory.json`: 785.0 B, sha256 39e929383be812ba
-- `gateway_state.json`: 545.0 B, sha256 252cbcbb7c34c18e
-- `cron/jobs.json`: 2.7 KB, sha256 54a8114cafd7a6af
+- `config.yaml`: 16.7 KB, sha256 18359c6b9ecee4d8
+- `memories/MEMORY.md`: 3.6 KB, sha256 7f87d06891b551e7
+- `memories/USER.md`: 1.8 KB, sha256 e0877a1b3c943295
+- `channel_directory.json`: 785.0 B, sha256 a0b74ea19bdf0609
+- `gateway_state.json`: 545.0 B, sha256 66191c34b94dc029
+- `cron/jobs.json`: 5.2 KB, sha256 6c01fbb391e5c34c
 
 ## Grafo de conocimiento del proyecto (Graphify)
 
@@ -286,6 +299,7 @@ Se genera con `scripts/generate-multibranch-graph.py`, que crea un snapshot temp
 ## Scripts/documentos pendientes de aprobación humana
 
 - `daily-operations-wrapper.sh`: pendiente; existe pero NO se copia como copia dura sin aprobación explícita en `/opt/data/backup_hardcopy_allowlist.txt`.
+- `electrored-monitor-cron.py`: pendiente; existe pero NO se copia como copia dura sin aprobación explícita en `/opt/data/backup_hardcopy_allowlist.txt`.
 
 ## Exclusiones estrictas
 
