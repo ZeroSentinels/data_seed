@@ -1,7 +1,7 @@
 
-## 2026-08-11 05:35 -04 (America/Santiago)
-- **Solicitud:** Usuario envía captura (img_1a00c651f77d.jpg) del header del panel del chat: "Esta parte de la burbuja se ve naif e innecesaria" — el emoji 💬 junto a "Demeter · ajustes PoC" se veía naif.
-- **Resultado:** Build v58 (dpl_4KUpUfhwNrUUwakHHzw9phHJwUfY, FINAL READY). Reemplazado el emoji 💬 del `#chatHead` por un indicador de estado sobrio: punto verde de 7px (bg #00ff41, box-shadow glow) con inline-flex gap 8px antes del título "Demeter · ajustes PoC". Se mantiene la ✕ de cierre.
+## 2026-08-11 05:50 -04 (America/Santiago)
+- **Solicitud:** Usuario pide quitar la cruz (✕) del header del panel del chat.
+- **Resultado:** Build v59 (dpl_AUiMpQeuFNVVcc58iG38wtjncci7, FINAL READY). Eliminado `<span class="x" id="chatClose">✕</span>` del `#chatHead` y su listener en initChat; el header queda solo con el punto verde de estado + "Demeter · ajustes PoC". El cierre del chat sigue disponible por clic fuera (overlay) y tecla Escape.
 - **Estado:** completada.
-- **Verificación:** check-html-js OK, deploy READY; navegador real: `#chatHead.textContent = "Demeter · ajustes PoC✕"`, `emojiBurbuja:false`, punto verde presente; browser_vision confirma header minimalista y profesional, sin emoji.
+- **Verificación:** check-html-js OK, deploy READY; navegador real: `chatClose` no existe (`cruz:false`), header texto "Demeter · ajustes PoC"; cierre funcional con Escape (`cerradoConEscape:true`) y con clic en overlay (`cerradoConOverlay:true`).
 - **Pendientes:** Ninguno.
