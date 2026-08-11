@@ -127,8 +127,23 @@ if [ ! -f "$DAILY_SUMMARY" ]; then
 fi
 
 if ! grep -q "<!-- ENTRADAS -->" "$TASK_LOG"; then
-  echo "[$TIMESTAMP] task-log.md no tiene el marcador de entradas. Saltando."
-  exit 0
+  echo "[$TIMESTAMP] WARNING: task-log.md sin marcador de entradas. Reparando (header + marcador antepuestos, contenido preservado)."
+  TASK_LOG_TMP="$TASK_LOG.repair.$$"
+  {
+    echo "# Task Log - Demeter"
+    echo ""
+    echo "> **Archivo volátil**: Se reinicia automáticamente cada 24 horas a las 05:00 AM (hora Chile, America/Santiago)."
+    echo "> No editar manualmente fuera del flujo automático."
+    echo ""
+    echo "---"
+    echo ""
+    echo "<!-- ENTRADAS -->"
+    echo ""
+    echo "> Reparado automáticamente por el pipeline: faltaba el marcador de entradas."
+    echo ""
+    cat "$TASK_LOG"
+  } > "$TASK_LOG_TMP"
+  mv "$TASK_LOG_TMP" "$TASK_LOG"
 fi
 
 ENTRIES=$(sed -n '/<!-- ENTRADAS -->/,$p' "$TASK_LOG" | tail -n +3)

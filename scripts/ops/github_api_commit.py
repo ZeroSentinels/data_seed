@@ -311,6 +311,29 @@ def create_blob(env: dict[str, str], owner: str, repo: str, path: Path) -> str:
     return sha
 
 
+TASKLOG_HEADER = "# Task Log - Demeter"
+TASKLOG_MARKER = "<!-- ENTRADAS -->"
+
+
+def validate_tasklog_content(path: Path) -> None:
+    """Reject publishing a task-log.md that would break the daily pipeline.
+
+    The 05:00 cron reads entries from everything after <!-- ENTRADAS --> and
+    refuses to process a file without it; a file missing the header or marker
+    silently silences summaries/reports. This guard makes it impossible to
+    publish such a file through the helper (pass --allow-broken-tasklog only
+    for deliberate reconstruction workflows).
+    """
+    text = path.read_text(encoding="utf-8", errors="replace")
+    if TASKLOG_HEADER not in text or TASKLOG_MARKER not in text:
+        fail(
+            "task-log.md inválido: debe contener el header "
+            f"'{TASKLOG_HEADER}' y el marcador '{TASKLOG_MARKER}'. "
+            "Un task-log sin marcador silencia el pipeline diario. "
+            "Usar --allow-broken-tasklog solo para reconstrucción deliberada."
+        )
+
+
 def commit_files(
     repo_dir: Path,
     branch: str,
@@ -319,6 +342,7 @@ def commit_files(
     repo_override: str | None,
     dry_check: bool = False,
     expected_remote_files: dict[str, str] | None = None,
+    allow_broken_tasklog: bool = False,
 ) -> str:
     owner, repo = parse_repo(repo_dir, repo_override)
     env = require_agent_vault_proxy()
@@ -339,6 +363,8 @@ def commit_files(
             fail(f"Path escapes repo dir: {rel}")
         if not full.exists() or not full.is_file():
             fail(f"Path does not exist or is not a file: {rel}")
+        if rel == "task-log.md" and not allow_broken_tasklog:
+            validate_tasklog_content(full)
         blob_sha = create_blob(env, owner, repo, full)
         mode = "100755" if os.access(full, os.X_OK) else "100644"
         tree_entries.append({"path": rel, "mode": mode, "type": "blob", "sha": blob_sha})
@@ -391,6 +417,7 @@ def main() -> int:
     parser.add_argument("--materialize-dir", default=None, help="read remote files into an isolated directory")
     parser.add_argument("--expect-remote-state", default=None, help="JSON state written by --materialize-dir")
     parser.add_argument("--expect-path", action="append", default=[], help="path whose recorded remote SHA must still match")
+    parser.add_argument("--allow-broken-tasklog", action="store_true", help="skip task-log.md header/marker validation (reconstruction only)")
     parser.add_argument("paths", nargs="*")
     args = parser.parse_args()
     repo_dir = Path(args.repo_dir).resolve()
@@ -439,6 +466,7 @@ def main() -> int:
                 args.repo,
                 dry_check=args.check,
                 expected_remote_files=expected_remote_files,
+                allow_broken_tasklog=args.allow_broken_tasklog,
             )
         )
         return 0

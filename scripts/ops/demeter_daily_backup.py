@@ -297,6 +297,73 @@ def clean_backup_repo_if_needed() -> None:
     run(["git", "clean", "-fd"], cwd=REPO_DIR)
 
 
+def _local_commits_are_exact_duplicates() -> bool:
+    """True if every local-only commit has an exact remote duplicate.
+
+    A commit is considered a duplicate when a commit on origin/BRANCH (not on
+    the local branch) has the same tree SHA and the same message. This is the
+    divergence pattern that broke the cron on 2026-08-11: a local commit
+    created via a different publishing path was byte-identical to a remote one,
+    leaving the branch ahead 1 / behind N. Resetting in that case loses nothing.
+    """
+    try:
+        local_only = run(
+            ["git", "rev-list", f"origin/{BRANCH}..{BRANCH}"], cwd=REPO_DIR, check=False
+        ).splitlines()
+        remote_only = run(
+            ["git", "rev-list", f"{BRANCH}..origin/{BRANCH}"], cwd=REPO_DIR, check=False
+        ).splitlines()
+    except Exception:
+        return False
+    if not local_only:
+        return True
+    if not remote_only:
+        return False
+    remote_keys: set[tuple[str, str]] = set()
+    for sha in remote_only:
+        tree = run(["git", "rev-parse", f"{sha}^{{tree}}"], cwd=REPO_DIR, check=False)
+        msg = run(["git", "log", "-1", "--format=%B", sha], cwd=REPO_DIR, check=False)
+        remote_keys.add((tree, msg))
+    for sha in local_only:
+        tree = run(["git", "rev-parse", f"{sha}^{{tree}}"], cwd=REPO_DIR, check=False)
+        msg = run(["git", "log", "-1", "--format=%B", sha], cwd=REPO_DIR, check=False)
+        if (tree, msg) not in remote_keys:
+            return False
+    return True
+
+
+def recover_diverged_backup_repo(pull_error: Exception) -> bool:
+    """Self-heal a diverged backup clone when nothing unique would be lost.
+
+    The daily backup is a generated clone: its only local commits are previous
+    backup snapshots. If the fast-forward pull fails because the branch is
+    ahead/behind, we may realign to origin/BRANCH — but ONLY when (1) the
+    working tree is clean, (2) resetting is allowed for this repo, and (3) every
+    local-only commit is an exact duplicate of a remote commit. Otherwise we
+    raise HUMAN_REQUIRED so an operator decides.
+    """
+    status = run(["git", "status", "--porcelain"], cwd=REPO_DIR, check=False)
+    if status.strip():
+        raise RuntimeError(
+            "HUMAN_REQUIRED: backup repo diverged AND has local changes: "
+            f"{REPO_DIR}\n{pull_error}"
+        )
+    allow_reset = REPO_DIR == DEFAULT_BACKUP_REPO_DIR or os.environ.get("DATASEED_ALLOW_BACKUP_REPO_RESET") == "1"
+    if not allow_reset:
+        raise RuntimeError(
+            f"HUMAN_REQUIRED: backup repo diverged: {REPO_DIR}\n{pull_error}\n"
+            "Set DATASEED_ALLOW_BACKUP_REPO_RESET=1 only if local commits are expendable."
+        )
+    if not _local_commits_are_exact_duplicates():
+        raise RuntimeError(
+            f"HUMAN_REQUIRED: backup repo diverged with unique local commits: {REPO_DIR}\n"
+            f"{pull_error}\nReview and merge manually; refusing automatic reset."
+        )
+    run(["git", "reset", "--hard", f"origin/{BRANCH}"], cwd=REPO_DIR)
+    run(["git", "clean", "-fd"], cwd=REPO_DIR)
+    return True
+
+
 def ensure_repo() -> None:
     ensure_brokered_git_auth()
     REPO_DIR.parent.mkdir(parents=True, exist_ok=True)
@@ -305,7 +372,10 @@ def ensure_repo() -> None:
         run(["git", "remote", "set-url", "origin", REPO_URL], cwd=REPO_DIR)
         run(["git", "fetch", "origin", BRANCH], cwd=REPO_DIR)
         run(["git", "checkout", BRANCH], cwd=REPO_DIR)
-        run(["git", "pull", "--ff-only", "origin", BRANCH], cwd=REPO_DIR)
+        try:
+            run(["git", "pull", "--ff-only", "origin", BRANCH], cwd=REPO_DIR)
+        except RuntimeError as exc:
+            recover_diverged_backup_repo(exc)
     elif REPO_DIR.exists() and any(REPO_DIR.iterdir()):
         raise RuntimeError(f"{REPO_DIR} exists and is not an empty git repo; refusing to overwrite it")
     else:
