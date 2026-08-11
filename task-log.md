@@ -1,7 +1,7 @@
 
-## 2026-08-11 05:20 -04 (America/Santiago)
-- **Solicitud:** Usuario señala que la respuesta del agente mostraba texto en forma de código (JSON crudo visible para el cliente) y pregunta si las versiones están refinando el arnés y los specs del agente.
-- **Resultado:** Build v57 (dpl_CGKoNqW7jiwXSKG8YjYvop4GRjvF, FINAL READY). Defensa en 3 capas para que el cliente NUNCA vea JSON/código: (1) prompt del agente reforzado en `api/chat.js` — el campo `respuesta` es lo ÚNICO visible: texto plano legible, sin JSON, llaves, backticks ni markdown de código; (2) `extraerJSON` del serverless ahora limpia fences markdown (```json```) antes de parsear; (3) `chatSanitizar()` en el frontend — si `d.respuesta` llega como JSON crudo lo extrae/desenvuelve, se aplica en `chatAdd` (terminar) y en los 4 `petRegistrar` de chatSend (pestañas). Sí: cada versión refina el arnés (frontend estático) y los specs/prompt del agente (chat.js) — esta tanda corrigió truncamiento por max_tokens (700→1600), panel transparente, scrollbars y aire simétrico.
+## 2026-08-11 05:35 -04 (America/Santiago)
+- **Solicitud:** Usuario envía captura (img_1a00c651f77d.jpg) del header del panel del chat: "Esta parte de la burbuja se ve naif e innecesaria" — el emoji 💬 junto a "Demeter · ajustes PoC" se veía naif.
+- **Resultado:** Build v58 (dpl_4KUpUfhwNrUUwakHHzw9phHJwUfY, FINAL READY). Reemplazado el emoji 💬 del `#chatHead` por un indicador de estado sobrio: punto verde de 7px (bg #00ff41, box-shadow glow) con inline-flex gap 8px antes del título "Demeter · ajustes PoC". Se mantiene la ✕ de cierre.
 - **Estado:** completada.
-- **Verificación:** `node --check` OK, check-html-js OK, deploy READY; navegador real: inyectado JSON crudo simulado → `chatSanitizar` devuelve solo el texto legible ("Con datos reales te propongo 3 opciones: 1) Barras por familia UNSPSC..."); endpoint prod con la petición real del usuario ("gráfico para sorprender al gerente...") devuelve `tipo:texto` con respuesta completa en texto plano numerado (1) Cobertura BOQ vs mercado... 2) Mapa de demanda por región...), sin JSON ni truncamiento.
+- **Verificación:** check-html-js OK, deploy READY; navegador real: `#chatHead.textContent = "Demeter · ajustes PoC✕"`, `emojiBurbuja:false`, punto verde presente; browser_vision confirma header minimalista y profesional, sin emoji.
 - **Pendientes:** Ninguno.
