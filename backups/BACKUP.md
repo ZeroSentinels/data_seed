@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-08-11 13:09:49 UTC
-- Generado America/Santiago: 2026-08-11 09:09:49 -04
+- Generado UTC: 2026-08-11 13:10:06 UTC
+- Generado America/Santiago: 2026-08-11 09:10:06 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -14,10 +14,10 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - El `daily-summary.md` conserva el resumen diario y debe consultarse para tareas diarias, pendientes y bloqueos.
 - El backup diario de las 05:00 AM NO copia `task-log.md` ni `daily-summary.md`; solo deja esta referencia para consultarlos en el repo de tracking.
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
-- Repo/branch de tracking: `/opt/data/data_seed_tasklog_worktree` / `feat/task-tracking-system`.
-- Daily summary: `daily-summary.md` (120.5 KB, sha256 9d0cb2d327f41f29).
-- Task log actual: `task-log.md` (29.4 KB, sha256 748f5c098594a8ca).
-- Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (594.0 B, sha256 6fd18874fbd0ad90).
+- Repo/branch de tracking: `/tmp/tmp.4Il2o1oQw7/tracking-workspace` / `feat/task-tracking-system`.
+- Daily summary: `daily-summary.md` (184.1 KB, sha256 79c0253fd2ff104b).
+- Task log actual: `task-log.md` (213.0 B, sha256 1512ddaa0df19af1).
+- Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (missing, sha256 missing).
 
 Regla operativa: el log diario registra detalles; el resumen diario consolida tareas y pendientes; el backup de las 05:00 AM solo guarda ciclos grandes completados y una referencia hacia el resumen diario.
 
