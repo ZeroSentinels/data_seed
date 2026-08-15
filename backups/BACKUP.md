@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-08-14 09:00:41 UTC
-- Generado America/Santiago: 2026-08-14 05:00:41 -04
+- Generado UTC: 2026-08-15 09:00:53 UTC
+- Generado America/Santiago: 2026-08-15 05:00:53 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -14,7 +14,7 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - El `daily-summary.md` conserva el resumen diario y debe consultarse para tareas diarias, pendientes y bloqueos.
 - El backup diario de las 05:00 AM NO copia `task-log.md` ni `daily-summary.md`; solo deja esta referencia para consultarlos en el repo de tracking.
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
-- Repo/branch de tracking: `/tmp/tmp.fmvrktOWQk/tracking-workspace` / `feat/task-tracking-system`.
+- Repo/branch de tracking: `/tmp/tmp.paM9yx9UsD/tracking-workspace` / `feat/task-tracking-system`.
 - Daily summary: `daily-summary.md` (190.7 KB, sha256 8d6c76e5336f84d9).
 - Task log actual: `task-log.md` (213.0 B, sha256 1512ddaa0df19af1).
 - Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (missing, sha256 missing).
@@ -73,8 +73,8 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `2073a6cc3d6e` [active]
   - Nombre: Demeter Daily Operations (5:00 AM Chile)
   - Schedule: 0 8,9 * * *
-  - Next run UTC: 2026-08-15T08:00:00+00:00
-  - Last run UTC/status: 2026-08-14T08:00:34.796962+00:00 / ok
+  - Next run UTC: 2026-08-16T08:00:00+00:00
+  - Last run UTC/status: 2026-08-15T08:00:47.130053+00:00 / ok
   - Mode: no-agent
   - Script: daily-operations-wrapper.sh
 - `89e2d5c6bd6b` [paused]
@@ -214,9 +214,9 @@ No se copia el contenido de estos archivos; solo tamaño y huella para validaci�
 - `config.yaml`: 16.7 KB, sha256 18359c6b9ecee4d8
 - `memories/MEMORY.md`: 3.6 KB, sha256 7f87d06891b551e7
 - `memories/USER.md`: 1.8 KB, sha256 e0877a1b3c943295
-- `channel_directory.json`: 785.0 B, sha256 bb9ad180ab4b6a3d
+- `channel_directory.json`: 785.0 B, sha256 c9cc0ca079013912
 - `gateway_state.json`: 545.0 B, sha256 26f2e215c5395779
-- `cron/jobs.json`: 4.2 KB, sha256 394616ed57719091
+- `cron/jobs.json`: 4.2 KB, sha256 2924cb77fbc35ebe
 
 ## Grafo de conocimiento del proyecto (Graphify)
 
