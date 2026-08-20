@@ -1,11 +1,11 @@
-# Graph Report - dataseed-multibranch-snapshot-pnr6aprx  (2026-08-19)
+# Graph Report - dataseed-multibranch-snapshot-_9rvr1ng  (2026-08-20)
 
 ## Corpus Check
-- 224 files · ~194,571 words
+- 224 files · ~194,616 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2020 nodes · 2650 edges · 222 communities (165 shown, 57 thin omitted)
+- 2021 nodes · 2651 edges · 223 communities (165 shown, 58 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 8 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -174,12 +174,12 @@
 - [[_COMMUNITY_Community 161|Community 161]]
 - [[_COMMUNITY_Community 162|Community 162]]
 - [[_COMMUNITY_Community 163|Community 163]]
-- [[_COMMUNITY_Community 164|Community 164]]
+- [[_COMMUNITY_Community 165|Community 165]]
 - [[_COMMUNITY_Community 166|Community 166]]
 - [[_COMMUNITY_Community 167|Community 167]]
 - [[_COMMUNITY_Community 168|Community 168]]
 - [[_COMMUNITY_Community 169|Community 169]]
-- [[_COMMUNITY_Community 170|Community 170]]
+- [[_COMMUNITY_Community 171|Community 171]]
 - [[_COMMUNITY_Community 172|Community 172]]
 - [[_COMMUNITY_Community 173|Community 173]]
 - [[_COMMUNITY_Community 174|Community 174]]
@@ -213,9 +213,10 @@
 - [[_COMMUNITY_Community 202|Community 202]]
 - [[_COMMUNITY_Community 203|Community 203]]
 - [[_COMMUNITY_Community 204|Community 204]]
+- [[_COMMUNITY_Community 205|Community 205]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `Daily Summary - Demeter` - 122 edges
+1. `Daily Summary - Demeter` - 123 edges
 2. `main()` - 20 edges
 3. `Resumen 2026-06-17` - 20 edges
 4. `Resumen 2026-06-14 (recuperado)` - 17 edges
@@ -243,7 +244,7 @@
 - 1-file cycle: `branches/feat/task-tracking-system/scripts/demeter_daily_backup.py -> branches/feat/task-tracking-system/scripts/demeter_daily_backup.py`
 - 1-file cycle: `branches/main/scripts/ops/demeter_daily_backup.py -> branches/main/scripts/ops/demeter_daily_backup.py`
 
-## Communities (222 total, 57 thin omitted)
+## Communities (223 total, 58 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.02
@@ -830,21 +831,21 @@ Cohesion: 0.67
 Nodes (3): 2026-06-25 11:47 - Daniel Caignet, Detalle de tareas, Resumen 2026-06-26
 
 ## Knowledge Gaps
-- **1003 isolated node(s):** `defaultProvider`, `config`, `config`, `config`, `config` (+998 more)
+- **1004 isolated node(s):** `defaultProvider`, `config`, `config`, `config`, `config` (+999 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **57 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **58 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Daily Summary - Demeter` connect `Community 0` to `Community 143`, `Community 18`, `Community 24`, `Community 156`, `Community 157`, `Community 158`, `Community 159`, `Community 49`, `Community 50`, `Community 191`, `Community 192`, `Community 65`, `Community 193`, `Community 194`, `Community 195`, `Community 196`, `Community 198`, `Community 199`, `Community 200`, `Community 201`, `Community 202`, `Community 203`, `Community 204`, `Community 197`?**
-  _High betweenness centrality (0.008) - this node is a cross-community bridge._
+- **Why does `Daily Summary - Demeter` connect `Community 0` to `Community 143`, `Community 18`, `Community 24`, `Community 156`, `Community 157`, `Community 158`, `Community 159`, `Community 49`, `Community 50`, `Community 190`, `Community 191`, `Community 192`, `Community 65`, `Community 193`, `Community 194`, `Community 195`, `Community 196`, `Community 198`, `Community 199`, `Community 200`, `Community 201`, `Community 202`, `Community 203`, `Community 204`, `Community 197`?**
+  _High betweenness centrality (0.009) - this node is a cross-community bridge._
 - **Why does `Resumen 2026-06-17` connect `Community 18` to `Community 0`?**
   _High betweenness centrality (0.002) - this node is a cross-community bridge._
 - **Why does `Resumen 2026-06-23` connect `Community 50` to `Community 0`?**
   _High betweenness centrality (0.001) - this node is a cross-community bridge._
 - **What connects `defaultProvider`, `config`, `config` to the rest of the system?**
-  _1041 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1042 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.020202020202020204 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
