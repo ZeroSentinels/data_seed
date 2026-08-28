@@ -1,4 +1,4 @@
-# Graph Report - dataseed-multibranch-snapshot-iz7juxh3  (2026-08-27)
+# Graph Report - dataseed-multibranch-snapshot-b0nog0v3  (2026-08-28)
 
 ## Corpus Check
 - 224 files · ~194,616 words
