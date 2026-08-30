@@ -37,7 +37,7 @@ test('login client talks only to same-origin server APIs and never stores creden
 
 test('login styles preserve DataSeed dark/light identity and responsive accessibility', async () => {
   const [html, css] = await Promise.all([read('site/login.html'), read('site/login.css')]);
-  assert.match(html, /family=Syne/);
+  assert.match(html, /family=Space\+Grotesk/);
   assert.match(html, /family=Inter/);
   assert.doesNotMatch(html, /DM\+Sans|DM Sans/);
   assert.match(css, /--g:\s*#00ff41/);

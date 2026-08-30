@@ -19,6 +19,8 @@
   --success: #00ff41;
   --success-bg: rgba(0, 255, 65, 0.08);
   --shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+  --font-display: "Space Grotesk", "Inter", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 html[data-theme="light"] {
@@ -54,7 +56,7 @@ body {
   overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -132,13 +134,13 @@ svg { display: block; fill: none; stroke: currentColor; stroke-linecap: round; s
   text-decoration: none;
 }
 .brand img { width: 44px; height: 44px; filter: drop-shadow(0 0 12px rgba(0, 255, 65, 0.28)); }
-.brand strong { display: block; font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }
+.brand strong { display: block; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
 .brand small { display: block; margin-top: 0.1rem; color: var(--muted); font-size: 0.55rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; }
 
 .context-copy { position: relative; z-index: 1; max-width: 600px; margin: 3.5rem 0; }
 .context-label { display: inline-flex; align-items: center; gap: 0.55rem; margin: 0 0 1.5rem; color: var(--g2); font-size: 0.72rem; font-weight: 600; }
 .context-label span { width: 7px; height: 7px; border-radius: 50%; background: var(--g); box-shadow: 0 0 10px rgba(0, 255, 65, 0.65); }
-.context-copy h2 { max-width: 13ch; margin: 0 0 1.5rem; font-family: 'Syne', sans-serif; font-size: clamp(2.6rem, 4.2vw, 4.6rem); font-weight: 800; line-height: 0.98; letter-spacing: -0.045em; text-wrap: balance; }
+.context-copy h2 { max-width: 13ch; margin: 0 0 1.5rem; font-family: var(--font-display); font-size: clamp(2.6rem, 4.2vw, 4.6rem); font-weight: 700; line-height: 1; letter-spacing: -0.045em; text-wrap: balance; }
 .context-copy > p:last-child { max-width: 52ch; margin: 0; color: var(--sub); font-size: 1rem; line-height: 1.75; }
 
 .trust-list { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin: 0; padding: 0; list-style: none; }
@@ -190,7 +192,7 @@ html[data-theme="light"] .theme-sun { display: block; }
 }
 .portal-mark { display: inline-flex; align-items: center; gap: 0.55rem; margin-bottom: 1.15rem; border: 1px solid var(--card-b); border-radius: 999px; padding: 0.35rem 0.75rem; color: var(--g2); background: var(--gdim); font-size: 0.7rem; font-weight: 600; }
 .portal-mark span { width: 6px; height: 6px; border-radius: 50%; background: var(--g); box-shadow: 0 0 7px var(--g); }
-.login-card h1 { margin: 0; font-family: 'Syne', sans-serif; font-size: clamp(2.1rem, 5vw, 3.25rem); font-weight: 800; line-height: 1; letter-spacing: -0.04em; text-wrap: balance; }
+.login-card h1 { margin: 0; font-family: var(--font-display); font-size: clamp(2.1rem, 5vw, 3.25rem); font-weight: 700; line-height: 1.05; letter-spacing: -0.04em; text-wrap: balance; }
 .login-intro { margin: 0.8rem 0 1.25rem; color: var(--sub); font-size: 0.95rem; line-height: 1.6; }
 
 .login-status { margin-bottom: 1rem; border: 1px solid var(--card-b); border-radius: 12px; padding: 0.8rem 0.9rem; color: var(--sub); background: var(--card); font-size: 0.85rem; line-height: 1.5; }

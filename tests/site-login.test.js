@@ -57,8 +57,8 @@ test('login styles reuse the DataSeed system in light/dark and supported respons
   assert.match(css, /--bg:\s*#050e06/i);
   assert.match(css, /--g:\s*#00ff41/i);
   assert.match(css, /html\[data-theme="light"\]/i);
-  assert.match(css, /font-family:\s*['"]Syne/i);
-  assert.match(css, /font-family:\s*['"]Inter/i);
+  assert.match(css, /font-display:\s*["']Space Grotesk/i);
+  assert.match(css, /font-body:\s*["']Inter/i);
   assert.match(css, /min-height:\s*44px/i);
   assert.match(css, /@media\s*\(max-width:\s*900px\)/i);
   assert.match(css, /@media\s*\(max-width:\s*520px\)/i);
