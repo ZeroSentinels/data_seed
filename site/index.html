@@ -3,13 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Dataseed — Data Driven</title>
-<meta name="description" content="DataSeed ofrece Business Intelligence, integración de datos, analítica avanzada, tableros ejecutivos y automatización para organizaciones de Chile y Latinoamérica.">
+<title>Dataseed | Consultoría BI, Machine Learning y Agentes IA en Chile y LATAM</title>
+<meta name="description" content="Transformamos tus datos en decisiones estratégicas. Consultoría BI, analítica predictiva, dashboards y agentes de IA para empresas en Chile y LATAM.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://dataseed.cl/site/index.html">
+<link rel="icon" href="favicon.ico">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Dataseed — Data Driven">
-<meta property="og:description" content="Business Intelligence, integración de datos, analítica avanzada, tableros ejecutivos y automatización.">
+<meta property="og:title" content="Dataseed | Consultoría BI, Machine Learning y Agentes IA en Chile y LATAM">
+<meta property="og:description" content="Transformamos tus datos en decisiones estratégicas con BI, analítica predictiva, dashboards y agentes de IA.">
+<meta property="og:image" content="https://dataseed.cl/site/assets/dataseed_logo_black.png">
 <meta property="og:url" content="https://dataseed.cl/site/index.html">
 <meta name="twitter:card" content="summary">
 <script type="application/ld+json">
@@ -183,7 +185,7 @@ body{
 .orb2{width:450px;height:450px;background:radial-gradient(circle,rgba(0,180,40,.07),transparent 70%);bottom:5%;left:-100px;}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 3rem;background:rgba(5,14,6,.85);backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,255,65,.09);}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 3rem;background:rgba(5,14,6,.85);backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,255,65,.09);}
 .logo{display:flex;align-items:center;gap:.75rem;text-decoration:none;}
 .logo img{height:40px;filter:drop-shadow(0 0 10px rgba(0,255,65,.4));}
 .logo-t{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;color:var(--text);letter-spacing:-.01em;}
@@ -248,6 +250,21 @@ h1 em{font-style:normal;color:var(--g);text-shadow:0 0 50px rgba(0,255,65,.3);}
 .btn-p:hover{opacity:.87;transform:translateY(-2px);box-shadow:0 0 52px rgba(0,255,65,.46);}
 .btn-o{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.14);padding:.88rem 2rem;border-radius:100px;font-size:.88rem;font-weight:500;text-decoration:none;transition:border-color .2s,color .2s;}
 .btn-o:hover{border-color:rgba(0,255,65,.4);color:var(--g);}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--g);outline-offset:3px;}
+
+/* TESTIMONIOS */
+#testimonials{padding:5rem 0;border-top:1px solid rgba(0,255,65,.08);}
+.testimonials-head{display:flex;align-items:end;justify-content:space-between;gap:2rem;flex-wrap:wrap;margin-bottom:2.4rem;}
+.testimonials-intro{max-width:360px;color:var(--sub);font-size:.9rem;line-height:1.7;}
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+.testimonial-card{display:flex;flex-direction:column;min-height:280px;padding:1.7rem;background:linear-gradient(145deg,rgba(0,255,65,.075),rgba(0,255,65,.018));border:1px solid rgba(0,255,65,.16);border-radius:var(--r-lg);box-shadow:var(--shadow-1);}
+.testimonial-quote{color:var(--g);font-family:var(--font-display);font-size:3rem;line-height:.7;margin-bottom:1.2rem;}
+.testimonial-copy{color:var(--text);font-size:.96rem;line-height:1.7;}
+.testimonial-meta{margin-top:auto;padding-top:1.5rem;border-top:1px solid rgba(0,255,65,.1);}
+.testimonial-stars{color:var(--g);font-size:.78rem;letter-spacing:.16em;margin-bottom:.65rem;}
+.testimonial-role{color:var(--sub);font-size:.8rem;line-height:1.5;}
+.reveal-on-scroll{opacity:0;transform:translateY(30px);transition:opacity .6s ease-out,transform .6s ease-out;}
+.reveal-on-scroll.is-visible{opacity:1;transform:translateY(0);}
 
 .hero-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;opacity:0;animation:up .7s .58s forwards;}
 .hf{padding:1.6rem 1.8rem;}
@@ -569,6 +586,8 @@ h1 em{font-style:normal;color:var(--g);text-shadow:0 0 50px rgba(0,255,65,.3);}
   transform:translateY(-1px);
   box-shadow:0 22px 42px rgba(0,255,65,.24);
 }
+.contact-success{display:none;padding:.85rem 1rem;border:1px solid rgba(0,255,65,.28);background:rgba(0,255,65,.08);color:var(--text);font-size:.9rem;line-height:1.5;}
+.contact-success.is-visible{display:block;}
 
 .prod-header{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:3rem;flex-wrap:wrap;}
 .prod-header-right{font-size:.82rem;color:var(--muted);max-width:320px;line-height:1.7;}
@@ -799,6 +818,9 @@ footer::before{
 }
 
 .footer-wordmark{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
   font-family:'Syne',sans-serif;
   font-size:2rem;
   font-weight:800;
@@ -989,6 +1011,8 @@ html[data-theme="light"] .demo-chip{border-color:rgba(0,143,44,.20);color:#315c3
 html[data-theme="light"] .demo-chip-dot,html[data-theme="light"] .demo-typing span{background:rgba(0,143,44,.24);}
 html[data-theme="light"] .faq-item{border-bottom-color:rgba(0,143,44,.16);}
 html[data-theme="light"] footer{background:linear-gradient(180deg,rgba(244,251,245,.2),rgba(232,246,235,.92));border-top-color:rgba(0,143,44,.16);}
+html[data-theme="light"] footer{background:rgba(3,11,4,.98);border-top-color:rgba(0,143,44,.3);}
+html[data-theme="light"] footer .footer-copy,html[data-theme="light"] footer .footer-meta a,html[data-theme="light"] footer .footer-meta span,html[data-theme="light"] footer .footer-links a{color:#a8c6ad;}
 
 html[data-platform="ios"],html[data-platform="android"]{text-size-adjust:100%;-webkit-text-size-adjust:100%;}
 html[data-platform="ios"] *{-webkit-tap-highlight-color:rgba(0,255,65,.12);}
@@ -1036,7 +1060,7 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
   html[data-platform="android"] .demo-input,html[data-platform="android"] .contact-input,html[data-platform="android"] .contact-textarea{font-size:16px;}
   .inner,.stats-row,#hero{padding-left:1.5rem;padding-right:1.5rem;}
   h1{font-size:2.8rem;}
-  .hero-strip,.srv-grid,.types-grid,.kpi-row{grid-template-columns:1fr 1fr;}
+  .hero-strip,.srv-grid,.types-grid,.kpi-row,.testimonials-grid{grid-template-columns:1fr 1fr;}
   .stats-row{grid-template-columns:1fr 1fr;padding:3rem 1.5rem;}
   .how-grid,.charts-row,.bot-row{grid-template-columns:1fr;}
   .faq-title{font-size:2.5rem;}
@@ -1070,6 +1094,7 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
   .hero-btns{gap:.7rem;}
   .btn-p,.btn-o{width:100%;text-align:center;}
   .hero-strip,.srv-grid,.types-grid,.kpi-row,.stats-row{grid-template-columns:1fr;}
+  .testimonials-grid{grid-template-columns:1fr;}
   .prod-card-foot{flex-direction:column;align-items:stretch;}
   .prod-card-foot .prod-cta{width:100%;white-space:normal;text-align:center;}
   .demo-shell{border-radius:16px;}
@@ -1303,11 +1328,11 @@ h1{
     <li><a href="#how">Cómo funciona</a></li>
     <li><a href="#products" class="nav-active">Productos</a></li>
     <li><a href="#types">Analítica</a></li>
-    <li><a href="#cta">Contacto</a></li>
+    <li><a href="#contacto">Contacto</a></li>
   </ul>
   <div class="nav-actions">
     <a href="login.html" class="nav-login" data-track="nav_login"><span class="nav-login-full">Iniciar sesión</span><span class="nav-login-short">Ingresar</span></a>
-    <a href="https://calendly.com/dataseed/30min" target="_blank" rel="noopener noreferrer" class="nav-cta"><span class="nav-cta-full">Reservar diagnóstico</span><span class="nav-cta-short">Diagnóstico</span></a>
+    <a href="#contacto" class="nav-cta"><span class="nav-cta-full">Agendar demo</span><span class="nav-cta-short">Demo</span></a>
     <button class="theme-toggle" type="button" id="themeToggle" aria-label="Cambiar a tema claro" aria-pressed="false"><span class="moon">☾</span><span class="sun">☀</span></button>
     <button class="menu-toggle" type="button" id="menuToggle" aria-label="Abrir menú" aria-controls="mobileMenu" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
@@ -1319,11 +1344,11 @@ h1{
     <li><a href="#how">Cómo funciona</a></li>
     <li><a href="#products">Productos</a></li>
     <li><a href="#types">Analítica</a></li>
-    <li><a href="#cta">Contacto</a></li>
+    <li><a href="#contacto">Contacto</a></li>
   </ul>
   <div class="mobile-menu-actions">
     <a href="login.html" class="mobile-menu-login" data-track="mobile_nav_login">Iniciar sesión</a>
-    <a href="https://calendly.com/dataseed/30min" target="_blank" rel="noopener noreferrer" class="mobile-menu-cta">Reservar diagnóstico</a>
+    <a href="#contacto" class="mobile-menu-cta">Agendar demo</a>
   </div>
 </div>
 
@@ -1497,6 +1522,36 @@ h1{
   </div>
 </section>
 
+<!-- TESTIMONIOS -->
+<section id="testimonials">
+  <div class="inner">
+    <div class="testimonials-head">
+      <div>
+        <div class="pill" style="margin-bottom:1.4rem;">● Resultados reales</div>
+        <h2 class="sec-title" style="margin-bottom:0;">Lo que dicen<br>nuestros clientes.</h2>
+      </div>
+      <p class="testimonials-intro">Acompañamos a equipos que necesitan convertir datos dispersos en decisiones que mueven el negocio.</p>
+    </div>
+    <div class="testimonials-grid">
+      <article class="testimonial-card">
+        <div class="testimonial-quote" aria-hidden="true">“</div>
+        <p class="testimonial-copy">Pasamos de reportes manuales a un tablero ejecutivo que nos permite detectar desvíos comerciales durante la semana, no al cierre del mes.</p>
+        <div class="testimonial-meta"><div class="testimonial-stars" aria-label="Cinco estrellas">★★★★★</div><p class="testimonial-role">Gerente de Analytics, Retail</p></div>
+      </article>
+      <article class="testimonial-card">
+        <div class="testimonial-quote" aria-hidden="true">“</div>
+        <p class="testimonial-copy">Ahora el directorio tiene una fuente única para revisar flujo de caja, márgenes y proyecciones. La conversación cambió de datos a decisiones.</p>
+        <div class="testimonial-meta"><div class="testimonial-stars" aria-label="Cinco estrellas">★★★★★</div><p class="testimonial-role">CFO, Fintech</p></div>
+      </article>
+      <article class="testimonial-card">
+        <div class="testimonial-quote" aria-hidden="true">“</div>
+        <p class="testimonial-copy">Conectamos operaciones, mantenimiento y abastecimiento en una sola vista. Hoy priorizamos con evidencia y anticipamos los cuellos de botella.</p>
+        <div class="testimonial-meta"><div class="testimonial-stars" aria-label="Cinco estrellas">★★★★★</div><p class="testimonial-role">Director de Operaciones, Minería</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
 <!-- TYPES -->
 <section id="types">
   <div class="inner">
@@ -1571,7 +1626,7 @@ h1{
           <div class="prod-stack">
             <span class="prod-stag">ChileCompra API</span><span class="prod-stag">FastAPI</span><span class="prod-stag">Supabase</span><span class="prod-stag">Claude API</span>
           </div>
-          <a href="#cta" class="prod-cta">Quiero acceso anticipado →</a>
+          <a href="#contacto" class="prod-cta">Quiero acceso anticipado →</a>
         </div>
       </div>
 
@@ -1588,7 +1643,7 @@ h1{
         <h2 class="sec-title" style="margin-bottom:.4rem;">Probalo ahora mismo.</h2>
         <p style="font-size:.85rem;color:var(--sub);">Datos reales de ejemplo. Respuestas generadas por IA. Sin registro, sin instalación.</p>
       </div>
-      <a href="#cta" class="btn-p" style="white-space:nowrap;">Implementar en mi empresa →</a>
+      <a href="#contacto" class="btn-p" style="white-space:nowrap;">Implementar en mi empresa →</a>
     </div>
     <div class="demo-shell">
       <div class="demo-topbar">
@@ -1718,7 +1773,7 @@ h1{
 </section>
 
 <!-- CTA -->
-<section id="cta">
+<section id="contacto">
   <div class="inner">
     <div class="contact-wrap">
       <div>
@@ -1740,20 +1795,20 @@ h1{
           </div>
         </div>
       </div>
-      <form class="contact-form" action="https://formspree.io/f/xzdwykww" method="POST">
+      <form class="contact-form" action="https://formspree.io/f/xzdwykww" method="POST" id="contactForm">
         <div class="contact-row">
           <label class="contact-field">
             <span class="contact-label">Nombre</span>
-            <input class="contact-input" type="text" name="nombre" placeholder="Tu nombre">
+            <input class="contact-input" type="text" name="nombre" placeholder="Tu nombre" autocomplete="name" required>
           </label>
           <label class="contact-field">
             <span class="contact-label">Empresa</span>
-            <input class="contact-input" type="text" name="empresa" placeholder="Empresa">
+            <input class="contact-input" type="text" name="empresa" placeholder="Empresa" autocomplete="organization">
           </label>
         </div>
         <label class="contact-field">
           <span class="contact-label">Email</span>
-          <input class="contact-input" type="email" name="email" placeholder="tu@empresa.com">
+          <input class="contact-input" type="email" name="email" placeholder="tu@empresa.com" autocomplete="email" required>
         </label>
         <label class="contact-field">
           <span class="contact-label">ERP / Sistemas principales</span>
@@ -1761,9 +1816,10 @@ h1{
         </label>
         <label class="contact-field">
           <span class="contact-label">¿Qué quieres lograr?</span>
-          <textarea class="contact-textarea" name="objetivo" placeholder="Cuéntanos tu desafío de datos actual. ¿Qué sistemas tienes? ¿Qué decisiones quieres tomar mejor?"></textarea>
+          <textarea class="contact-textarea" name="objetivo" placeholder="Cuéntanos tu desafío de datos actual. ¿Qué sistemas tienes? ¿Qué decisiones quieres tomar mejor?" required></textarea>
         </label>
         <button class="contact-submit" type="submit">→ Enviar y agendar reunión</button>
+        <p class="contact-success" id="contactSuccess" role="status" aria-live="polite">Gracias. Recibimos tu mensaje y coordinaremos una reunión de diagnóstico.</p>
       </form>
     </div>
   </div>
@@ -1773,21 +1829,20 @@ h1{
   <div class="footer-shell">
     <div class="footer-grid">
       <div class="footer-brand">
-        <div class="footer-wordmark"><span class="accent">dataseed</span><span class="suffix">.cl</span></div>
+        <div class="footer-wordmark"><img src="assets/dataseed_logo_black.png" alt="Dataseed" width="36" height="36" loading="lazy"> <span class="accent">dataseed</span><span class="suffix">.cl</span></div>
         <p class="footer-copy">Infraestructura de datos moderna para empresas que deciden con datos reales. Airbyte · dbt · n8n.</p>
         <div class="footer-meta">
-          <a href="mailto:contacto@dataseed.cl">contacto@dataseed.cl</a>
+          <a href="mailto:hola@dataseed.cl">hola@dataseed.cl</a>
           <span>Santiago, Chile</span>
         </div>
       </div>
       <div>
-        <div class="footer-col-title">Servicios</div>
+        <div class="footer-col-title">Navegación</div>
         <ul class="footer-links">
-          <li><a href="#services">Data Integration</a></li>
-          <li><a href="#services">Data Engineering</a></li>
-          <li><a href="#services">Business Intelligence</a></li>
-          <li><a href="#types">AI & Analytics</a></li>
-          <li><a href="#how">n8n Automation</a></li>
+          <li><a href="#services">Servicios</a></li>
+          <li><a href="#how">Cómo funciona</a></li>
+          <li><a href="#products">Productos</a></li>
+          <li><a href="#contacto">Contacto</a></li>
         </ul>
       </div>
       <div>
@@ -1801,16 +1856,16 @@ h1{
       <div>
         <div class="footer-col-title">Empresa</div>
         <ul class="footer-links">
-          <li><a href="#cta">Nosotros</a></li>
-          <li><a href="#services">Blog técnico</a></li>
-          <li><a href="#cta">Contacto</a></li>
-          <li><a href="https://www.linkedin.com" target="_blank" rel="noreferrer">LinkedIn</a></li>
+          <li><a href="#contacto">Nosotros</a></li>
+          <li><a href="mailto:hola@dataseed.cl">hola@dataseed.cl</a></li>
+          <li><a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+          <li><a href="/politica-de-privacidad">Política de privacidad</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>©2024 Dataseed · Data Driven Infrastructure</p>
-      <a href="tel:+56992354255">+56 9 9235 4255</a>
+      <p>© 2026 Dataseed. Todos los derechos reservados.</p>
+      <a href="/aviso-legal">Aviso legal</a>
     </div>
   </div>
 </footer>
@@ -1918,6 +1973,40 @@ document.querySelectorAll('.faq-trigger').forEach((trigger) => {
     sync();
   });
   sync();
+})();
+</script>
+<script>
+/* Revela bloques de contenido sin animar a quienes prefieren reducir movimiento. */
+(function(){
+  const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const targets=document.querySelectorAll('#services,#how,#testimonials,#types,#products,#prod-demo,#faq,#contacto,footer');
+  if(reduced||!('IntersectionObserver' in window)){
+    targets.forEach((target)=>target.classList.add('is-visible'));
+    return;
+  }
+  targets.forEach((target)=>target.classList.add('reveal-on-scroll'));
+  const observer=new IntersectionObserver((entries)=>{
+    entries.forEach((entry)=>{
+      if(!entry.isIntersecting)return;
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    });
+  },{threshold:.12});
+  targets.forEach((target)=>observer.observe(target));
+})();
+</script>
+<script>
+/* Confirmación local hasta conectar el formulario a un flujo de envío definitivo. */
+(function(){
+  const form=document.getElementById('contactForm');
+  const success=document.getElementById('contactSuccess');
+  if(!form||!success)return;
+  form.addEventListener('submit',(event)=>{
+    event.preventDefault();
+    if(!form.reportValidity())return;
+    success.classList.add('is-visible');
+    form.reset();
+  });
 })();
 </script>
 <script type="module">
