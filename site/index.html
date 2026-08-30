@@ -221,7 +221,7 @@ html[data-theme="light"] .menu-toggle{background:rgba(0,143,44,.07);border-color
 
 section,div.ticker-wrap,div.stats-row{position:relative;z-index:2;}
 @supports(content-visibility:auto){
-  #services,#how,#types,#products,#prod-demo,#faq,#cta,footer{content-visibility:auto;contain-intrinsic-size:1px 900px;}
+  #services,#how,#testimonials,#types,#products,#prod-demo,#faq,#contacto,footer{content-visibility:auto;contain-intrinsic-size:1px 900px;}
 }
 .inner{max-width:1160px;margin:0 auto;padding:0 3rem;}
 
@@ -387,206 +387,36 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .type-q{font-size:.7rem;color:var(--g2);font-weight:600;margin-bottom:.4rem;}
 .type-desc{font-size:.78rem;color:var(--sub);line-height:1.68;}
 
-/* CONTACT */
-#cta{
-  padding:3rem 0 6rem;
-}
-
-.contact-wrap{
-  display:grid;
-  grid-template-columns:minmax(0,1.18fr) minmax(360px,.82fr);
-  gap:3.2rem;
-  align-items:start;
-}
-
-.contact-wrap > *{
-  min-width:0;
-}
-
-.contact-kicker{
-  display:inline-flex;
-  align-items:center;
-  gap:.7rem;
-  color:var(--g);
-  text-transform:uppercase;
-  letter-spacing:.34em;
-  font-size:.72rem;
-  font-weight:700;
-  margin-bottom:1.35rem;
-}
-
-.contact-kicker::before{
-  content:'';
-  width:28px;
-  height:1px;
-  background:rgba(0,255,65,.7);
-}
-
-.contact-title{
-  font-family:'Syne',sans-serif;
-  font-size:clamp(2.2rem,3.7vw,3.4rem);
-  font-weight:800;
-  line-height:1.01;
-  letter-spacing:-.045em;
-  max-width:620px;
-  margin-bottom:1.85rem;
-}
-
-.contact-title em{
-  font-style:normal;
-  color:var(--g);
-}
-
-.contact-sub{
-  max-width:560px;
-  color:#8ca090;
-  font-size:.98rem;
-  line-height:1.78;
-  margin-bottom:2rem;
-}
-
-.contact-side{
-  display:flex;
-  flex-direction:column;
-  gap:1.4rem;
-}
-
-.contact-card{
-  border:1px solid rgba(0,255,65,.2);
-  background:rgba(3,13,5,.72);
-  padding:1.7rem 1.7rem 1.55rem;
-}
-
-.contact-card-title{
-  color:#5e725f;
-  font-size:.73rem;
-  letter-spacing:.3em;
-  text-transform:uppercase;
-  font-weight:700;
-  margin-bottom:1.3rem;
-}
-
-.contact-direct-list{
-  list-style:none;
-  display:flex;
-  flex-direction:column;
-  gap:.85rem;
-}
-
-.contact-direct-list a,
-.contact-direct-list span{
-  color:#89a08d;
-  text-decoration:none;
-  font-size:1rem;
-  line-height:1.55;
-  transition:color .2s;
-}
-
-.contact-direct-list a:hover{
-  color:var(--g);
-}
-
-.contact-direct-list strong{
-  color:var(--g);
-  font-weight:700;
-}
-
-.contact-note{
-  background:rgba(0,255,65,.09);
-}
-
-.contact-note-title{
-  color:var(--g);
-  font-size:.76rem;
-  letter-spacing:.28em;
-  text-transform:uppercase;
-  font-weight:700;
-  margin-bottom:.95rem;
-}
-
-.contact-note p{
-  color:#8fa392;
-  font-size:1rem;
-  line-height:1.7;
-}
-
-.contact-form{
-  display:grid;
-  gap:1.3rem;
-}
-
-.contact-row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:1rem;
-}
-
-.contact-field{
-  display:flex;
-  flex-direction:column;
-  gap:.6rem;
-}
-
-.contact-label{
-  color:#5e725f;
-  font-size:.74rem;
-  letter-spacing:.28em;
-  text-transform:uppercase;
-  font-weight:700;
-}
-
-.contact-input,
-.contact-textarea{
-  width:100%;
-  background:rgba(4,14,6,.84);
-  border:1px solid rgba(255,255,255,.08);
-  color:var(--text);
-  padding:1rem 1rem 1rem 1.05rem;
-  font:inherit;
-  font-size:1rem;
-  transition:border-color .2s,box-shadow .2s,background .2s;
-}
-
-.contact-input::placeholder,
-.contact-textarea::placeholder{
-  color:#4e6754;
-}
-
-.contact-input:focus,
-.contact-textarea:focus{
-  outline:none;
-  border-color:rgba(0,255,65,.28);
-  box-shadow:0 0 0 3px rgba(0,255,65,.07);
-  background:rgba(6,18,8,.96);
-}
-
-.contact-textarea{
-  min-height:135px;
-  resize:vertical;
-}
-
-.contact-submit{
-  width:100%;
-  border:none;
-  background:linear-gradient(135deg,var(--g),#00ef57);
-  color:#031003;
-  padding:1.08rem 1.2rem;
-  font-family:'Syne',sans-serif;
-  font-size:.88rem;
-  font-weight:800;
-  letter-spacing:.11em;
-  text-transform:uppercase;
-  cursor:pointer;
-  transition:transform .2s,box-shadow .2s,opacity .2s;
-  box-shadow:0 16px 34px rgba(0,255,65,.18);
-}
-
-.contact-submit:hover{
-  opacity:.93;
-  transform:translateY(-1px);
-  box-shadow:0 22px 42px rgba(0,255,65,.24);
-}
-.contact-success{display:none;padding:.85rem 1rem;border:1px solid rgba(0,255,65,.28);background:rgba(0,255,65,.08);color:var(--text);font-size:.9rem;line-height:1.5;}
+/* CONTACTO */
+#contacto{padding:100px 0;background:#0a0a0a;border-top:1px solid rgba(255,255,255,.05);}
+#contacto .inner{max-width:1160px;}
+.contact-wrap{display:grid;grid-template-columns:minmax(0,55fr) minmax(0,45fr);gap:3rem;align-items:start;}
+.contact-wrap > *{min-width:0;}
+.contact-kicker{display:inline-flex;align-items:center;gap:.7rem;color:#00ff88;text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;margin-bottom:1rem;}
+.contact-kicker::before{content:'';width:28px;height:1px;background:#00ff88;}
+.contact-title{font-family:var(--font-display);font-size:36px;font-weight:700;line-height:1.2;letter-spacing:-.035em;color:#fff;max-width:540px;margin-bottom:1rem;}
+.contact-title em{font-style:normal;color:#00ff88;}
+.contact-sub{max-width:400px;color:#9ca3af;font-size:16px;line-height:1.6;margin-bottom:1.75rem;}
+.contact-side{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.contact-card{border:1px solid rgba(255,255,255,.06);border-radius:12px;background:rgba(255,255,255,.03);padding:20px;}
+.contact-card-title,.contact-note-title{color:#6b7280;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:1rem;}
+.contact-direct-list{list-style:none;display:flex;flex-direction:column;gap:.75rem;}
+.contact-direct-list a,.contact-direct-list span{color:#9ca3af;text-decoration:none;font-size:.9rem;line-height:1.6;transition:color .2s ease;}
+.contact-direct-list a:hover{color:#fff;}
+.contact-direct-list strong{display:inline-block;width:1.2rem;color:#00ff88;font-size:16px;font-weight:600;text-align:center;}
+.contact-note{background:rgba(255,255,255,.03);}
+.contact-note p{color:#9ca3af;font-size:.9rem;line-height:1.6;}
+.contact-form{display:grid;gap:1rem;margin:0;padding:0;}
+.contact-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.contact-field{display:flex;flex-direction:column;gap:6px;}
+.contact-label{color:#6b7280;font-size:12px;letter-spacing:.05em;text-transform:uppercase;font-weight:500;}
+.contact-input,.contact-textarea{width:100%;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.05);color:#fff;padding:12px 16px;font:inherit;font-size:1rem;transition:border-color .2s ease,box-shadow .2s ease,background .2s ease;}
+.contact-input::placeholder,.contact-textarea::placeholder{color:#4b5563;}
+.contact-input:focus,.contact-textarea:focus{outline:none;border-color:#00ff88;box-shadow:0 0 0 3px rgba(0,255,136,.1);background:rgba(255,255,255,.07);}
+.contact-textarea{min-height:135px;resize:vertical;}
+.contact-submit{width:100%;border:0;border-radius:8px;background:#00ff88;color:#0a0a0a;padding:14px 32px;font-family:var(--font-body);font-size:.95rem;font-weight:600;letter-spacing:0;cursor:pointer;transition:filter .2s ease,transform .2s ease;}
+.contact-submit:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.contact-success{display:none;padding:.85rem 1rem;border:1px solid rgba(0,255,136,.28);border-radius:8px;background:rgba(0,255,136,.08);color:#d1fae5;font-size:.9rem;line-height:1.5;}
 .contact-success.is-visible{display:block;}
 
 .prod-header{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:3rem;flex-wrap:wrap;}
@@ -1000,10 +830,10 @@ html[data-theme="light"] .orb2{background:radial-gradient(circle,rgba(0,110,35,.
 html[data-theme="light"] #bgc{opacity:.48;}
 html[data-theme="light"] .ticker-wrap{background:rgba(0,143,44,.04);border-color:rgba(0,143,44,.13);}
 html[data-theme="light"] .dash-topbar,html[data-theme="light"] .prod-demo-head,html[data-theme="light"] .demo-sources{background:rgba(0,143,44,.055);border-color:rgba(0,143,44,.14);}
-html[data-theme="light"] .kpi,html[data-theme="light"] .chart-box,html[data-theme="light"] .table-mini,html[data-theme="light"] .prod-card,html[data-theme="light"] .demo-shell,html[data-theme="light"] .demo-sidebar,html[data-theme="light"] .contact-card,html[data-theme="light"] .contact-form,html[data-theme="light"] .faq-list{background:rgba(255,255,255,.58);border-color:rgba(0,143,44,.16);}
+html[data-theme="light"] .kpi,html[data-theme="light"] .chart-box,html[data-theme="light"] .table-mini,html[data-theme="light"] .prod-card,html[data-theme="light"] .demo-shell,html[data-theme="light"] .demo-sidebar,html[data-theme="light"] .faq-list{background:rgba(255,255,255,.58);border-color:rgba(0,143,44,.16);}
 html[data-theme="light"] .demo-topbar,html[data-theme="light"] .demo-input-row{background:rgba(238,248,240,.78);border-color:rgba(0,143,44,.14);}
 html[data-theme="light"] .demo-chat{background:rgba(252,255,252,.52);}
-html[data-theme="light"] .demo-input,html[data-theme="light"] .contact-input,html[data-theme="light"] .contact-textarea{background:rgba(255,255,255,.72);color:var(--text);border-color:rgba(0,143,44,.18);}
+html[data-theme="light"] .demo-input{background:rgba(255,255,255,.72);color:var(--text);border-color:rgba(0,143,44,.18);}
 html[data-theme="light"] .demo-src-lbl,html[data-theme="light"] .demo-cat,html[data-theme="light"] .demo-q,html[data-theme="light"] .demo-empty-s,html[data-theme="light"] .demo-input::placeholder{color:#315c39;}
 html[data-theme="light"] .demo-empty-t,html[data-theme="light"] .demo-bubble,html[data-theme="light"] .demo-bubble.u,html[data-theme="light"] .demo-bubble td,html[data-theme="light"] .demo-insight,html[data-theme="light"] .faq-answer p{color:#315c39;}
 html[data-theme="light"] .demo-bubble td:first-child,html[data-theme="light"] .demo-insight b,html[data-theme="light"] .faq-trigger{color:#08240d;}
@@ -1066,12 +896,12 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
   .faq-title{font-size:2.5rem;}
   .faq-trigger{padding:1.25rem 1.2rem;align-items:flex-start;}
   .faq-answer p{padding:0 1.2rem 1.35rem;font-size:.92rem;}
-  .contact-wrap,.contact-row{grid-template-columns:1fr;}
-  .contact-title{font-size:2.7rem;max-width:none;}
-  .contact-sub{font-size:.95rem;max-width:none;}
-  .contact-card{padding:1.25rem;}
-  .contact-input,.contact-textarea{font-size:.95rem;}
-  .contact-submit{font-size:.92rem;letter-spacing:.12em;}
+  .contact-wrap,.contact-row,.contact-side{grid-template-columns:1fr;}
+  .contact-title{font-size:32px;max-width:none;}
+  .contact-sub{font-size:16px;max-width:none;}
+  .contact-card{padding:20px;}
+  .contact-input,.contact-textarea{font-size:16px;}
+  .contact-submit{font-size:.95rem;letter-spacing:0;}
   footer{padding:3rem 1.5rem 1.5rem;}
   .footer-grid{grid-template-columns:1fr;gap:2.3rem;padding-bottom:2rem;}
   .footer-brand{max-width:none;}
@@ -1784,7 +1614,7 @@ h1{
           <div class="contact-card">
             <div class="contact-card-title">Contacto directo</div>
             <ul class="contact-direct-list">
-              <li><a href="mailto:contacto@dataseed.cl"><strong>✉</strong> contacto@dataseed.cl</a></li>
+              <li><a href="mailto:hola@dataseed.cl"><strong>✉</strong> hola@dataseed.cl</a></li>
               <li><a href="https://wa.me/56992354255" target="_blank" rel="noreferrer"><strong>◉</strong> WhatsApp</a></li>
               <li><span><strong>•</strong> Santiago, Chile · Remote-first</span></li>
             </ul>
@@ -1803,7 +1633,7 @@ h1{
           </label>
           <label class="contact-field">
             <span class="contact-label">Empresa</span>
-            <input class="contact-input" type="text" name="empresa" placeholder="Empresa" autocomplete="organization">
+            <input class="contact-input" type="text" name="empresa" placeholder="Empresa" autocomplete="organization" required>
           </label>
         </div>
         <label class="contact-field">
@@ -1812,13 +1642,13 @@ h1{
         </label>
         <label class="contact-field">
           <span class="contact-label">ERP / Sistemas principales</span>
-          <input class="contact-input" type="text" name="sistemas" placeholder="SAP B1, Odoo, Salesforce...">
+          <input class="contact-input" type="text" name="sistemas" placeholder="SAP B1, Odoo, Salesforce..." required>
         </label>
         <label class="contact-field">
           <span class="contact-label">¿Qué quieres lograr?</span>
           <textarea class="contact-textarea" name="objetivo" placeholder="Cuéntanos tu desafío de datos actual. ¿Qué sistemas tienes? ¿Qué decisiones quieres tomar mejor?" required></textarea>
         </label>
-        <button class="contact-submit" type="submit">→ Enviar y agendar reunión</button>
+        <button class="contact-submit" type="submit">Enviar y agendar reunión</button>
         <p class="contact-success" id="contactSuccess" role="status" aria-live="polite">Gracias. Recibimos tu mensaje y coordinaremos una reunión de diagnóstico.</p>
       </form>
     </div>
