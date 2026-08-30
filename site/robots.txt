@@ -1,0 +1,55 @@
+User-agent: *
+Allow: /
+Disallow: /portal/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /login/
+Disallow: /site/login.html
+Disallow: /*?token=
+Disallow: /*?code=
+Disallow: /*?session=
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /portal/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /login/
+Disallow: /site/login.html
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /portal/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /login/
+Disallow: /site/login.html
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-User
+Allow: /
+Disallow: /portal/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /login/
+Disallow: /site/login.html
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /portal/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /login/
+Disallow: /site/login.html
+
+User-agent: Google-Extended
+Disallow: /
+
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
+Sitemap: https://dataseed.cl/sitemap.xml

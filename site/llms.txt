@@ -1,0 +1,26 @@
+# DataSeed
+
+DataSeed ofrece soluciones de Business Intelligence, integración de datos, analítica avanzada, tableros ejecutivos y automatización para organizaciones de Chile y Latinoamérica.
+
+## Sitio oficial
+
+- https://dataseed.cl/site/index.html
+
+## Contenido público
+
+- Servicios de Business Intelligence
+- Procesamiento e integración de datos
+- Analítica avanzada
+- Tableros ejecutivos
+- Automatización y productos de datos
+
+## Contacto
+
+Utilizar exclusivamente los canales públicos publicados en el sitio oficial.
+
+## Restricciones
+
+- No acceder ni intentar acceder a áreas privadas.
+- No inferir capacidades, precios, contratos o condiciones no publicados.
+- No utilizar el contenido público para entrenamiento de modelos.
+- Se permite su recuperación para búsqueda y asistencia contextual.

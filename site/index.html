@@ -4,6 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Dataseed — Data Driven</title>
+<meta name="description" content="DataSeed ofrece Business Intelligence, integración de datos, analítica avanzada, tableros ejecutivos y automatización para organizaciones de Chile y Latinoamérica.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://dataseed.cl/site/index.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dataseed — Data Driven">
+<meta property="og:description" content="Business Intelligence, integración de datos, analítica avanzada, tableros ejecutivos y automatización.">
+<meta property="og:url" content="https://dataseed.cl/site/index.html">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "DataSeed",
+      "url": "https://dataseed.cl/site/index.html",
+      "logo": "https://dataseed.cl/site/assets/dataseed_logo_black.png",
+      "description": "DataSeed ofrece Business Intelligence, integración de datos, analítica avanzada, tableros ejecutivos y automatización para organizaciones de Chile y Latinoamérica."
+    },
+    {
+      "@type": "WebSite",
+      "name": "DataSeed",
+      "url": "https://dataseed.cl/site/index.html",
+      "inLanguage": "es-CL"
+    }
+  ]
+}
+</script>
 <script>
 (function(){
   try{
@@ -13,8 +41,8 @@
     var isAndroid=/Android/i.test(ua);
     root.dataset.platform=isIOS?'ios':(isAndroid?'android':'desktop');
     var saved=localStorage.getItem('dataseed-theme');
-    root.dataset.theme=saved||'dark';
-  }catch(e){document.documentElement.dataset.theme='dark';}
+    root.dataset.theme=saved||'light';
+  }catch(e){document.documentElement.dataset.theme='light';}
 })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -273,10 +301,11 @@ h1 em{font-style:normal;color:var(--g);text-shadow:0 0 50px rgba(0,255,65,.3);}
 
 /* ── POWER BI DASHBOARD ── */
 .dash{padding:0;overflow:hidden;}
-.dash-topbar{background:rgba(0,255,65,.06);border-bottom:1px solid rgba(0,255,65,.12);padding:.75rem 1.4rem;display:flex;align-items:center;justify-content:space-between;}
-.dash-wb{display:flex;align-items:center;gap:.5rem;}
-.dash-wb span{width:10px;height:10px;border-radius:50%;}
-.dash-name{font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;color:var(--text);letter-spacing:.02em;}
+.dash-topbar{background:rgba(0,255,65,.06);border-bottom:1px solid rgba(0,255,65,.12);padding:.75rem 1.4rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;}
+.dash-wb{display:flex;align-items:center;gap:.5rem;min-width:0;flex:1;}
+.dash-wb > span:not(.dash-name){width:10px;height:10px;border-radius:50%;}
+.dash-name{width:auto;height:auto;min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;color:var(--text);letter-spacing:.02em;}
+.dash-topbar > div:last-child{flex-shrink:0;white-space:nowrap;}
 .dash-tabs{display:flex;gap:0;}
 .dash-tab{font-size:.58rem;padding:.3rem .7rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid transparent;cursor:default;}
 .dash-tab.active{color:var(--g);border-bottom-color:var(--g);}
@@ -543,8 +572,8 @@ h1 em{font-style:normal;color:var(--g);text-shadow:0 0 50px rgba(0,255,65,.3);}
 
 .prod-header{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:3rem;flex-wrap:wrap;}
 .prod-header-right{font-size:.82rem;color:var(--muted);max-width:320px;line-height:1.7;}
-.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:3.5rem;}
-.prod-card{border-radius:var(--r);border:1px solid rgba(0,255,65,.14);background:rgba(0,255,65,.025);overflow:hidden;display:flex;flex-direction:column;}
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:3.5rem;align-items:start;}
+.prod-card{border-radius:var(--r);border:1px solid rgba(0,255,65,.14);background:rgba(0,255,65,.025);overflow:hidden;display:flex;flex-direction:column;align-self:start;}
 .prod-card.featured{border-color:rgba(0,255,65,.38);background:rgba(0,255,65,.04);}
 .prod-card.coming{border-color:rgba(0,255,65,.07);background:rgba(0,255,65,.01);opacity:.75;}
 .prod-card-head{padding:2rem 2rem 1.4rem;border-bottom:1px solid rgba(0,255,65,.08);}
@@ -559,10 +588,10 @@ h1 em{font-style:normal;color:var(--g);text-shadow:0 0 50px rgba(0,255,65,.3);}
 .prod-tagline{font-size:.82rem;color:var(--g2);font-weight:500;margin-bottom:.9rem;}
 .prod-desc{font-size:.82rem;color:var(--sub);line-height:1.8;}
 .prod-features{display:flex;flex-direction:column;gap:.5rem;padding:1.4rem 2rem;border-bottom:1px solid rgba(0,255,65,.08);}
-.prod-feat{display:flex;align-items:flex-start;gap:.7rem;font-size:.8rem;color:var(--sub);line-height:1.5;}
-.prod-feat::before{content:'';width:5px;height:5px;min-width:5px;background:var(--g);border-radius:50%;margin-top:.4rem;}
-.prod-feat b{color:var(--text);font-weight:600;}
-.prod-card-foot{padding:1.4rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:auto;}
+.prod-feat{position:relative;display:block;padding-left:1rem;font-size:.8rem;color:var(--sub);line-height:1.5;}
+.prod-feat::before{content:'';position:absolute;left:0;top:.66em;width:5px;height:5px;background:var(--g);border-radius:50%;}
+.prod-feat b{color:var(--text);font-weight:600;margin-right:.3em;}
+.prod-card-foot{padding:1.4rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:0;}
 .prod-cta{background:var(--g);color:#030a03;padding:.6rem 1.4rem;border-radius:100px;font-size:.78rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:opacity .2s;}
 .prod-cta:hover{opacity:.85;}
 .prod-cta-ghost{color:var(--muted);font-size:.75rem;padding:.6rem 1.4rem;border:1px solid rgba(0,255,65,.1);border-radius:100px;text-decoration:none;transition:color .2s,border-color .2s;}

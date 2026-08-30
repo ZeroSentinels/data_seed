@@ -14,7 +14,12 @@ test('Vercel routes the protected portal without shadowing static site or API fu
     { source: '/login', destination: '/site/login.html', permanent: false },
     { source: '/login.html', destination: '/site/login.html', permanent: false },
   ]);
-  assert.deepEqual(config.rewrites, [{ source: '/portal', destination: '/api/portal' }]);
+  assert.deepEqual(config.rewrites, [
+    { source: '/portal', destination: '/api/portal' },
+    { source: '/robots.txt', destination: '/site/robots.txt' },
+    { source: '/sitemap.xml', destination: '/site/sitemap.xml' },
+    { source: '/llms.txt', destination: '/site/llms.txt' },
+  ]);
   assert.equal(config.routes, undefined);
   assert.equal(config.builds, undefined);
 
@@ -22,6 +27,9 @@ test('Vercel routes the protected portal without shadowing static site or API fu
   assert.ok(sources.includes('/site/login.html'));
   assert.ok(sources.includes('/portal'));
   assert.ok(sources.includes('/api/auth/(.*)'));
+  assert.ok(sources.includes('/robots.txt'));
+  assert.ok(sources.includes('/sitemap.xml'));
+  assert.ok(sources.includes('/llms.txt'));
 
   const serialized = JSON.stringify(config);
   assert.match(serialized, /Cache-Control/);
