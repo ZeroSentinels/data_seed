@@ -11,6 +11,10 @@ const read = (relative) => readFile(new URL(relative, rootUrl), 'utf8');
 test('Vercel routes the protected portal without shadowing static site or API functions', async () => {
   const config = JSON.parse(await read('vercel.json'));
   assert.deepEqual(config.redirects, [
+    { source: '/', destination: '/site/index.html', permanent: true },
+    { source: '/index.html', destination: '/site/index.html', permanent: true },
+    { source: '/site', destination: '/site/index.html', permanent: true },
+    { source: '/site/', destination: '/site/index.html', permanent: true },
     { source: '/login', destination: '/site/login.html', permanent: false },
     { source: '/login.html', destination: '/site/login.html', permanent: false },
   ]);

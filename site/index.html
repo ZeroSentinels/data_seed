@@ -7,13 +7,16 @@
 <meta name="description" content="Transformamos tus datos en decisiones estratégicas. Consultoría BI, analítica predictiva, dashboards y agentes de IA para empresas en Chile y LATAM.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://dataseed.cl/site/index.html">
-<link rel="icon" href="favicon.ico">
+<link rel="icon" href="assets/dataseed_logo_black.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Dataseed | Consultoría BI, Machine Learning y Agentes IA en Chile y LATAM">
 <meta property="og:description" content="Transformamos tus datos en decisiones estratégicas con BI, analítica predictiva, dashboards y agentes de IA.">
 <meta property="og:image" content="https://dataseed.cl/site/assets/dataseed_logo_black.png">
 <meta property="og:url" content="https://dataseed.cl/site/index.html">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dataseed | Consultoría BI, Machine Learning y Agentes IA en Chile y LATAM">
+<meta name="twitter:description" content="Transformamos tus datos en decisiones estratégicas con BI, analítica predictiva, dashboards y agentes de IA.">
+<meta name="twitter:image" content="https://dataseed.cl/site/assets/dataseed_logo_black.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -232,7 +235,7 @@ section,div.ticker-wrap,div.stats-row{position:relative;z-index:2;}
 .gc:hover{background:var(--card-h);border-color:rgba(0,255,65,.24);transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,255,65,.07);}
 
 /* HERO */
-#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:9rem 3rem 3rem;max-width:1160px;margin:0 auto;}
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:5.5rem 3rem 3rem;max-width:1160px;margin:0 auto;}
 .hero-pill{margin-bottom:2.2rem;opacity:0;animation:up .5s .1s forwards;}
 h1{
   font-family:'Syne',sans-serif;
@@ -966,6 +969,9 @@ html[data-platform="android"] .demo-input,html[data-platform="android"] .contact
 }
 section[id]{scroll-margin-top:calc(6rem + env(safe-area-inset-top));}
 @supports(min-height:100dvh){@media(min-width:1025px){#hero{min-height:100dvh;}}}
+@media(min-width:1025px) and (max-height:760px){
+  #hero{min-height:auto;justify-content:flex-start;padding-top:3.5rem;}
+}
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto;}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}

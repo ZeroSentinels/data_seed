@@ -2,6 +2,26 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
+      "source": "/",
+      "destination": "/site/index.html",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "/site/index.html",
+      "permanent": true
+    },
+    {
+      "source": "/site",
+      "destination": "/site/index.html",
+      "permanent": true
+    },
+    {
+      "source": "/site/",
+      "destination": "/site/index.html",
+      "permanent": true
+    },
+    {
       "source": "/login",
       "destination": "/site/login.html",
       "permanent": false
@@ -60,6 +80,12 @@
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "Referrer-Policy", "value": "no-referrer" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    },
+    {
+      "source": "/site/index.html",
+      "headers": [
+        { "key": "Content-Signal", "value": "ai-train=no, search=yes, ai-input=yes" }
       ]
     },
     {
