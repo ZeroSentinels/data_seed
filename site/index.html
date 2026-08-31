@@ -462,9 +462,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 .demo-sources{display:flex;gap:6px;padding:9px 22px;border-bottom:1px solid rgba(0,255,65,.08);flex-wrap:wrap;background:#030903;}
 .demo-src-lbl{font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--sub);align-self:center;margin-right:2px;}
-.demo-chip{display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:50px;font-size:.68rem;font-weight:700;cursor:pointer;border:1px solid #0d260d;color:var(--sub);background:transparent;transition:all .18s;font-family:'Inter',sans-serif;}
+.demo-chip{display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:50px;font-size:.68rem;font-weight:700;cursor:pointer;border:1px solid rgba(0,255,65,.12);color:var(--sub);background:transparent;transition:all .18s;font-family:'Inter',sans-serif;}
 .demo-chip.on{border-color:var(--g);color:var(--g);background:rgba(0,255,65,.06);}
-.demo-chip-dot{width:4px;height:4px;border-radius:50%;background:#0d260d;transition:background .18s;}
+.demo-chip-dot{width:4px;height:4px;border-radius:50%;background:rgba(0,255,65,.35);transition:background .18s;}
 .demo-chip.on .demo-chip-dot{background:var(--g);}
 .demo-body{display:grid;grid-template-columns:185px 1fr;}
 .demo-sidebar{background:#020802;border-right:1px solid rgba(0,255,65,.07);padding:12px 0;}
@@ -492,10 +492,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .demo-insight b{color:#7ab87a;font-weight:700;}
 .demo-tag{display:inline-block;background:rgba(0,255,65,.06);border:1px solid rgba(0,255,65,.14);color:#2a8a3a;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:4px;margin:0 2px;}
 .demo-typing{display:flex;gap:4px;align-items:center;padding:2px 0;}
-.demo-typing span{width:5px;height:5px;border-radius:50%;background:#0d260d;animation:tb .9s infinite;}
+.demo-typing span{width:5px;height:5px;border-radius:50%;background:rgba(0,255,65,.35);animation:tb .9s infinite;}
 .demo-typing span:nth-child(2){animation-delay:.15s;}
 .demo-typing span:nth-child(3){animation-delay:.3s;}
-@keyframes tb{0%,80%,100%{transform:translateY(0);background:#0d260d;}40%{transform:translateY(-5px);background:var(--g);}}
+@keyframes tb{0%,80%,100%{transform:translateY(0);background:rgba(0,255,65,.35);}40%{transform:translateY(-5px);background:var(--g);}}
 .demo-input-row{border-top:1px solid rgba(0,255,65,.07);padding:11px 16px;display:flex;gap:7px;background:#020802;}
 .demo-input{flex:1;background:rgba(0,255,65,.03);border:1px solid rgba(0,255,65,.08);border-radius:8px;padding:9px 13px;font-size:.78rem;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .18s;}
 .demo-input::placeholder{color:var(--muted);}
@@ -1905,7 +1905,7 @@ FORMATO DE RESPUESTA:
 - Debe terminar siempre con el CTA de contacto.`;
 
 let dHist=[],dBusy=false;
-function tcChip(el){const active=el.classList.toggle('on');el.setAttribute('aria-pressed',String(active));el.querySelector('.demo-chip-dot').style.background=active?'var(--g)':'#0d260d';}
+function tcChip(el){const active=el.classList.toggle('on');el.setAttribute('aria-pressed',String(active));el.querySelector('.demo-chip-dot').style.background=active?'var(--g)':'rgba(0,255,65,.35)';}
 function pickQ(el){document.querySelectorAll('.demo-q').forEach(q=>q.classList.remove('sel'));el.classList.add('sel');document.getElementById('dinp').value=el.textContent.trim();dSend();}
 function dSend(){if(dBusy)return;const inp=document.getElementById('dinp');const q=inp.value.trim();if(!q)return;inp.value='';document.getElementById('dempty')?.remove();dAppend('u',q,true);dHist.push({role:'user',content:q});dTyping();dBusy=true;dAsk();}
 function dAppend(role,html,plain){const box=document.getElementById('dmsgs');const d=document.createElement('div');d.className='demo-msg';d.innerHTML=`<div class="demo-lbl ${role}">${role==='u'?'Tú':'Asistente DataSeed'}</div><div class="demo-bubble ${role}">${plain?html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):html}</div>`;box.appendChild(d);box.scrollTop=box.scrollHeight;}
