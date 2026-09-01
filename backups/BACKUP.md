@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-08-31 09:00:18 UTC
-- Generado America/Santiago: 2026-08-31 05:00:18 -04
+- Generado UTC: 2026-09-01 09:01:27 UTC
+- Generado America/Santiago: 2026-09-01 05:01:27 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -14,8 +14,8 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - El `daily-summary.md` conserva el resumen diario y debe consultarse para tareas diarias, pendientes y bloqueos.
 - El backup diario de las 05:00 AM NO copia `task-log.md` ni `daily-summary.md`; solo deja esta referencia para consultarlos en el repo de tracking.
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
-- Repo/branch de tracking: `/tmp/tmp.k4o7r3uGF7/tracking-workspace` / `feat/task-tracking-system`.
-- Daily summary: `daily-summary.md` (192.2 KB, sha256 1a4334796399bd2a).
+- Repo/branch de tracking: `/tmp/tmp.as6SLFUYzX/tracking-workspace` / `feat/task-tracking-system`.
+- Daily summary: `daily-summary.md` (193.9 KB, sha256 4ab0509de6f91ee2).
 - Task log actual: `task-log.md` (213.0 B, sha256 1512ddaa0df19af1).
 - Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (missing, sha256 missing).
 
@@ -39,7 +39,7 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 - Hermes binary: `/opt/hermes/.venv/bin/hermes`
 - Disk snapshot:
   `Filesystem      Size  Used Avail Use% Mounted on`
-  `/dev/sda1        96G   36G   61G  37% /opt/data`
+  `/dev/sda1        96G   32G   65G  33% /opt/data`
 
 ## Configuración Hermes sanitizada
 
@@ -73,8 +73,8 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `2073a6cc3d6e` [active]
   - Nombre: Demeter Daily Operations (5:00 AM Chile)
   - Schedule: 0 8,9 * * *
-  - Next run UTC: 2026-09-01T08:00:00+00:00
-  - Last run UTC/status: 2026-08-31T08:00:12.448774+00:00 / ok
+  - Next run UTC: 2026-09-02T08:00:00+00:00
+  - Last run UTC/status: 2026-09-01T08:00:55.908831+00:00 / ok
   - Mode: no-agent
   - Script: daily-operations-wrapper.sh
 - `89e2d5c6bd6b` [paused]
@@ -98,6 +98,7 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `hermes-agent` (autonomous-ai-agents/hermes-agent) — Use, configure, theme, extend, and orchestrate Hermes Agent.
 - `opencode` (autonomous-ai-agents/opencode) — Delegate coding to OpenCode CLI (features, PR review).
 - `b2b-sales-outreach` (business-development/b2b-sales-outreach) — Design concise, personalized B2B cold emails, DMs, follow-ups, and diagnostic/pilot invitations without unverified claims or premature promises.
+- `saas-product-packaging-chile` (business-development/saas-product-packaging-chile) — Use when planning DataSeed SaaS sales readiness in Chile.
 - `architecture-diagram` (creative/architecture-diagram) — Dark-themed SVG architecture/cloud/infra diagrams as HTML.
 - `ascii-art` (creative/ascii-art) — ASCII art: pyfiglet, cowsay, boxes, image-to-ascii.
 - `ascii-video` (creative/ascii-video) — ASCII video: convert video/audio to colored ASCII MP4/GIF.
@@ -186,8 +187,10 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `llm-wiki` (research/llm-wiki) — Karpathy
 - `polymarket` (research/polymarket) — Query Polymarket: markets, prices, orderbooks, history.
 - `research-paper-writing` (research/research-paper-writing) — Write ML papers for NeurIPS/ICML/ICLR: design→submit.
+- `web-technology-fingerprinting` (research/web-technology-fingerprinting) — Detect a website
 - `openhue` (smart-home/openhue) — Control Philips Hue lights, scenes, rooms via OpenHue CLI.
 - `xurl` (social-media/xurl) — X/Twitter via xurl CLI: raw post search, posting, DM, media.
+- `audit` (software-development/audit) — Use when auditing a website
 - `dogfood` (software-development/dogfood) — Exploratory QA of web apps: find bugs, evidence, reports.
 - `hermes-agent-skill-authoring` (software-development/hermes-agent-skill-authoring) — Author in-repo SKILL.md files: frontmatter and structure.
 - `inspecting-hermes-desktop-dom` (software-development/inspecting-hermes-desktop-dom) — Read the live Hermes desktop DOM/CSS over CDP.
@@ -212,11 +215,11 @@ Total jobs: 4. Sensitive fields excluded: prompt, deliver, delivery targets.
 No se copia el contenido de estos archivos; solo tamaño y huella para validación.
 
 - `config.yaml`: 17.0 KB, sha256 156cbf72ec5a1d6e
-- `memories/MEMORY.md`: 3.6 KB, sha256 7f87d06891b551e7
-- `memories/USER.md`: 1.8 KB, sha256 e0877a1b3c943295
-- `channel_directory.json`: 67.0 B, sha256 9b0672d3005b26ed
-- `gateway_state.json`: 548.0 B, sha256 15530092e5db9ee3
-- `cron/jobs.json`: 4.2 KB, sha256 590a3693e99e6fe6
+- `memories/MEMORY.md`: 3.9 KB, sha256 c9f0a109bc134b3a
+- `memories/USER.md`: 2.0 KB, sha256 a3b1e2cef2c04d62
+- `channel_directory.json`: 932.0 B, sha256 4a3829127f7a70d0
+- `gateway_state.json`: 548.0 B, sha256 40cba2e4ab3f28c5
+- `cron/jobs.json`: 4.2 KB, sha256 3b25a5f8c2e6934d
 
 ## Grafo de conocimiento del proyecto (Graphify)
 
