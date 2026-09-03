@@ -56,8 +56,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="image" href="assets/dataseed-icon.png" fetchpriority="high">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* Mismas fuentes que site/index.html (Inter + Space Grotesk) — sin Syne, para no divergir del home. */
 :root{
   color-scheme:dark;
   --bg:#050e06;
@@ -71,6 +72,7 @@
   --sub:#7aaa84;
   --muted:#3d6645;
   --r:16px;
+  --font-display:"Space Grotesk","Inter",sans-serif;
   --font-body:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 html[data-theme="light"]{
@@ -88,9 +90,10 @@ html[data-theme="light"]{
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
 section[id]{scroll-margin-top:calc(6rem + env(safe-area-inset-top));}
 a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--g);outline-offset:3px;}
+img{max-width:100%;}
 
 .orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(100px);}
 .orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,255,65,.1),transparent 70%);top:-150px;right:-150px;}
@@ -103,7 +106,7 @@ html[data-theme="light"] nav{background:rgba(247,252,248,.86);border-bottom-colo
 .logo{display:flex;align-items:center;gap:.75rem;text-decoration:none;}
 .logo img{height:40px;filter:drop-shadow(0 0 10px rgba(0,255,65,.4));}
 html[data-theme="light"] .logo img{filter:drop-shadow(0 0 10px rgba(0,143,44,.22));background:#050e06;border-radius:10px;padding:3px;}
-.logo-t{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;color:var(--text);letter-spacing:-.01em;}
+.logo-t{font-family:var(--font-display);font-weight:700;font-size:1.15rem;color:var(--text);letter-spacing:-.01em;}
 .logo-s{display:block;font-size:.5rem;letter-spacing:.35em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
 .desktop-nav{display:flex;gap:2.2rem;list-style:none;}
 .desktop-nav a{color:var(--sub);text-decoration:none;font-size:.84rem;font-weight:400;letter-spacing:.01em;transition:color .2s;}
@@ -134,30 +137,59 @@ html[data-theme="light"] .mobile-menu{background:rgba(247,252,248,.98);border-co
 html[data-theme="light"] .menu-toggle{background:rgba(0,143,44,.07);border-color:rgba(0,143,44,.24);}
 
 .inner{max-width:1160px;margin:0 auto;padding:0 3rem;}
-.pill{display:inline-flex;align-items:center;gap:.55rem;background:rgba(0,255,65,.06);border:1px solid rgba(0,255,65,.22);border-radius:100px;padding:.32rem 1rem;font-size:.7rem;font-weight:500;color:var(--g2);letter-spacing:.06em;margin-bottom:1.4rem;}
+.pill{display:inline-flex;align-items:center;gap:.55rem;background:rgba(0,255,65,.06);border:1px solid rgba(0,255,65,.22);border-radius:100px;padding:.32rem 1rem;font-size:.7rem;font-weight:500;color:var(--g2);letter-spacing:.06em;}
 .pill::before{content:'';width:6px;height:6px;background:var(--g);border-radius:50%;box-shadow:0 0 6px var(--g);flex-shrink:0;}
 .gc{background:var(--card);border:1px solid var(--card-b);border-radius:var(--r);backdrop-filter:blur(6px);transition:background .3s,border-color .3s,transform .3s,box-shadow .3s;}
 .gc:hover{background:var(--card-h);border-color:rgba(0,255,65,.24);transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,255,65,.07);}
-.sec-title{font-family:'Syne',sans-serif;font-size:clamp(2rem,3.5vw,3rem);font-weight:800;letter-spacing:-.025em;line-height:1.06;margin-bottom:.9rem;}
-.sec-sub{font-size:.92rem;color:var(--sub);line-height:1.78;max-width:560px;margin-bottom:2.8rem;font-weight:300;}
-.btn-p{background:var(--g);color:#030a03;padding:.88rem 2rem;border-radius:100px;font-size:.88rem;font-weight:600;text-decoration:none;box-shadow:0 0 32px rgba(0,255,65,.28);transition:opacity .2s,transform .2s,box-shadow .2s;display:inline-flex;align-items:center;}
+.btn-p{background:var(--g);color:#030a03;padding:.9rem 2.1rem;border-radius:100px;font-size:.9rem;font-weight:600;text-decoration:none;box-shadow:0 0 32px rgba(0,255,65,.28);transition:opacity .2s,transform .2s,box-shadow .2s;display:inline-flex;align-items:center;}
 .btn-p:hover{opacity:.87;transform:translateY(-2px);box-shadow:0 0 52px rgba(0,255,65,.46);}
-.btn-o{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.14);padding:.88rem 2rem;border-radius:100px;font-size:.88rem;font-weight:500;text-decoration:none;transition:border-color .2s,color .2s;display:inline-flex;align-items:center;}
+.btn-o{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.14);padding:.9rem 2.1rem;border-radius:100px;font-size:.9rem;font-weight:500;text-decoration:none;transition:border-color .2s,color .2s;display:inline-flex;align-items:center;}
 .btn-o:hover{border-color:rgba(0,255,65,.4);color:var(--g);}
 
-/* HERO */
-#hero{padding:7rem 3rem 3rem;max-width:1160px;margin:0 auto;}
-.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:3.5rem;align-items:center;}
-h1{font-family:'Syne',sans-serif;font-size:clamp(2.6rem,5vw,4rem);font-weight:800;line-height:1.05;letter-spacing:-.025em;margin-bottom:1.4rem;text-wrap:balance;}
+/* ============ HERO — headline centrado + franja de tiles (referencia) ============ */
+#hero{padding:6.5rem 3rem 0;max-width:900px;margin:0 auto;text-align:center;}
+.hero-eyebrow{color:var(--g2);font-weight:600;font-size:.92rem;letter-spacing:.03em;margin-bottom:1.1rem;}
+h1{font-family:var(--font-display);font-size:clamp(2.4rem,5.2vw,3.6rem);font-weight:700;line-height:1.08;letter-spacing:-.02em;margin-bottom:1.5rem;text-wrap:balance;}
 h1 em{font-style:normal;color:var(--g);}
-.hero-sub{font-size:1rem;line-height:1.8;color:var(--sub);font-weight:300;margin-bottom:2rem;max-width:520px;}
-.hero-btns{display:flex;gap:.9rem;flex-wrap:wrap;}
-.hero-note{margin-top:1.2rem;font-size:.76rem;color:var(--muted);}
+.hero-sub{font-size:1.05rem;line-height:1.7;color:var(--sub);font-weight:400;margin:0 auto 2.2rem;max-width:600px;}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-bottom:1rem;}
+.hero-note{font-size:.78rem;color:var(--muted);margin-bottom:3rem;}
 
-/* MOCKUP VISUAL — ejemplo ilustrativo, sin datos reales */
+.tile-strip{max-width:1160px;margin:0 auto;padding:0 3rem;display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;}
+.tile{position:relative;padding:1.5rem 1.5rem 1.7rem;overflow:hidden;}
+.tile-arrow{position:absolute;top:1rem;right:1rem;width:26px;height:26px;border-radius:50%;background:var(--g);color:#030a03;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;}
+.tile-title{font-family:var(--font-display);font-size:1rem;font-weight:700;line-height:1.35;margin-bottom:.9rem;max-width:80%;}
+.tile-title em{font-style:normal;color:var(--g);}
+.tile-link{font-size:.78rem;color:var(--sub);font-weight:500;}
+
+/* ============ BANNER ALIANZA (referencia: "licitaLAB + Claude") ============ */
+#alianza{padding:5rem 3rem 1rem;}
+.alianza-card{max-width:1160px;margin:0 auto;padding:3.2rem 3rem;text-align:center;background:linear-gradient(160deg,rgba(0,255,65,.09),rgba(0,255,65,.02) 60%);border:1px solid rgba(0,255,65,.2);border-radius:28px;position:relative;overflow:hidden;}
+.alianza-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(0,255,65,.1);border:1px solid rgba(0,255,65,.3);color:var(--g);font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.4rem 1rem;border-radius:100px;margin-bottom:1.6rem;}
+.alianza-brands{display:flex;align-items:center;justify-content:center;gap:1.1rem;margin-bottom:1.3rem;flex-wrap:wrap;}
+.alianza-brand{font-family:var(--font-display);font-size:1.7rem;font-weight:700;color:var(--text);}
+.alianza-brand.accent{color:var(--g);}
+.alianza-plus{font-family:var(--font-display);font-size:1.5rem;color:var(--muted);}
+.alianza-desc{max-width:520px;margin:0 auto 1.8rem;color:var(--sub);font-size:.94rem;line-height:1.7;}
+.alianza-btns{display:flex;gap:.9rem;justify-content:center;flex-wrap:wrap;}
+
+/* ============ CONQUISTA — tabs + panel dos columnas (referencia) ============ */
+#conquista{padding:5.5rem 0;border-top:1px solid rgba(0,255,65,.08);text-align:center;}
+.sec-title{font-family:var(--font-display);font-size:clamp(1.9rem,3.6vw,2.7rem);font-weight:700;letter-spacing:-.015em;line-height:1.12;margin-bottom:.9rem;}
+.sec-sub{font-size:.95rem;color:var(--sub);line-height:1.75;max-width:560px;margin:0 auto 2.4rem;font-weight:400;}
+.tab-row{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-bottom:3rem;}
+.tab{padding:.7rem 1.3rem;border-radius:100px;font-size:.84rem;font-weight:600;border:1px solid rgba(0,255,65,.16);color:var(--sub);background:transparent;}
+.tab.active{border-color:var(--g);color:var(--g);background:rgba(0,255,65,.06);}
+.split-panel{text-align:left;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;}
+.split-title{font-family:var(--font-display);font-size:1.7rem;font-weight:700;letter-spacing:-.015em;line-height:1.2;margin-bottom:1rem;}
+.split-desc{color:var(--sub);font-size:.92rem;line-height:1.75;margin-bottom:1.4rem;}
+.tag-stack{display:flex;flex-direction:column;gap:.7rem;align-items:flex-start;}
+.tag-pill{padding:.6rem 1.3rem;border-radius:100px;border:1px solid var(--card-b);background:var(--card);color:var(--g2);font-size:.85rem;font-weight:600;}
+
+/* MOCKUP dashboard — reutilizado en Conquista y Cómo funciona, rotulado como ejemplo */
 .mock-card{overflow:hidden;}
 .mock-top{background:rgba(0,255,65,.05);border-bottom:1px solid rgba(0,255,65,.1);padding:.9rem 1.2rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;}
-.mock-top-name{font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;color:var(--text);}
+.mock-top-name{font-family:var(--font-display);font-size:.8rem;font-weight:700;color:var(--text);}
 .mock-top-tag{font-size:.6rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
 .mock-chips{display:flex;gap:6px;padding:.7rem 1.2rem;flex-wrap:wrap;border-bottom:1px solid rgba(0,255,65,.07);}
 .mock-chip{padding:3px 10px;border-radius:50px;font-size:.64rem;font-weight:700;border:1px solid rgba(0,255,65,.28);color:var(--g);background:rgba(0,255,65,.06);}
@@ -166,28 +198,35 @@ h1 em{font-style:normal;color:var(--g);}
 .mock-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.6rem .8rem;background:rgba(0,255,65,.03);border:1px solid rgba(0,255,65,.08);border-radius:10px;}
 .mock-row-name{font-size:.76rem;color:var(--text);font-weight:500;}
 .mock-row-meta{font-size:.62rem;color:var(--muted);margin-top:2px;}
-.mock-row-score{font-family:'Syne',sans-serif;font-size:.7rem;font-weight:800;color:var(--g);white-space:nowrap;}
+.mock-row-score{font-family:var(--font-display);font-size:.72rem;font-weight:700;color:var(--g);white-space:nowrap;}
 .mock-foot{padding:.7rem 1.2rem 1rem;font-size:.62rem;color:var(--muted);border-top:1px solid rgba(0,255,65,.07);}
 
-/* PROBLEMA / FUNCIONALIDADES / CASOS — grid de cards */
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;}
-.card-pad{padding:2rem;}
-.card-icon{width:44px;height:44px;background:rgba(0,255,65,.07);border:1px solid rgba(0,255,65,.18);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:1.3rem;color:var(--g);}
-.card-title{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.01em;}
-.card-desc{font-size:.82rem;line-height:1.8;color:var(--sub);}
+/* ============ COMO FUNCIONA — timeline horizontal ============ */
+#como-funciona{padding:5.5rem 0;border-top:1px solid rgba(0,255,65,.08);text-align:center;}
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:1.4rem;margin-top:2.5rem;text-align:left;position:relative;}
+.timeline-step{padding:1.6rem 1.5rem;position:relative;}
+.timeline-n{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--g);opacity:.5;margin-bottom:1rem;line-height:1;}
+.timeline-title{font-family:var(--font-display);font-size:.98rem;font-weight:700;margin-bottom:.5rem;}
+.timeline-desc{font-size:.82rem;color:var(--sub);line-height:1.65;}
 
-/* COMO FUNCIONA */
-#como-funciona{padding:5rem 0;border-top:1px solid rgba(0,255,65,.08);}
-.how-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:3.5rem;align-items:start;}
-.steps{display:flex;flex-direction:column;gap:.6rem;margin-top:1.6rem;}
-.step{display:flex;gap:1.2rem;align-items:flex-start;padding:1.3rem 1.5rem;}
-.step-n{width:36px;height:36px;border-radius:50%;background:rgba(0,255,65,.07);border:1px solid rgba(0,255,65,.22);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:.8rem;font-weight:800;color:var(--g);flex-shrink:0;}
-.step-title{font-family:'Syne',sans-serif;font-size:.96rem;font-weight:700;margin-bottom:.3rem;letter-spacing:-.01em;}
-.step-desc{font-size:.8rem;color:var(--sub);line-height:1.65;}
+/* ============ FUNCIONALIDADES — lista con check + mockup lateral ============ */
+#funcionalidades{padding:5.5rem 0;border-top:1px solid rgba(0,255,65,.08);}
+.feat-panel{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:center;}
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:1.3rem;}
+.feat-list li{display:flex;gap:.9rem;align-items:flex-start;}
+.feat-check{width:22px;height:22px;border-radius:50%;background:rgba(0,255,65,.12);color:var(--g);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-top:.15rem;}
+.feat-list b{display:block;font-family:var(--font-display);font-size:.96rem;font-weight:700;margin-bottom:.2rem;}
+.feat-list span{font-size:.84rem;color:var(--sub);line-height:1.6;}
 
-/* DIFERENCIADORES */
-#diferenciadores{padding:5rem 0;border-top:1px solid rgba(0,255,65,.08);}
+/* ============ CASOS DE USO — franja de pills ============ */
+#casos-de-uso{padding:5rem 0;border-top:1px solid rgba(0,255,65,.08);text-align:center;}
+.use-case-row{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:2rem;}
+.use-case{padding:1.4rem 1.7rem;text-align:left;min-width:220px;flex:1 1 220px;max-width:260px;}
+.use-case-title{font-family:var(--font-display);font-size:.98rem;font-weight:700;margin-bottom:.5rem;}
+.use-case-desc{font-size:.8rem;color:var(--sub);line-height:1.6;}
+
+/* ============ DIFERENCIADORES ============ */
+#diferenciadores{padding:5.5rem 0;border-top:1px solid rgba(0,255,65,.08);}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
 .compare-card{padding:2rem;}
 .compare-card.manual{opacity:.85;}
@@ -201,9 +240,12 @@ h1 em{font-style:normal;color:var(--g);}
 .compare-card.publica .compare-list li::before{content:'✓';color:var(--g);font-weight:700;}
 .compare-card.publica .compare-list li{color:var(--text);}
 
-/* CONFIANZA */
-#confianza{padding:5rem 0;border-top:1px solid rgba(0,255,65,.08);}
-.trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-top:2rem;}
+/* ============ CONFIANZA — fila de íconos ============ */
+#confianza{padding:5.5rem 0;border-top:1px solid rgba(0,255,65,.08);}
+.trust-row{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2rem;margin-top:2.4rem;}
+.trust-item-icon{width:40px;height:40px;background:rgba(0,255,65,.07);border:1px solid rgba(0,255,65,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--g);margin-bottom:1.1rem;}
+.trust-item-title{font-family:var(--font-display);font-size:.96rem;font-weight:700;margin-bottom:.5rem;}
+.trust-item-desc{font-size:.82rem;color:var(--sub);line-height:1.7;}
 
 /* FAQ (idéntico a site/index.html) */
 #faq{padding:2rem 0 5rem;}
@@ -224,7 +266,7 @@ h1 em{font-style:normal;color:var(--g);}
 #demo{padding:100px 0;background:var(--bg2);border-top:1px solid var(--card-b);}
 .contact-wrap{display:grid;grid-template-columns:minmax(0,50fr) minmax(0,50fr);gap:3rem;align-items:start;}
 .contact-wrap>*{min-width:0;}
-.contact-title{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;line-height:1.15;letter-spacing:-.025em;color:var(--text);max-width:480px;margin-bottom:1rem;}
+.contact-title{font-family:var(--font-display);font-size:2rem;font-weight:700;line-height:1.2;letter-spacing:-.015em;color:var(--text);max-width:480px;margin-bottom:1rem;}
 .contact-title em{font-style:normal;color:var(--g);}
 .contact-sub{max-width:420px;color:var(--sub);font-size:.95rem;line-height:1.7;margin-bottom:1.75rem;}
 .contact-note{border:1px solid var(--card-b);border-radius:12px;background:var(--card);padding:20px;}
@@ -250,7 +292,7 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
 .footer-shell{max-width:1530px;margin:0 auto;position:relative;z-index:1;}
 .footer-grid{display:grid;grid-template-columns:1.55fr 1fr 1fr 1fr;gap:4rem;padding-bottom:3rem;}
 .footer-brand{max-width:420px;}
-.footer-wordmark{display:flex;align-items:center;gap:.5rem;font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1;margin-bottom:2rem;}
+.footer-wordmark{display:flex;align-items:center;gap:.5rem;font-family:var(--font-display);font-size:2rem;font-weight:700;letter-spacing:-.02em;line-height:1;margin-bottom:2rem;}
 .footer-wordmark .accent{color:var(--g);text-shadow:0 0 20px rgba(0,255,65,.18);}
 .footer-wordmark .suffix{color:#7d866f;}
 .footer-copy{color:#8fa392;font-size:1rem;line-height:1.7;max-width:360px;margin-bottom:1.6rem;}
@@ -288,17 +330,19 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
   .theme-toggle{width:44px;height:44px;flex:0 0 44px;}
   .mobile-menu:not([hidden]){position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;gap:1.5rem;overflow-y:auto;padding:calc(6.5rem + env(safe-area-inset-top)) calc(1.5rem + env(safe-area-inset-right)) calc(2rem + env(safe-area-inset-bottom)) calc(1.5rem + env(safe-area-inset-left));background:rgba(5,14,6,.98);border-bottom:1px solid rgba(0,255,65,.14);}
   .mobile-menu ul{display:flex;flex-direction:column;gap:.45rem;list-style:none;}
-  .mobile-menu ul a{display:flex;align-items:center;min-height:52px;padding:.8rem 1rem;border:1px solid rgba(0,255,65,.12);border-radius:14px;color:var(--text);font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;text-decoration:none;background:rgba(0,255,65,.025);}
+  .mobile-menu ul a{display:flex;align-items:center;min-height:52px;padding:.8rem 1rem;border:1px solid rgba(0,255,65,.12);border-radius:14px;color:var(--text);font-family:var(--font-display);font-size:1.05rem;font-weight:700;text-decoration:none;background:rgba(0,255,65,.025);}
   .mobile-menu-actions{display:grid;grid-template-columns:1fr;gap:.75rem;margin-top:auto;}
   .mobile-menu-actions a{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:999px;text-decoration:none;font-weight:700;}
   .mobile-menu-login{color:var(--text);border:1px solid rgba(0,255,65,.24);}
   .mobile-menu-cta{color:#030a03;background:var(--g);box-shadow:0 0 28px rgba(0,255,65,.24);}
-  .inner,#hero{padding-left:1.5rem;padding-right:1.5rem;}
-  h1{font-size:2.6rem;}
-  .hero-grid{grid-template-columns:1fr;gap:2.5rem;}
-  .grid-3,.grid-4{grid-template-columns:1fr 1fr;}
-  .how-grid,.compare-grid{grid-template-columns:1fr;}
-  .trust-grid{grid-template-columns:1fr 1fr;}
+  .inner,#hero,.tile-strip{padding-left:1.5rem;padding-right:1.5rem;}
+  h1{font-size:2.3rem;}
+  .tile-strip{grid-template-columns:1fr 1fr;}
+  .split-panel,.feat-panel{grid-template-columns:1fr;gap:2rem;}
+  .timeline{grid-template-columns:1fr 1fr;}
+  .trust-row{grid-template-columns:1fr;gap:1.5rem;}
+  .compare-grid{grid-template-columns:1fr;}
+  .alianza-card{padding:2.4rem 1.6rem;margin:0 1.5rem;}
   .faq-title{font-size:2.5rem;}
   .faq-trigger{padding:1.25rem 1.2rem;align-items:flex-start;}
   .faq-answer p{padding:0 1.2rem 1.35rem;font-size:.92rem;}
@@ -317,11 +361,12 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
   .logo img{height:34px;}
   .logo-t{font-size:1rem;}
   .logo-s{font-size:.46rem;letter-spacing:.28em;}
-  #hero{padding-top:calc(7.2rem + env(safe-area-inset-top));}
+  #hero{padding-top:calc(6.5rem + env(safe-area-inset-top));}
   .hero-btns{gap:.7rem;}
   .btn-p,.btn-o{width:100%;text-align:center;justify-content:center;}
-  .grid-3,.grid-4{grid-template-columns:1fr;}
-  .trust-grid{grid-template-columns:1fr;}
+  .tile-strip{grid-template-columns:1fr;}
+  .timeline{grid-template-columns:1fr;}
+  .use-case{max-width:none;}
 }
 @media(max-width:380px){
   nav{padding:.85rem .8rem;gap:.45rem;}
@@ -369,77 +414,111 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
 
 <!-- HERO -->
 <section id="hero">
-  <div class="hero-grid">
-    <div>
-      <div class="pill">● Pública by DataSeed</div>
-      <h1>Encuentra las licitaciones que tu empresa puede ganar, <em>antes</em> que tu competencia.</h1>
-      <p class="hero-sub">Pública organiza los datos públicos de Mercado Público y ChileCompra por industria, para que dejes de revisar el portal a mano y te enfoques en las oportunidades que realmente te sirven.</p>
-      <div class="hero-btns">
-        <a href="#demo" class="btn-p">Solicitar una demo</a>
-        <a href="#como-funciona" class="btn-o">Mira cómo funciona</a>
-      </div>
-      <p class="hero-note">La demo se coordina con el equipo de DataSeed.</p>
+  <p class="hero-eyebrow">Pública by DataSeed</p>
+  <h1>Gana más licitaciones <em>en Mercado Público</em>, con menos horas de búsqueda.</h1>
+  <p class="hero-sub">Organizamos las licitaciones y órdenes de compra del Estado por industria, con alertas y un agente IA que resume las bases — para que tu equipo comercial se enfoque en ofertar, no en buscar.</p>
+  <div class="hero-btns">
+    <a href="#demo" class="btn-p">Solicitar una demo</a>
+    <a href="#como-funciona" class="btn-o">Mira cómo funciona</a>
+  </div>
+  <p class="hero-note">La demo se coordina con el equipo de DataSeed.</p>
+</section>
+
+<div class="tile-strip">
+  <div class="gc tile">
+    <span class="tile-arrow" aria-hidden="true">↗</span>
+    <div class="tile-title">Alertas <em>por industria</em>, no genéricas</div>
+    <span class="tile-link">Configurá tu rubro una vez →</span>
+  </div>
+  <div class="gc tile">
+    <span class="tile-arrow" aria-hidden="true">↗</span>
+    <div class="tile-title">Precios <em>históricos</em> antes de ofertar</div>
+    <span class="tile-link">Sabé cuánto paga el Estado →</span>
+  </div>
+  <div class="gc tile">
+    <span class="tile-arrow" aria-hidden="true">↗</span>
+    <div class="tile-title">Bases largas, <em>resumidas</em> al instante</div>
+    <span class="tile-link">Decidí en minutos, no en horas →</span>
+  </div>
+  <div class="gc tile">
+    <span class="tile-arrow" aria-hidden="true">↗</span>
+    <div class="tile-title">Mapa de <em>competencia</em> por rubro</div>
+    <span class="tile-link">Mirá quién gana y dónde →</span>
+  </div>
+</div>
+
+<!-- BANNER ALIANZA -->
+<section id="alianza">
+  <div class="alianza-card">
+    <div class="alianza-tag">● Fuente de datos</div>
+    <div class="alianza-brands">
+      <span class="alianza-brand accent">Pública</span>
+      <span class="alianza-plus">+</span>
+      <span class="alianza-brand">Mercado Público</span>
     </div>
-    <div class="gc mock-card" aria-hidden="true">
-      <div class="mock-top">
-        <span class="mock-top-name">Pública — Oportunidades</span>
-        <span class="mock-top-tag">Ejemplo ilustrativo</span>
-      </div>
-      <div class="mock-chips">
-        <span class="mock-chip">Construcción</span>
-        <span class="mock-chip">Salud</span>
-        <span class="mock-chip off">Tecnología</span>
-        <span class="mock-chip off">Transporte</span>
-      </div>
-      <div class="mock-list">
-        <div class="mock-row">
-          <div>
-            <div class="mock-row-name">Suministro de insumos — municipalidad ejemplo</div>
-            <div class="mock-row-meta">Cierra en 6 días · Construcción</div>
-          </div>
-          <span class="mock-row-score">92</span>
-        </div>
-        <div class="mock-row">
-          <div>
-            <div class="mock-row-name">Mantención de equipos — servicio de salud ejemplo</div>
-            <div class="mock-row-meta">Cierra en 11 días · Salud</div>
-          </div>
-          <span class="mock-row-score">78</span>
-        </div>
-        <div class="mock-row">
-          <div>
-            <div class="mock-row-name">Obras menores — organismo público ejemplo</div>
-            <div class="mock-row-meta">Cierra en 3 días · Construcción</div>
-          </div>
-          <span class="mock-row-score">65</span>
-        </div>
-      </div>
-      <div class="mock-foot">Datos simulados con fines ilustrativos. No representan licitaciones reales.</div>
+    <p class="alianza-desc">Trabajamos directamente sobre los datos públicos que el Estado de Chile ya publica en Mercado Público y ChileCompra — organizados y priorizados para tu industria.</p>
+    <div class="alianza-btns">
+      <a href="#confianza" class="btn-o">Conoce más</a>
+      <a href="#demo" class="btn-p">Solicitar una demo</a>
     </div>
   </div>
 </section>
 
-<!-- PROBLEMA -->
-<section id="problema" style="padding:4rem 0;border-top:1px solid rgba(0,255,65,.08);">
+<!-- CONQUISTA -->
+<section id="conquista">
   <div class="inner">
-    <div class="pill">● El problema</div>
-    <h2 class="sec-title">Mercado Público es enorme.<br>Encontrar lo tuyo, no.</h2>
-    <p class="sec-sub">Cientos de licitaciones y órdenes de compra se publican todos los días. Revisar el portal a mano para encontrar las que le sirven a tu empresa consume horas — y aun así, es fácil que se te escape una.</p>
-    <div class="grid-3">
-      <div class="gc card-pad">
-        <div class="card-icon" aria-hidden="true">◆</div>
-        <div class="card-title">Búsqueda manual y dispersa</div>
-        <p class="card-desc">Revisar el portal todos los días, con filtros genéricos que no entienden tu industria, es lento y poco preciso.</p>
+    <h2 class="sec-title">Conquista tu categoría<br>de compras públicas.</h2>
+    <p class="sec-sub">Gestioná tus oportunidades de venta al Estado desde un solo lugar, filtradas por lo que realmente le sirve a tu empresa.</p>
+    <div class="tab-row" role="tablist" aria-label="Funciones principales de Pública">
+      <span class="tab active">Oportunidades centralizadas</span>
+      <span class="tab">Análisis de mercado</span>
+      <span class="tab">Seguimiento de licitaciones</span>
+    </div>
+    <div class="split-panel">
+      <div>
+        <h3 class="split-title">Las licitaciones que importan, en un solo lugar.</h3>
+        <p class="split-desc">Conectá tu perfil de industria y dejá que Pública filtre Mercado Público por vos — sin búsquedas manuales, sin pestañas abiertas todo el día.</p>
+        <div class="tag-stack">
+          <span class="tag-pill">Rubros</span>
+          <span class="tag-pill">Palabras clave</span>
+          <span class="tag-pill">Alertas en tiempo real</span>
+        </div>
       </div>
-      <div class="gc card-pad">
-        <div class="card-icon" aria-hidden="true">▲</div>
-        <div class="card-title">Bases extensas, tiempo escaso</div>
-        <p class="card-desc">Leer cada base completa para decidir si conviene ofertar le quita horas al equipo comercial y técnico.</p>
-      </div>
-      <div class="gc card-pad">
-        <div class="card-icon" aria-hidden="true">●</div>
-        <div class="card-title">Sin visibilidad de precios ni competencia</div>
-        <p class="card-desc">Sin historial de adjudicaciones, ofertar a ciegas es un riesgo — no sabes cuánto ha pagado el Estado ni quién suele ganar.</p>
+      <div class="gc mock-card" aria-hidden="true">
+        <div class="mock-top">
+          <span class="mock-top-name">Pública — Oportunidades</span>
+          <span class="mock-top-tag">Ejemplo ilustrativo</span>
+        </div>
+        <div class="mock-chips">
+          <span class="mock-chip">Construcción</span>
+          <span class="mock-chip">Salud</span>
+          <span class="mock-chip off">Tecnología</span>
+          <span class="mock-chip off">Transporte</span>
+        </div>
+        <div class="mock-list">
+          <div class="mock-row">
+            <div>
+              <div class="mock-row-name">Suministro de insumos — municipalidad ejemplo</div>
+              <div class="mock-row-meta">Cierra en 6 días · Construcción</div>
+            </div>
+            <span class="mock-row-score">92</span>
+          </div>
+          <div class="mock-row">
+            <div>
+              <div class="mock-row-name">Mantención de equipos — servicio de salud ejemplo</div>
+              <div class="mock-row-meta">Cierra en 11 días · Salud</div>
+            </div>
+            <span class="mock-row-score">78</span>
+          </div>
+          <div class="mock-row">
+            <div>
+              <div class="mock-row-name">Obras menores — organismo público ejemplo</div>
+              <div class="mock-row-meta">Cierra en 3 días · Construcción</div>
+            </div>
+            <span class="mock-row-score">65</span>
+          </div>
+        </div>
+        <div class="mock-foot">Datos simulados con fines ilustrativos. No representan licitaciones reales.</div>
       </div>
     </div>
   </div>
@@ -448,96 +527,86 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
 <!-- COMO FUNCIONA -->
 <section id="como-funciona">
   <div class="inner">
-    <div class="how-grid">
-      <div>
-        <div class="pill">● Cómo funciona</div>
-        <h2 class="sec-title">De Mercado Público a<br>oportunidad priorizada.</h2>
-        <div class="steps">
-          <div class="step gc"><div class="step-n">1</div><div><div class="step-title">Configurás tu perfil de industria</div><p class="step-desc">Le contás a Pública en qué rubro compite tu empresa y qué tipo de oportunidades te interesan.</p></div></div>
-          <div class="step gc"><div class="step-n">2</div><div><div class="step-title">Pública filtra Mercado Público por vos</div><p class="step-desc">El sistema revisa licitaciones y órdenes de compra publicadas y las prioriza según tu perfil.</p></div></div>
-          <div class="step gc"><div class="step-n">3</div><div><div class="step-title">Recibís alertas y resúmenes</div><p class="step-desc">Te avisamos cuando aparece algo relevante, con un resumen de la base para que decidas rápido si te conviene participar.</p></div></div>
-          <div class="step gc"><div class="step-n">4</div><div><div class="step-title">Analizás precios y competencia antes de ofertar</div><p class="step-desc">Revisás qué ha pagado el Estado por ítems similares y quién ha ganado procesos parecidos, antes de armar tu oferta.</p></div></div>
-        </div>
+    <h2 class="sec-title">De Mercado Público a oportunidad priorizada.</h2>
+    <p class="sec-sub">Cuatro pasos, sin equipo técnico interno.</p>
+    <div class="timeline">
+      <div class="gc timeline-step">
+        <div class="timeline-n">01</div>
+        <div class="timeline-title">Configurás tu perfil</div>
+        <p class="timeline-desc">Le contás a Pública en qué rubro compite tu empresa y qué te interesa.</p>
       </div>
-      <div class="gc mock-card" aria-hidden="true" style="align-self:start;">
-        <div class="mock-top">
-          <span class="mock-top-name">Perfil de industria</span>
-          <span class="mock-top-tag">Ejemplo ilustrativo</span>
-        </div>
-        <div class="mock-list" style="padding-top:1.2rem;">
-          <div class="mock-row"><div class="mock-row-name">Rubro</div><span class="mock-row-score" style="color:var(--sub);font-family:inherit;font-weight:600;">Construcción</span></div>
-          <div class="mock-row"><div class="mock-row-name">Región</div><span class="mock-row-score" style="color:var(--sub);font-family:inherit;font-weight:600;">Metropolitana</span></div>
-          <div class="mock-row"><div class="mock-row-name">Rango de montos</div><span class="mock-row-score" style="color:var(--sub);font-family:inherit;font-weight:600;">Hasta 50M CLP</span></div>
-          <div class="mock-row"><div class="mock-row-name">Alertas</div><span class="mock-row-score">Activas</span></div>
-        </div>
-        <div class="mock-foot">Datos simulados con fines ilustrativos.</div>
+      <div class="gc timeline-step">
+        <div class="timeline-n">02</div>
+        <div class="timeline-title">Pública filtra por vos</div>
+        <p class="timeline-desc">El sistema revisa Mercado Público y prioriza según tu perfil.</p>
+      </div>
+      <div class="gc timeline-step">
+        <div class="timeline-n">03</div>
+        <div class="timeline-title">Recibís alertas y resúmenes</div>
+        <p class="timeline-desc">Te avisamos con un resumen de la base para decidir rápido.</p>
+      </div>
+      <div class="gc timeline-step">
+        <div class="timeline-n">04</div>
+        <div class="timeline-title">Analizás antes de ofertar</div>
+        <p class="timeline-desc">Precios históricos y competencia, antes de armar tu oferta.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- FUNCIONALIDADES -->
-<section id="funcionalidades" style="padding:5rem 0;border-top:1px solid rgba(0,255,65,.08);">
+<section id="funcionalidades">
   <div class="inner">
-    <div class="pill">● Funcionalidades</div>
-    <h2 class="sec-title">Lo que hace Pública<br>por tu equipo comercial.</h2>
-    <div class="grid-3">
-      <div class="gc card-pad">
-        <div class="card-icon" aria-hidden="true">◆</div>
-        <div class="card-title">Alertas inteligentes</div>
-        <p class="card-desc">Notificaciones cuando aparece una licitación u orden de compra que coincide con tu perfil de industria.</p>
+    <div class="feat-panel">
+      <div class="gc mock-card" aria-hidden="true">
+        <div class="mock-top">
+          <span class="mock-top-name">Perfil de industria</span>
+          <span class="mock-top-tag">Ejemplo ilustrativo</span>
+        </div>
+        <div class="mock-list" style="padding-top:1.2rem;">
+          <div class="mock-row"><div class="mock-row-name">Rubro</div><span class="mock-row-score" style="color:var(--sub);font-weight:600;">Construcción</span></div>
+          <div class="mock-row"><div class="mock-row-name">Región</div><span class="mock-row-score" style="color:var(--sub);font-weight:600;">Metropolitana</span></div>
+          <div class="mock-row"><div class="mock-row-name">Rango de montos</div><span class="mock-row-score" style="color:var(--sub);font-weight:600;">Hasta 50M CLP</span></div>
+          <div class="mock-row"><div class="mock-row-name">Alertas</div><span class="mock-row-score">Activas</span></div>
+        </div>
+        <div class="mock-foot">Datos simulados con fines ilustrativos.</div>
       </div>
-      <div class="gc card-pad">
-        <div class="card-icon" aria-hidden="true">▲</div>
-        <div class="card-title">Precios históricos</div>
-        <p class="card-desc">Serie de cuánto ha pagado el Estado por ítems similares, para preparar ofertas con referencia real.</p>
-      </div>
-      <div class="gc card-pad">
-        <div class="card-icon" aria-hidden="true">●</div>
-        <div class="card-title">Mapa de competencia</div>
-        <p class="card-desc">Visibilidad de quién gana en tu industria, en qué organismos y con qué frecuencia.</p>
-      </div>
-      <div class="gc card-pad">
-        <div class="card-icon" aria-hidden="true">■</div>
-        <div class="card-title">Resumen inteligente de bases</div>
-        <p class="card-desc">Bases extensas resumidas en los puntos que importan para decidir si te conviene participar.</p>
-      </div>
-      <div class="gc card-pad">
-        <div class="card-icon" aria-hidden="true">◆</div>
-        <div class="card-title">Agente IA</div>
-        <p class="card-desc">Responde preguntas sobre licitaciones, resume bases y genera reportes ejecutivos en lenguaje natural.</p>
-      </div>
-      <div class="gc card-pad">
-        <div class="card-icon" aria-hidden="true">▲</div>
-        <div class="card-title">Sin equipo técnico interno</div>
-        <p class="card-desc">Configuración guiada por industria. No necesitas data scientists ni integraciones complejas para empezar.</p>
+      <div>
+        <h2 class="sec-title" style="text-align:left;margin-bottom:1.6rem;">Lo que hace Pública<br>por tu equipo comercial.</h2>
+        <ul class="feat-list">
+          <li><span class="feat-check" aria-hidden="true">✓</span><div><b>Alertas inteligentes</b><span>Notificaciones cuando aparece una licitación u orden de compra que coincide con tu industria.</span></div></li>
+          <li><span class="feat-check" aria-hidden="true">✓</span><div><b>Precios históricos</b><span>Serie de cuánto ha pagado el Estado por ítems similares, para ofertar con referencia real.</span></div></li>
+          <li><span class="feat-check" aria-hidden="true">✓</span><div><b>Mapa de competencia</b><span>Visibilidad de quién gana en tu industria, en qué organismos y con qué frecuencia.</span></div></li>
+          <li><span class="feat-check" aria-hidden="true">✓</span><div><b>Resumen inteligente de bases</b><span>Bases extensas resumidas en los puntos que importan para decidir si participar.</span></div></li>
+          <li><span class="feat-check" aria-hidden="true">✓</span><div><b>Agente IA</b><span>Responde preguntas sobre licitaciones, resume bases y genera reportes ejecutivos.</span></div></li>
+          <li><span class="feat-check" aria-hidden="true">✓</span><div><b>Sin equipo técnico interno</b><span>Configuración guiada por industria, operativa sin data scientists.</span></div></li>
+        </ul>
       </div>
     </div>
   </div>
 </section>
 
 <!-- CASOS DE USO -->
-<section id="casos-de-uso" style="padding:5rem 0;border-top:1px solid rgba(0,255,65,.08);">
+<section id="casos-de-uso">
   <div class="inner">
-    <div class="pill">● Casos de uso</div>
     <h2 class="sec-title">Pensado para empresas que<br>ya venden — o quieren venderle — al Estado.</h2>
-    <p class="sec-sub">Pública está diseñado para empresas B2B de entre 10 y 300 personas. Algunos de los rubros donde tiene más sentido:</p>
-    <div class="grid-4">
-      <div class="gc card-pad">
-        <div class="card-title">Construcción</div>
-        <p class="card-desc">Anticipar licitaciones de obras públicas y comparar montos históricos antes de cotizar.</p>
+    <p class="sec-sub">Empresas B2B de entre 10 y 300 personas. Algunos de los rubros donde tiene más sentido:</p>
+    <div class="use-case-row">
+      <div class="gc use-case">
+        <div class="use-case-title">Construcción</div>
+        <p class="use-case-desc">Anticipar licitaciones de obras públicas y comparar montos históricos antes de cotizar.</p>
       </div>
-      <div class="gc card-pad">
-        <div class="card-title">Salud</div>
-        <p class="card-desc">Detectar órdenes de compra de insumos y equipamiento en servicios de salud pública.</p>
+      <div class="gc use-case">
+        <div class="use-case-title">Salud</div>
+        <p class="use-case-desc">Detectar órdenes de compra de insumos y equipamiento en servicios de salud pública.</p>
       </div>
-      <div class="gc card-pad">
-        <div class="card-title">Servicios profesionales</div>
-        <p class="card-desc">Encontrar licitaciones de consultoría, auditoría o servicios técnicos para el Estado.</p>
+      <div class="gc use-case">
+        <div class="use-case-title">Servicios profesionales</div>
+        <p class="use-case-desc">Encontrar licitaciones de consultoría, auditoría o servicios técnicos para el Estado.</p>
       </div>
-      <div class="gc card-pad">
-        <div class="card-title">Tecnología</div>
-        <p class="card-desc">Priorizar procesos de software, infraestructura y soporte TI publicados en Mercado Público.</p>
+      <div class="gc use-case">
+        <div class="use-case-title">Tecnología</div>
+        <p class="use-case-desc">Priorizar procesos de software, infraestructura y soporte TI publicados en Mercado Público.</p>
       </div>
     </div>
   </div>
@@ -546,7 +615,6 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
 <!-- DIFERENCIADORES -->
 <section id="diferenciadores">
   <div class="inner">
-    <div class="pill">● Diferenciadores</div>
     <h2 class="sec-title">Frente a revisar Mercado Público a mano.</h2>
     <div class="compare-grid">
       <div class="gc compare-card manual">
@@ -574,21 +642,23 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
 <!-- CONFIANZA -->
 <section id="confianza">
   <div class="inner">
-    <div class="pill">● Confianza y datos</div>
     <h2 class="sec-title">Solo datos públicos.<br>Sin accesos que no autorizaste.</h2>
     <p class="sec-sub">Pública trabaja con información que los organismos del Estado ya publican en Mercado Público y ChileCompra. No accedemos a sistemas ni datos privados de tu empresa sin tu autorización.</p>
-    <div class="trust-grid">
-      <div class="gc card-pad">
-        <div class="card-title">Datos públicos únicamente</div>
-        <p class="card-desc">La información de licitaciones y órdenes de compra proviene de fuentes públicas oficiales del Estado de Chile.</p>
+    <div class="trust-row">
+      <div>
+        <div class="trust-item-icon" aria-hidden="true">◆</div>
+        <div class="trust-item-title">Datos públicos únicamente</div>
+        <p class="trust-item-desc">La información de licitaciones y órdenes de compra proviene de fuentes públicas oficiales del Estado de Chile.</p>
       </div>
-      <div class="gc card-pad">
-        <div class="card-title">Sin acceso a sistemas privados</div>
-        <p class="card-desc">Tu perfil de industria y preferencias de alerta se tratan con los mismos estándares de seguridad del resto de DataSeed.</p>
+      <div>
+        <div class="trust-item-icon" aria-hidden="true">▲</div>
+        <div class="trust-item-title">Sin acceso a sistemas privados</div>
+        <p class="trust-item-desc">Tu perfil de industria y preferencias de alerta se tratan con los mismos estándares de seguridad del resto de DataSeed.</p>
       </div>
-      <div class="gc card-pad">
-        <div class="card-title">Certificaciones en evaluación</div>
-        <p class="card-desc">Certificaciones formales de seguridad y cumplimiento aún no están confirmadas — se informarán cuando estén disponibles.</p>
+      <div>
+        <div class="trust-item-icon" aria-hidden="true">●</div>
+        <div class="trust-item-title">Certificaciones en evaluación</div>
+        <p class="trust-item-desc">Certificaciones formales de seguridad y cumplimiento aún no están confirmadas — se informarán cuando estén disponibles.</p>
       </div>
     </div>
   </div>
@@ -598,8 +668,7 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
 <section id="faq">
   <div class="inner">
     <div class="faq-head">
-      <div class="pill">● Preguntas frecuentes</div>
-      <h2 class="sec-title">Antes de escribirnos.</h2>
+      <h2 class="sec-title" style="text-align:left;">Antes de escribirnos.</h2>
     </div>
     <div class="faq-list">
       <div class="faq-item">
@@ -646,7 +715,6 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
   <div class="inner">
     <div class="contact-wrap">
       <div>
-        <div class="pill">● Solicitar acceso</div>
         <h2 class="contact-title">Conversemos sobre<br><em>tu proceso de licitaciones.</em></h2>
         <p class="contact-sub">Contanos en qué rubro compite tu empresa y qué buscás en Mercado Público. El equipo de DataSeed te contacta para coordinar una demo de Pública.</p>
         <div class="contact-note">
@@ -807,7 +875,7 @@ document.querySelectorAll('.faq-trigger').forEach((trigger) => {
 /* Revela bloques de contenido sin animar a quienes prefieren reducir movimiento. */
 (function(){
   const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const targets=document.querySelectorAll('#problema,#como-funciona,#funcionalidades,#casos-de-uso,#diferenciadores,#confianza,#faq,#demo,footer');
+  const targets=document.querySelectorAll('#alianza,#conquista,#como-funciona,#funcionalidades,#casos-de-uso,#diferenciadores,#confianza,#faq,#demo,footer');
   if(reduced||!('IntersectionObserver' in window)){
     targets.forEach((target)=>target.classList.add('is-visible'));
     return;
