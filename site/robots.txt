@@ -5,6 +5,8 @@ Disallow: /api/
 Disallow: /auth/
 Disallow: /login/
 Disallow: /site/login.html
+Disallow: /publica-login
+Disallow: /site/publica-login.html
 Disallow: /*?token=
 Disallow: /*?code=
 Disallow: /*?session=
@@ -16,6 +18,8 @@ Disallow: /api/
 Disallow: /auth/
 Disallow: /login/
 Disallow: /site/login.html
+Disallow: /publica-login
+Disallow: /site/publica-login.html
 
 User-agent: ChatGPT-User
 Allow: /
@@ -24,6 +28,8 @@ Disallow: /api/
 Disallow: /auth/
 Disallow: /login/
 Disallow: /site/login.html
+Disallow: /publica-login
+Disallow: /site/publica-login.html
 
 User-agent: GPTBot
 Disallow: /
@@ -38,6 +44,8 @@ Disallow: /api/
 Disallow: /auth/
 Disallow: /login/
 Disallow: /site/login.html
+Disallow: /publica-login
+Disallow: /site/publica-login.html
 
 User-agent: Claude-SearchBot
 Allow: /
@@ -46,6 +54,8 @@ Disallow: /api/
 Disallow: /auth/
 Disallow: /login/
 Disallow: /site/login.html
+Disallow: /publica-login
+Disallow: /site/publica-login.html
 
 User-agent: Google-Extended
 Disallow: /

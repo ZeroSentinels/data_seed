@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Planes de Pública by Dataseed | Inteligencia de licitaciones</title>
-<meta name="description" content="Conocé la estructura de planes de Pública by DataSeed. Precios y condiciones comerciales en definición — solicitá una demo para conocer el estado actual.">
+<meta name="description" content="Planes de Pública by DataSeed desde 2 UF. Conocé la estructura de planes y solicitá una demo para conocer el detalle para tu empresa.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://dataseed.cl/publica-planes">
 <link rel="icon" href="/site/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" href="/site/assets/dataseed-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Planes de Pública by Dataseed">
-<meta property="og:description" content="Estructura de planes de Pública by DataSeed. Precios y condiciones comerciales en definición.">
+<meta property="og:description" content="Planes de Pública by DataSeed desde 2 UF. Otras condiciones comerciales sujetas a confirmación.">
 <meta property="og:image" content="https://dataseed.cl/site/assets/dataseed_logo_black.png">
 <meta property="og:url" content="https://dataseed.cl/publica-planes">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Planes de Pública by Dataseed">
-<meta name="twitter:description" content="Estructura de planes de Pública by DataSeed. Precios y condiciones comerciales en definición.">
+<meta name="twitter:description" content="Planes de Pública by DataSeed desde 2 UF. Otras condiciones comerciales sujetas a confirmación.">
 <meta name="twitter:image" content="https://dataseed.cl/site/assets/dataseed_logo_black.png">
 <script type="application/ld+json">
 {
@@ -32,10 +32,15 @@
       "@type": "Service",
       "name": "Pública by DataSeed",
       "serviceType": "Inteligencia de compras públicas",
-      "description": "Planes de Pública by DataSeed. Precios y condiciones comerciales en definición.",
+      "description": "Planes de Pública by DataSeed: Esencial 2 UF, Crecimiento 3 UF, Empresas 5 UF. Otras condiciones comerciales sujetas a confirmación.",
       "provider": { "@type": "Organization", "name": "DataSeed" },
       "areaServed": "CL",
-      "url": "https://dataseed.cl/publica-planes"
+      "url": "https://dataseed.cl/publica-planes",
+      "makesOffer": [
+        { "@type": "Offer", "name": "Plan Esencial", "price": "2", "priceCurrency": "CLF", "url": "https://dataseed.cl/publica-planes" },
+        { "@type": "Offer", "name": "Plan Crecimiento", "price": "3", "priceCurrency": "CLF", "url": "https://dataseed.cl/publica-planes" },
+        { "@type": "Offer", "name": "Plan Empresas", "price": "5", "priceCurrency": "CLF", "url": "https://dataseed.cl/publica-planes" }
+      ]
     }
   ]
 }
@@ -120,7 +125,12 @@ html[data-theme="light"] .pub-logo img{filter:drop-shadow(0 0 10px rgba(0,143,44
 .pub-links a:focus-visible{outline:2px solid var(--g);outline-offset:4px;border-radius:2px;}
 .pub-links a[aria-current="page"]{color:var(--text);border-bottom-color:var(--g);}
 .pub-nav-actions{display:flex;align-items:center;justify-content:flex-end;gap:.6rem;flex-shrink:0;}
-.pub-cta{display:inline-flex;align-items:center;justify-content:center;min-height:44px;white-space:nowrap;background:var(--g);color:#030a03;padding:.55rem 1.35rem;border-radius:100px;font-size:.8rem;font-weight:700;text-decoration:none;box-shadow:0 0 24px rgba(0,255,65,.28);transition:box-shadow .2s,opacity .2s;}
+.pub-login,.pub-cta{display:inline-flex;align-items:center;justify-content:center;min-height:44px;white-space:nowrap;}
+.pub-login{background:rgba(0,255,65,.035);color:var(--text);border:1px solid rgba(0,255,65,.2);padding:.55rem 1.1rem;border-radius:100px;font-size:.8rem;font-weight:500;text-decoration:none;transition:background .2s,border-color .2s,color .2s,transform .2s;}
+.pub-login:hover{background:rgba(0,255,65,.085);border-color:rgba(0,255,65,.38);color:var(--g);transform:translateY(-1px);}
+html[data-theme="light"] .pub-login{background:rgba(0,143,44,.035);border-color:rgba(0,143,44,.2);}
+.pub-login-short{display:none;}
+.pub-cta{background:var(--g);color:#030a03;padding:.55rem 1.35rem;border-radius:100px;font-size:.8rem;font-weight:700;text-decoration:none;box-shadow:0 0 24px rgba(0,255,65,.28);transition:box-shadow .2s,opacity .2s;}
 .pub-cta:hover{opacity:.87;box-shadow:0 0 44px rgba(0,255,65,.48);}
 html[data-theme="light"] .pub-cta{color:#f7fff8;box-shadow:0 0 24px rgba(0,143,44,.18);}
 .pub-cta-short{display:none;}
@@ -241,25 +251,28 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
   .pub-nav{padding-left:1.5rem;padding-right:1.5rem;gap:.7rem;}
   .pub-links{gap:.85rem;}
   .pub-links a{font-size:.76rem;}
+  .pub-login{padding:.5rem .8rem;font-size:.74rem;}
   .pub-cta{padding:.5rem .95rem;font-size:.74rem;}
 }
 @media(max-width:1100px) and (min-width:1025px){
   .pub-logo-s{display:none;}
-  .pub-cta-full{display:none;}
-  .pub-cta-short{display:inline;}
+  .pub-login-full,.pub-cta-full{display:none;}
+  .pub-login-short,.pub-cta-short{display:inline;}
 }
 @media(max-width:1024px){
   .pub-nav{padding-top:calc(1rem + env(safe-area-inset-top));padding-right:calc(1.5rem + env(safe-area-inset-right));padding-bottom:1rem;padding-left:calc(1.5rem + env(safe-area-inset-left));}
   .pub-links{display:none;}
-  .pub-nav-actions>.pub-cta{display:none;}
+  .pub-nav-actions>.pub-login,.pub-nav-actions>.pub-cta{display:none;}
   .pub-menu-toggle{display:inline-flex;flex:0 0 48px;}
   .pub-theme-toggle{width:44px;height:44px;flex:0 0 44px;}
   .pub-mobile-menu:not([hidden]){position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;gap:1.5rem;overflow-y:auto;padding:calc(6.5rem + env(safe-area-inset-top)) calc(1.5rem + env(safe-area-inset-right)) calc(2rem + env(safe-area-inset-bottom)) calc(1.5rem + env(safe-area-inset-left));background:rgba(5,14,6,.98);border-bottom:1px solid rgba(0,255,65,.14);}
   .pub-mobile-links{display:flex;flex-direction:column;gap:.45rem;list-style:none;}
   .pub-mobile-links a{display:flex;align-items:center;min-height:52px;padding:.8rem 1rem;border:1px solid rgba(0,255,65,.12);border-radius:14px;color:var(--text);font-family:var(--font-display);font-size:1.05rem;font-weight:700;text-decoration:none;background:rgba(0,255,65,.025);}
   .pub-mobile-links a[aria-current="page"]{border-color:var(--g);color:var(--g);}
-  .pub-mobile-cta-wrap{margin-top:auto;}
-  .pub-mobile-cta{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:999px;text-decoration:none;font-weight:700;color:#030a03;background:var(--g);box-shadow:0 0 28px rgba(0,255,65,.24);}
+  .pub-mobile-cta-wrap{margin-top:auto;display:grid;grid-template-columns:1fr;gap:.75rem;}
+  .pub-mobile-login,.pub-mobile-cta{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:999px;text-decoration:none;font-weight:700;}
+  .pub-mobile-login{color:var(--text);border:1px solid rgba(0,255,65,.24);}
+  .pub-mobile-cta{color:#030a03;background:var(--g);box-shadow:0 0 28px rgba(0,255,65,.24);}
   .inner,#hero{padding-left:1.5rem;padding-right:1.5rem;}
   h1{font-size:2rem;}
   .plans-grid{grid-template-columns:1fr;}
@@ -312,6 +325,7 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
     <li><a href="/publica#analisis-de-mercado">Análisis de mercado</a></li>
   </ul>
   <div class="pub-nav-actions">
+    <a href="/publica-login" class="pub-login" data-track="pub_nav_login"><span class="pub-login-full">Iniciar sesión</span><span class="pub-login-short">Entrar</span></a>
     <a href="/publica#demo" class="pub-cta"><span class="pub-cta-full">Solicitar una demo</span><span class="pub-cta-short">Demo</span></a>
     <button class="pub-theme-toggle" type="button" id="themeToggle" aria-label="Cambiar a tema claro" aria-pressed="false"><span class="moon">☾</span><span class="sun">☀</span></button>
     <button class="pub-menu-toggle" type="button" id="menuToggle" aria-label="Abrir menú" aria-controls="mobileMenu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -328,6 +342,7 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
     <li><a href="/publica#analisis-de-mercado">Análisis de mercado</a></li>
   </ul>
   <div class="pub-mobile-cta-wrap">
+    <a href="/publica-login" class="pub-mobile-login" data-track="pub_mobile_nav_login">Iniciar sesión</a>
     <a href="/publica#demo" class="pub-mobile-cta">Solicitar una demo</a>
   </div>
 </div>
@@ -337,7 +352,7 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
   <p class="hero-eyebrow">Planes de Pública</p>
   <h1>Una estructura de planes <em>pensada para crecer</em> con tu equipo comercial.</h1>
   <p class="hero-sub">Elegí el nivel de acompañamiento que necesita tu empresa para encontrar y ganar más licitaciones en Mercado Público.</p>
-  <span class="hero-notice">● Precios y condiciones comerciales en definición — solicitá una demo para conocer el estado actual</span>
+  <span class="hero-notice">● Planes desde 2 UF — otras condiciones comerciales sujetas a confirmación en la demo</span>
 </section>
 
 <!-- PLANES -->
@@ -347,8 +362,8 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
       <div class="gc plan-card">
         <div class="plan-name">Esencial</div>
         <div class="plan-tag">Para empezar a ordenar la búsqueda</div>
-        <div class="plan-price">A confirmar</div>
-        <div class="plan-price-note">Precio pendiente de definición comercial</div>
+        <div class="plan-price">2 UF</div>
+        <div class="plan-price-note">Valor en UF (Unidad de Fomento)</div>
         <ul class="plan-feat-list">
           <li><span class="plan-feat-check" aria-hidden="true">✓</span>Alertas por industria</li>
           <li><span class="plan-feat-check" aria-hidden="true">✓</span>Resumen inteligente de bases</li>
@@ -359,8 +374,8 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
       <div class="gc plan-card featured">
         <div class="plan-name">Crecimiento</div>
         <div class="plan-tag">El más elegido por equipos comerciales</div>
-        <div class="plan-price">A confirmar</div>
-        <div class="plan-price-note">Precio pendiente de definición comercial</div>
+        <div class="plan-price">3 UF</div>
+        <div class="plan-price-note">Valor en UF (Unidad de Fomento)</div>
         <ul class="plan-feat-list">
           <li><span class="plan-feat-check" aria-hidden="true">✓</span>Todo lo de Esencial</li>
           <li><span class="plan-feat-check" aria-hidden="true">✓</span>Precios históricos por ítem</li>
@@ -372,8 +387,8 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
       <div class="gc plan-card">
         <div class="plan-name">Empresas</div>
         <div class="plan-tag">Para equipos con necesidades específicas</div>
-        <div class="plan-price">A conversar</div>
-        <div class="plan-price-note">Condiciones a medida, según volumen y rubro</div>
+        <div class="plan-price">5 UF</div>
+        <div class="plan-price-note">Valor en UF (Unidad de Fomento)</div>
         <ul class="plan-feat-list">
           <li><span class="plan-feat-check" aria-hidden="true">✓</span>Todo lo de Crecimiento</li>
           <li><span class="plan-feat-check" aria-hidden="true">✓</span>Onboarding acompañado</li>
@@ -382,7 +397,7 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
         <a href="/publica#demo" class="btn-o" style="justify-content:center;">Conversemos</a>
       </div>
     </div>
-    <p class="plan-disclaimer">Esta es la estructura de planes propuesta para Pública. Los precios, la distribución exacta de funcionalidades por plan y las condiciones comerciales todavía están en definición — en la demo, el equipo de DataSeed te cuenta el estado actual para tu caso.</p>
+    <p class="plan-disclaimer">Valores expresados en UF (Unidad de Fomento). La distribución exacta de funcionalidades por plan y otras condiciones comerciales (facturación, duración de contrato, etc.) todavía están en definición — en la demo, el equipo de DataSeed te confirma el detalle para tu caso.</p>
   </div>
 </section>
 
@@ -421,7 +436,7 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
           <span class="faq-question">¿Cuánto cuesta Pública?</span>
           <span class="faq-icon" aria-hidden="true">+</span>
         </button>
-        <div class="faq-answer"><div class="faq-answer-inner"><p>Los precios todavía están en definición. En la demo, el equipo de DataSeed te comparte condiciones según el tamaño y la industria de tu empresa.</p></div></div>
+        <div class="faq-answer"><div class="faq-answer-inner"><p>Esencial cuesta 2 UF, Crecimiento 3 UF y Empresas 5 UF. Otras condiciones comerciales (facturación, duración de contrato) se confirman en la demo según el tamaño y la industria de tu empresa.</p></div></div>
       </div>
       <div class="faq-item">
         <button class="faq-trigger" aria-expanded="false">
