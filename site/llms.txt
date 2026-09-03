@@ -13,6 +13,7 @@ DataSeed ofrece soluciones de Business Intelligence, integración de datos, anal
 - Analítica avanzada
 - Tableros ejecutivos
 - Automatización y productos de datos
+- Pública by DataSeed (https://dataseed.cl/publica): inteligencia de compras públicas sobre datos públicos de Mercado Público/ChileCompra
 
 ## Contacto
 

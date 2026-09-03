@@ -20,6 +20,7 @@ test('Vercel routes the protected portal without shadowing static site or API fu
   ]);
   assert.deepEqual(config.rewrites, [
     { source: '/portal', destination: '/api/portal' },
+    { source: '/publica', destination: '/site/publica.html' },
     { source: '/robots.txt', destination: '/site/robots.txt' },
     { source: '/sitemap.xml', destination: '/site/sitemap.xml' },
     { source: '/llms.txt', destination: '/site/llms.txt' },

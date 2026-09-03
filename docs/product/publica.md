@@ -2,7 +2,7 @@
 
 ## Estado
 
-Activo como Producto 02 en la landing. Estrategia original recuperada desde `agent-landing-updates/docs/publica-ai-product-strategy.md`.
+Disponible. Producto 02 en la landing (`site/index.html`), con landing propia en `site/publica.html` (ruta pública `/publica`). Estrategia original recuperada desde `agent-landing-updates/docs/publica-ai-product-strategy.md`.
 
 ## Resumen ejecutivo
 
