@@ -42,6 +42,10 @@
       "destination": "/site/publica.html"
     },
     {
+      "source": "/publica-planes",
+      "destination": "/site/publica-planes.html"
+    },
+    {
       "source": "/robots.txt",
       "destination": "/site/robots.txt"
     },
@@ -98,6 +102,16 @@
     },
     {
       "source": "/site/publica.html",
+      "headers": [
+        { "key": "Content-Signal", "value": "ai-train=no, search=yes, ai-input=yes" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    },
+    {
+      "source": "/site/publica-planes.html",
       "headers": [
         { "key": "Content-Signal", "value": "ai-train=no, search=yes, ai-input=yes" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
