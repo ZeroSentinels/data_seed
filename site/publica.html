@@ -94,6 +94,12 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);overflo
 section[id]{scroll-margin-top:calc(6rem + env(safe-area-inset-top));}
 a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--g);outline-offset:3px;}
 img{max-width:100%;}
+/* iOS / Android — mismos ajustes que site/index.html */
+html[data-platform="ios"],html[data-platform="android"]{text-size-adjust:100%;-webkit-text-size-adjust:100%;}
+html[data-platform="ios"] *{-webkit-tap-highlight-color:rgba(0,255,65,.12);}
+html[data-platform="android"] *{-webkit-tap-highlight-color:rgba(0,255,65,.10);}
+html[data-platform="android"] body{min-height:100dvh;overscroll-behavior-y:none;}
+html[data-platform="ios"] .pub-nav{padding-left:calc(3rem + env(safe-area-inset-left));padding-right:calc(3rem + env(safe-area-inset-right));}
 
 .orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(100px);}
 .orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,255,65,.1),transparent 70%);top:-150px;right:-150px;}
@@ -114,7 +120,7 @@ html[data-theme="light"] .pub-logo img{filter:drop-shadow(0 0 10px rgba(0,143,44
 .pub-links a:focus-visible{outline:2px solid var(--g);outline-offset:4px;border-radius:2px;}
 .pub-links a[aria-current="page"]{color:var(--text);border-bottom-color:var(--g);}
 .pub-nav-actions{display:flex;align-items:center;justify-content:flex-end;gap:.6rem;flex-shrink:0;}
-.pub-cta{display:inline-flex;align-items:center;justify-content:center;min-height:42px;white-space:nowrap;background:var(--g);color:#030a03;padding:.55rem 1.35rem;border-radius:100px;font-size:.8rem;font-weight:700;text-decoration:none;box-shadow:0 0 24px rgba(0,255,65,.28);transition:box-shadow .2s,opacity .2s;}
+.pub-cta{display:inline-flex;align-items:center;justify-content:center;min-height:44px;white-space:nowrap;background:var(--g);color:#030a03;padding:.55rem 1.35rem;border-radius:100px;font-size:.8rem;font-weight:700;text-decoration:none;box-shadow:0 0 24px rgba(0,255,65,.28);transition:box-shadow .2s,opacity .2s;}
 .pub-cta:hover{opacity:.87;box-shadow:0 0 44px rgba(0,255,65,.48);}
 html[data-theme="light"] .pub-cta{color:#f7fff8;box-shadow:0 0 24px rgba(0,143,44,.18);}
 .pub-cta-short{display:none;}
@@ -125,6 +131,7 @@ html[data-theme="light"] .pub-theme-toggle{background:rgba(0,143,44,.07);border-
 html[data-theme="light"] .pub-theme-toggle .moon{display:none;}
 html[data-theme="light"] .pub-theme-toggle .sun{display:inline;}
 .pub-menu-toggle,.pub-mobile-menu{display:none;}
+.pub-mobile-menu{-webkit-overflow-scrolling:touch;}
 .pub-menu-toggle{align-items:center;justify-content:center;flex-direction:column;gap:5px;width:44px;height:44px;border:1px solid rgba(0,255,65,.24);border-radius:14px;background:rgba(0,255,65,.055);color:var(--g);cursor:pointer;}
 .pub-menu-toggle span{display:block;width:20px;height:2px;border-radius:2px;background:currentColor;transition:transform .2s ease,opacity .2s ease;}
 .pub-menu-toggle[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg);}
@@ -362,16 +369,22 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
   .footer-bottom{flex-direction:column;align-items:flex-start;}
 }
 @media(max-width:600px){
-  .pub-nav{gap:.7rem;padding:.9rem 1rem;}
+  .pub-nav{gap:.7rem;padding:.9rem 1rem;padding-top:calc(.9rem + env(safe-area-inset-top));padding-right:calc(1rem + env(safe-area-inset-right));padding-left:calc(1rem + env(safe-area-inset-left));}
+  html[data-platform="ios"] .pub-nav{padding-left:calc(1rem + env(safe-area-inset-left));padding-right:calc(1rem + env(safe-area-inset-right));}
   .pub-logo img{height:34px;}
   .pub-logo-t{font-size:1rem;}
   .pub-logo-s{font-size:.46rem;letter-spacing:.28em;}
   #hero{padding-top:calc(6.5rem + env(safe-area-inset-top));}
+  html[data-platform="ios"] #hero{padding-top:calc(7.4rem + env(safe-area-inset-top));}
   .hero-btns{gap:.7rem;}
   .btn-p,.btn-o{width:100%;text-align:center;justify-content:center;}
   .tile-strip{grid-template-columns:1fr;}
   .timeline{grid-template-columns:1fr;}
   .use-case{max-width:none;}
+}
+@media(max-width:600px) and (orientation:landscape){
+  .pub-nav{padding-top:.65rem;padding-bottom:.65rem;}
+  #hero{padding-top:5.5rem;}
 }
 @media(max-width:380px){
   .pub-nav{padding:.85rem .8rem;gap:.45rem;}
