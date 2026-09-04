@@ -7,6 +7,13 @@
 
 <!-- ENTRADAS -->
 
+## 2026-09-04 15:25 -04 (America/Santiago)
+- **Solicitud:** Daniel (audio) reporta que el preview del buscador de Pública (preview/buscador-licitaciones) "se ve mal, rústico, sin la configuración visual" y "nada está funcional", a diferencia de su versión local.
+- **Resultado:** Diagnóstico: el preview servía el HTML (200) pero TODOS los assets daban 404 (`/publica-buscador.css`, `/publica-buscador.js`, JSON de ejemplo, iconos) porque `publica-buscador.html` usaba rutas RELATIVAS (`publica-buscador.css`, `assets/…`) y Vercel lo sirve en `/publica-buscador` (rewrite), resolviendo a la raíz donde no existen; el resto del sitio usa rutas absolutas `/site/…` (verificado contra `site/publica.html`). Fix aplicado al branch (sin tocar main): rutas absolutas `/site/` en `publica-buscador.html` (5 refs: css, js, favicon, icono x2) y en `publica-buscador.js` (2 fetches a JSON de ejemplo). Commit `9326219` publicado en `preview/buscador-licitaciones`.
+- **Estado:** completada.
+- **Verificación:** curl post-redeploy: `/site/publica-buscador.css` 200 (37 KB), `.js` 200 (56 KB), JSON x2 200, icono 200; browser real: CSS con 208 reglas aplicadas, todos los recursos en 200, theme light, sin errores JS.
+- **Pendientes:** ninguno. (Nota: los fetch a `/api/buscar` y `/api/licitacion/...` del JS requieren backend serverless, inexistente en preview — la UI cae a muestra fija con datos de ejemplo, por diseño.)
+
 ## 2026-09-04 14:19 -04 (America/Santiago)
 - **Solicitud:** Encargo de Daniel vía Claude Code (incoming/tarea_demeter.txt): llevar a preview el branch preview/buscador-licitaciones (buscador de licitaciones de Pública) — aplicar bundle de git, pushear branch, generar preview de Vercel, verificar con curl y avisar a Daniel por correo.
 - **Resultado:** Bundle verificado y aplicado sobre origin/main (commit 1160ca4 sobre cf3ef02; diff = vercel.json +14 y 6 archivos nuevos site/publica-buscador*); branch pusheado a contacto101/data_seed; la integración Vercel-GitHub generó el preview de la rama (deployment READY, target preview, main no tocado); correo enviado a daniel.caignet@dataseed.cl con enlace, branch y nota de preview interno.
