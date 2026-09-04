@@ -224,14 +224,20 @@ h1 em{font-style:normal;color:var(--g);}
 .timeline-title{font-family:var(--font-display);font-size:.98rem;font-weight:700;margin-bottom:.5rem;}
 .timeline-desc{font-size:.82rem;color:var(--sub);line-height:1.65;}
 
-/* ============ FUNCIONALIDADES — lista con check + mockup lateral ============ */
+/* ============ CAPACIDADES — tarjetas con estado Disponible/Próximamente ============ */
 #analisis-de-mercado{padding:5.5rem 0;border-top:1px solid rgba(0,255,65,.08);}
-.feat-panel{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:center;}
-.feat-list{list-style:none;display:flex;flex-direction:column;gap:1.3rem;}
-.feat-list li{display:flex;gap:.9rem;align-items:flex-start;}
-.feat-check{width:22px;height:22px;border-radius:50%;background:rgba(0,255,65,.12);color:var(--g);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-top:.15rem;}
-.feat-list b{display:block;font-family:var(--font-display);font-size:.96rem;font-weight:700;margin-bottom:.2rem;}
-.feat-list span{font-size:.84rem;color:var(--sub);line-height:1.6;}
+.cap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-top:2.4rem;}
+.cap-card{padding:1.8rem;}
+.cap-icon{width:42px;height:42px;background:rgba(0,255,65,.07);border:1px solid rgba(0,255,65,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--g);margin-bottom:1.2rem;}
+.cap-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.6rem;margin-bottom:.6rem;}
+.cap-title{font-family:var(--font-display);font-size:.96rem;font-weight:700;line-height:1.3;}
+.cap-badge{font-size:.6rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:.22rem .65rem;border-radius:100px;white-space:nowrap;flex-shrink:0;margin-top:.15rem;}
+.cap-badge.live{background:rgba(0,255,65,.12);border:1px solid rgba(0,255,65,.3);color:var(--g);}
+.cap-badge.soon{background:rgba(0,255,65,.04);border:1px solid rgba(0,255,65,.12);color:var(--muted);}
+.cap-desc{font-size:.82rem;color:var(--sub);line-height:1.7;}
+.cap-cta{margin-top:2.4rem;text-align:center;padding:2.6rem;}
+.cap-cta-title{font-family:var(--font-display);font-size:1.4rem;font-weight:700;margin-bottom:.7rem;}
+.cap-cta-desc{color:var(--sub);font-size:.92rem;line-height:1.7;max-width:520px;margin:0 auto 1.6rem;}
 
 /* ============ CASOS DE USO — franja de pills ============ */
 #casos-de-exito{padding:5rem 0;border-top:1px solid rgba(0,255,65,.08);text-align:center;}
@@ -358,8 +364,9 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
   .inner,#hero,.tile-strip{padding-left:1.5rem;padding-right:1.5rem;}
   h1{font-size:2.3rem;}
   .tile-strip{grid-template-columns:1fr 1fr;}
-  .split-panel,.feat-panel{grid-template-columns:1fr;gap:2rem;}
+  .split-panel{grid-template-columns:1fr;gap:2rem;}
   .timeline{grid-template-columns:1fr 1fr;}
+  .cap-grid{grid-template-columns:1fr 1fr;}
   .trust-row{grid-template-columns:1fr;gap:1.5rem;}
   .compare-grid{grid-template-columns:1fr;}
   .alianza-card{padding:2.4rem 1.6rem;margin:0 1.5rem;}
@@ -388,6 +395,7 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
   .btn-p,.btn-o{width:100%;text-align:center;justify-content:center;}
   .tile-strip{grid-template-columns:1fr;}
   .timeline{grid-template-columns:1fr;}
+  .cap-grid{grid-template-columns:1fr;}
   .use-case{max-width:none;}
 }
 @media(max-width:600px) and (orientation:landscape){
@@ -586,31 +594,44 @@ footer::before{content:'';position:absolute;inset:0;background:linear-gradient(1
 <!-- FUNCIONALIDADES -->
 <section id="analisis-de-mercado">
   <div class="inner">
-    <div class="feat-panel">
-      <div class="gc mock-card" aria-hidden="true">
-        <div class="mock-top">
-          <span class="mock-top-name">Perfil de industria</span>
-          <span class="mock-top-tag">Ejemplo ilustrativo</span>
-        </div>
-        <div class="mock-list" style="padding-top:1.2rem;">
-          <div class="mock-row"><div class="mock-row-name">Rubro</div><span class="mock-row-score" style="color:var(--sub);font-weight:600;">Construcción</span></div>
-          <div class="mock-row"><div class="mock-row-name">Región</div><span class="mock-row-score" style="color:var(--sub);font-weight:600;">Metropolitana</span></div>
-          <div class="mock-row"><div class="mock-row-name">Rango de montos</div><span class="mock-row-score" style="color:var(--sub);font-weight:600;">Hasta 50M CLP</span></div>
-          <div class="mock-row"><div class="mock-row-name">Alertas</div><span class="mock-row-score">Activas</span></div>
-        </div>
-        <div class="mock-foot">Datos simulados con fines ilustrativos.</div>
+    <h2 class="sec-title">Inteligencia para competir mejor<br>en Mercado Público.</h2>
+    <p class="sec-sub">Transforma datos de compras públicas en información accionable para priorizar oportunidades, conocer a tus competidores y preparar propuestas con mayor contexto.</p>
+    <div class="cap-grid">
+      <div class="gc cap-card">
+        <div class="cap-icon" aria-hidden="true">◆</div>
+        <div class="cap-head"><div class="cap-title">Alertas de oportunidades</div><span class="cap-badge soon">Próximamente</span></div>
+        <p class="cap-desc">Identifica licitaciones relevantes según tu rubro, tus productos y los criterios que definas.</p>
       </div>
-      <div>
-        <h2 class="sec-title" style="text-align:left;margin-bottom:1.6rem;">Lo que hace Pública<br>por tu equipo comercial.</h2>
-        <ul class="feat-list">
-          <li><span class="feat-check" aria-hidden="true">✓</span><div><b>Alertas inteligentes</b><span>Notificaciones cuando aparece una licitación u orden de compra que coincide con tu industria.</span></div></li>
-          <li><span class="feat-check" aria-hidden="true">✓</span><div><b>Precios históricos</b><span>Serie de cuánto ha pagado el Estado por ítems similares, para ofertar con referencia real.</span></div></li>
-          <li><span class="feat-check" aria-hidden="true">✓</span><div><b>Mapa de competencia</b><span>Visibilidad de quién gana en tu industria, en qué organismos y con qué frecuencia.</span></div></li>
-          <li><span class="feat-check" aria-hidden="true">✓</span><div><b>Resumen inteligente de bases</b><span>Bases extensas resumidas en los puntos que importan para decidir si participar.</span></div></li>
-          <li><span class="feat-check" aria-hidden="true">✓</span><div><b>Agente IA</b><span>Responde preguntas sobre licitaciones, resume bases y genera reportes ejecutivos.</span></div></li>
-          <li><span class="feat-check" aria-hidden="true">✓</span><div><b>Sin equipo técnico interno</b><span>Configuración guiada por industria, operativa sin data scientists.</span></div></li>
-        </ul>
+      <div class="gc cap-card">
+        <div class="cap-icon" aria-hidden="true">▲</div>
+        <div class="cap-head"><div class="cap-title">Mapa competitivo</div><span class="cap-badge live">Disponible</span></div>
+        <p class="cap-desc">Conoce qué proveedores participan, en qué organismos compiten y cuáles son sus resultados históricos.</p>
       </div>
+      <div class="gc cap-card">
+        <div class="cap-icon" aria-hidden="true">●</div>
+        <div class="cap-head"><div class="cap-title">Precios y adjudicaciones</div><span class="cap-badge live">Disponible</span></div>
+        <p class="cap-desc">Consulta referencias de precios, compras anteriores y resultados de procesos relacionados.</p>
+      </div>
+      <div class="gc cap-card">
+        <div class="cap-icon" aria-hidden="true">■</div>
+        <div class="cap-head"><div class="cap-title">Análisis de bases</div><span class="cap-badge soon">Próximamente</span></div>
+        <p class="cap-desc">Resume requisitos, fechas, criterios de evaluación y condiciones relevantes de cada proceso.</p>
+      </div>
+      <div class="gc cap-card">
+        <div class="cap-icon" aria-hidden="true">◇</div>
+        <div class="cap-head"><div class="cap-title">Asistente de IA</div><span class="cap-badge live">Disponible</span></div>
+        <p class="cap-desc">Responde preguntas sobre licitaciones y datos disponibles usando lenguaje natural.</p>
+      </div>
+      <div class="gc cap-card">
+        <div class="cap-icon" aria-hidden="true">▣</div>
+        <div class="cap-head"><div class="cap-title">Configuración simple</div><span class="cap-badge live">Disponible</span></div>
+        <p class="cap-desc">Pensada para explorar oportunidades sin necesitar conocimientos técnicos; el equipo de DataSeed te acompaña a configurar tu perfil inicial.</p>
+      </div>
+    </div>
+    <div class="gc cap-cta">
+      <h3 class="cap-cta-title">Descubre oportunidades con mayor contexto</h3>
+      <p class="cap-cta-desc">Conoce cómo Pública puede ayudarte a analizar el mercado y enfocar mejor tu estrategia comercial.</p>
+      <a href="#demo" class="btn-p">Solicitar demostración</a>
     </div>
   </div>
 </section>
