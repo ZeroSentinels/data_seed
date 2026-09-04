@@ -1,7 +1,7 @@
 # Backup operativo no sensible — DataSeed / Demeter
 
-- Generado UTC: 2026-09-03 09:00:20 UTC
-- Generado America/Santiago: 2026-09-03 05:00:20 -04
+- Generado UTC: 2026-09-04 09:00:48 UTC
+- Generado America/Santiago: 2026-09-04 05:00:48 -04
 - Alcance: estado operativo no sensible para recuperación crítica.
 - Política: no se respaldan credenciales, tokens, secretos OAuth, contraseñas, sesiones de mensajería, bases de datos runtime, logs completos, caches ni adjuntos. Scripts/documentos adicionales requieren aprobación explícita; ante duda se omiten.
 - Rama objetivo: `main` en `https://github.com/contacto101/data_seed.git`.
@@ -14,8 +14,8 @@ Los datos respaldados son semillas operativas: identidad, configuración resumid
 - El `daily-summary.md` conserva el resumen diario y debe consultarse para tareas diarias, pendientes y bloqueos.
 - El backup diario de las 05:00 AM NO copia `task-log.md` ni `daily-summary.md`; solo deja esta referencia para consultarlos en el repo de tracking.
 - Este backup sí copia `backups/COMPLETED_CYCLES.md`, que contiene únicamente ciclos grandes completados.
-- Repo/branch de tracking: `/tmp/tmp.LBcU3rDyme/tracking-workspace` / `feat/task-tracking-system`.
-- Daily summary: `daily-summary.md` (207.5 KB, sha256 bd704b1d55257310).
+- Repo/branch de tracking: `/tmp/tmp.g3N3qjLgdD/tracking-workspace` / `feat/task-tracking-system`.
+- Daily summary: `daily-summary.md` (215.9 KB, sha256 400f2c1b9a169368).
 - Task log actual: `task-log.md` (213.0 B, sha256 1512ddaa0df19af1).
 - Ciclos grandes completados fuente: `backups/COMPLETED_CYCLES.md` (missing, sha256 missing).
 
@@ -39,11 +39,11 @@ Regla operativa: el log diario registra detalles; el resumen diario consolida ta
 - Hermes binary: `/opt/hermes/.venv/bin/hermes`
 - Disk snapshot:
   `Filesystem      Size  Used Avail Use% Mounted on`
-  `/dev/sda1        96G   44G   52G  46% /opt/data`
+  `/dev/sda1        96G   49G   47G  52% /opt/data`
 
 ## Configuración Hermes sanitizada
 
-- Config path: `/opt/data/config.yaml` (17.9 KB, sha256 ce593bdeb25f185b)
+- Config path: `/opt/data/config.yaml` (17.9 KB, sha256 ef6c90b16fad5b4f)
 - Model provider: `deepseek`
 - Model default: `deepseek-v4-flash`
 - Agent max_turns: `60`
@@ -73,8 +73,8 @@ Total jobs: 5. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `2073a6cc3d6e` [active]
   - Nombre: Demeter Daily Operations (5:00 AM Chile)
   - Schedule: 0 8,9 * * *
-  - Next run UTC: 2026-09-04T08:00:00+00:00
-  - Last run UTC/status: 2026-09-03T08:00:02.403210+00:00 / ok
+  - Next run UTC: 2026-09-05T08:00:00+00:00
+  - Last run UTC/status: 2026-09-04T08:00:13.917885+00:00 / ok
   - Mode: no-agent
   - Script: daily-operations-wrapper.sh
 - `89e2d5c6bd6b` [paused]
@@ -87,8 +87,8 @@ Total jobs: 5. Sensitive fields excluded: prompt, deliver, delivery targets.
 - `3d3a4d137152` [active]
   - Nombre: Auto-provision perfiles aislados (chats WhatsApp nuevos)
   - Schedule: */10 * * * *
-  - Next run UTC: 2026-09-03T09:10:00+00:00
-  - Last run UTC/status: 2026-09-03T09:00:14.654610+00:00 / ok
+  - Next run UTC: 2026-09-04T09:10:00+00:00
+  - Last run UTC/status: 2026-09-04T09:00:15.910922+00:00 / ok
   - Mode: no-agent
   - Script: provision_new_chats_wrapper.sh
 
@@ -221,12 +221,12 @@ Total jobs: 5. Sensitive fields excluded: prompt, deliver, delivery targets.
 
 No se copia el contenido de estos archivos; solo tamaño y huella para validación.
 
-- `config.yaml`: 17.9 KB, sha256 ce593bdeb25f185b
-- `memories/MEMORY.md`: 3.9 KB, sha256 4e68e612163da01a
+- `config.yaml`: 17.9 KB, sha256 ef6c90b16fad5b4f
+- `memories/MEMORY.md`: 5.5 KB, sha256 a84bd0de41b385c4
 - `memories/USER.md`: 2.0 KB, sha256 a3b1e2cef2c04d62
-- `channel_directory.json`: 932.0 B, sha256 1e0b37ea46dfdba5
-- `gateway_state.json`: 832.0 B, sha256 04e1b344b3d61035
-- `cron/jobs.json`: 5.6 KB, sha256 ac996cba1d363c9e
+- `channel_directory.json`: 648.0 B, sha256 cafc76453db9cea4
+- `gateway_state.json`: 736.0 B, sha256 d8fd3effed48ed24
+- `cron/jobs.json`: 5.6 KB, sha256 ef4823d1f4950059
 
 ## Grafo de conocimiento del proyecto (Graphify)
 
