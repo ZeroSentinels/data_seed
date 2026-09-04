@@ -1733,3 +1733,46 @@
 - **Pendientes:** Decidir el camino de cruce restante observado en código: _locate_session_db (session_search_tool.py ~343-384) escanea el state.db de TODOS los perfiles en read-only y el shape READ lo invoca como fallback (~927); queda fuera del alcance de los 3 cambios pedidos y está documentado en VERIFICACION.md sección 8. También queda un sitio getattr(self._session_db, "_db") en el path de gateway hygiene (~línea 17459 post-parche), fuera de las 11 anclas aprobadas (conteo 2 → 1). Ejecutar desde el host: build con Dockerfile.hermes.fragment + recreate; correr luego VERIFICACION.md y reportar cualquier hash que no coincida (debería fallar el build, no llegar a runtime).
 
 ---
+
+## Resumen 2026-09-04
+
+**Generado:** 2026-09-04 05:00:20 -04
+
+| Estado | Cantidad |
+|--------|----------|
+| ✅ Finalizada exitosamente | 2 |
+| ❌ Finalizada con error | 0 |
+| 🔄 Activa | 0 |
+| ⏳ En espera de acción de usuario | 3 |
+
+### Detalle de tareas
+
+## 2026-09-03 11:05 -04 (America/Santiago)
+- **Solicitud:** Análisis pasivo de ciberseguridad del sistema Demeter/DataSeed (sin ataques directos): listar brechas potenciales.
+- **Resultado:** Auditoría de solo lectura completada (sin modificar nada). Hallazgos redactados (huellas SHA-256, sin valores): (1) GITHUB_TOKEN vigente duplicado en 38 archivos (`.env` de todos los perfiles + backups, mayoría modo 644); (2) AGENT_VAULT_TOKEN vigente en 10 `.env` modo 644 + 28 copias del token anterior en backups 644; (3) `state.db` del perfil daniel (99 MB + WAL) en modo 644, world-readable; (4) tokens GitHub anteriores (rotados) presentes en transcripciones de `state.db` global y del perfil; (5) keys de proveedores (ANTHROPIC/OPENAI/GROQ/MISTRAL/OPENROUTER/GOOGLE/DEEPSEEK/GITHUB/API_SERVER_KEY/HERMES_PASSWORD) heredadas en environ de todo el árbol de procesos, incluidos s6-log; (6) logs de gateway con modos 777/744; (7) token GitHub previo documentado en `skills/autonomous-ai-agents/hermes-agent/references/native-mcp.md`; (8) api_server escucha 0.0.0.0:8642 (público) con toolset restringido a solo `mercado_publico` (OK verificado); sin túneles cloudflared/ngrok activos; sin `.git-credentials`/`.netrc` en el host.
+- **Estado:** completada. (remediación ⏳ a la espera de autorización)
+- **Verificación:** fingerprints SHA-256 comparados entre archivos y contra `state.db` (strings); token GitHub vigente NO encontrado fuera de `.env` (remediación del audit 2026-08-06 vigente); config `platform_toolsets.api_server` verificado con solo `mercado_publico`; puertos en LISTEN desde `/proc/net/tcp`.
+- **Pendientes:** a la espera de autorización: chmod 600 a `.env`/`state.db`/logs expuestos; rotar/limpiar GITHUB_TOKEN y copias de backups; purgar token previo de `native-mcp.md`; decidir limpieza de tokens históricos en `state.db`.
+
+## 2026-09-03 11:20 -04 (America/Santiago)
+- **Solicitud:** Verificar si todas las API keys del sistema son placeholders que viven en Agent Vault (sin revelar secretos); única excepción esperada: el token maestro del vault.
+- **Resultado:** Verificación por huellas SHA-256 completada. GITHUB_TOKEN, DEEPSEEK_API_KEY, OPENROUTER_API_KEY y HOSTINGER_API_TOKEN son PLACEHOLDERS (`__…__`) en `.env`/config; sus valores reales viven solo en el Vault (proxy 172.16.1.1 con CA propio). CORRECCIÓN del registro 11:05: los "38 archivos con GITHUB_TOKEN" eran copias del PLACEHOLDER, no del token real (falso positivo; sha256(placeholder)=fingerprint reportado). API_SERVER_KEY y HERMES_PASSWORD son valores reales pero solo en environ del proceso (sin archivo que los contenga en /opt/data; inyectados por el orquestador del contenedor). Providers ANTHROPIC/OPENAI/GROQ/MISTRAL/GOOGLE: vacíos (deshabilitados). Única excepción real: AGENT_VAULT_TOKEN en texto plano — 10 copias (`.env` raíz 600 + 9 perfiles 644) + token anterior en 28 backups 644 (rotado hoy 14:54, revocación asumida).
+- **Estado:** completada.
+- **Verificación:** sha256 de cada placeholder coincide con los fingerprints previamente reportados como "token real"; clasificación automática placeholder-vs-real de todos los `.env*` (raíz + 9 perfiles + backups); `/proc/157/environ` y `/proc/140/environ` comparados contra `.env` (sin coincidencias de valor real fuera del vault); permisos y ubicaciones listados redactados.
+- **Pendientes:** decidir esquema para AGENT_VAULT_TOKEN (inyección por orquestador tipo docker secret, o reducir a 1 copia modo 600) — requiere ajuste de arranque fuera del contenedor y verificar qué lee el gateway del `.env` de perfil antes de eliminar copias; chmod 600 de backups con token anterior o purga tras confirmar revocación.
+
+## 2026-09-03 17:47 -04 (America/Santiago)
+- **Solicitud:** Cierre de destilacion de historico huerfano: re-verificar hallazgos de lotes 1-5 (27 sesiones sin dueno se borran de la base compartida) y persistir en memoria solo lo vigente; bug demo-chat se trata aparte de la memoria.
+- **Resultado:** Re-verificacion contra /opt/data/data_seed y produccion. VIGENTES: landing-copy.md:27 referencia design-system/MASTER.md inexistente (canonico: docs/product/design-system.md); 6 ramas remotas con contenido unico pendientes de higiene (branch-inventory.md); site/index.html:1647 hardcodea DEMO_API_URL a tunel trycloudflare muerto en main y feat/landing-pro-rebuild (prod ya usa same-origin /api/demo-chat); HubSpot sin integracion operativa (unico antecedente: rama origin/docs/hubspot-checkpoint-20260531; artefactos locales de OAuth ya no existen). NO persistido en memoria: lo redundante con docs del repo (Graphify, manifest) ni lo transitorio. Persistido: 2 notas de arquitectura durable (wiring demo-chat, checkpoint HubSpot).
+- **Estado:** pendiente - demo-chat de dataseed.cl responde 500 en produccion: causa raiz = HERMES_API_KEY ausente en el deploy (api/demo-chat.js:81-84 responde en ~0.1s sin llamar upstream https://api.dataseed.cl/v1/chat/completions). A la espera de decision de Daniel sobre accion inmediata.
+- **Verificacion:** curl POST https://dataseed.cl/api/demo-chat con payload valido -> HTTP 500 en 0.105s con body exacto del short-circuit ("El asistente no esta disponible en este momento."); GET -> 405 con Allow: POST (firma de api/demo-chat.js); rutas y lineas confirmadas en repo; git show de rama hubspot confirma checkpoint (Hub ID 40198216, OAuth PKCE OK).
+- **Pendientes:** Decidir arreglo del 500 (definir HERMES_API_KEY correcta del gateway en el deploy y redeploy); corregir landing-copy.md:27; reemplazar DEMO_API_URL trycloudflare por same-origin antes del proximo deploy; higiene de las 6 ramas con contenido unico requiere decision humana.
+
+## 2026-09-03 18:20 -04 (America/Santiago)
+- **Solicitud:** Desactivar y borrar por completo la demo pública de dataseed.cl (widget Agent Engine, api/demo-chat.js, proxy legacy, env HERMES_API_KEY, perfil dataseed-demo). Decisión de Daniel: primero inventario completo; ejecución solo tras confirmación del alcance.
+- **Resultado:** Inventario completo entregado. La demo la sirve el proyecto Vercel `data-seed` (auto-deploy desde GitHub main; prod hoy = commit e8b6543): `site/index.html` sección `#prod-demo` (líneas 1478-1535) + CSS/JS `.demo-*` y refs (1443, 1693, 228, 1822) que llaman a `api/demo-chat.js` (Vercel function; usa `process.env.HERMES_API_KEY`, que solo existe para target PREVIEW → prod responde 500). Proxy legacy `scripts/web/dataseed_demo_proxy.py` + launcher `scripts/dataseed_demo_proxy.py` + `deploy/caddy/Caddyfile` + `deploy/systemd/dataseed-demo-proxy.service`: exclusivos demo y NO corriendo (sin unit instalada, docker vacío, sin listeners). Perfil `/opt/data/profiles/dataseed-demo`: 0 sesiones/0 mensajes en state.db; memoria = SOUL.md (persona demo) + MEMORY.md/USER.md (copias junio, desactualizadas); servicio s6 `gateway-dataseed-demo` en DOWN; provision_new_chats.py lo tiene como RESERVED. Sin cronjobs ni skills de mantenimiento de la demo. COMPARTIDO declarado (no se toca): `api/portal.js`, `api/auth/*`, páginas /publica*, env vars APP_ORIGIN/SUPABASE_*, `docs/product/agent-engine.md`, `docs/INDEX.md`, `tests/ui/landing-mobile.test.js` (se actualizan referencias demo, no se borran), asistente n8n en index.html (líneas 1713/1852-1884) — no es la demo Agent Engine, a la espera de decisión.
+- **Estado:** ⏳ a la espera de autorización (PASO 2 quitar widget `#prod-demo` + PASO 3 borrar exclusivos del repo con push a main, borrar env vars demo de Vercel, respaldar SOUL.md y borrar perfil dataseed-demo + bajar servicio s6 — pendientes de confirmación de Daniel).
+- **Verificación:** GET https://dataseed.cl/ → 200 (demo presente); POST /api/demo-chat → 500 {"error":"El asistente no está disponible en este momento."}; GET /api/demo-chat → 405; /publica → 200; deployments Vercel confirman target production desde branch main @ e8b6543; origin/main = e8b6543 (clone local 1f3d09d quedó atrás, diff solo en páginas /publica, no en index.html).
+- **Pendientes:** confirmación de alcance por Daniel (incl. qué hacer con n8n-chat y con HERMES_API_BASE_URL/HERMES_API_MODEL de preview); ejecutar PASO 2 y PASO 3 mostrando diff completo antes de cada push a main; verificación final (widget ausente / /api/demo-chat 404); actualizar docs y tests referenciados.
+
+---
