@@ -62,7 +62,7 @@ async function obtenerDetalleLicitacionBackend(codigo) {
  * Carga de datos de ejemplo base (archivo separado datos-ejemplo.json)
  */
 async function cargarDatosEjemplo() {
-  const response = await fetch('publica-buscador-datos-ejemplo.json');
+  const response = await fetch('/site/publica-buscador-datos-ejemplo.json');
   if (!response.ok) {
     throw new Error(`Error al cargar datos de ejemplo: ${response.status}`);
   }
@@ -74,7 +74,7 @@ async function cargarDatosEjemplo() {
  * Provee "metricas" del filtro vigente y "detalles" masticados por código.
  */
 async function cargarDatosEjemploV2() {
-  const response = await fetch('publica-buscador-datos-ejemplo-v2.json');
+  const response = await fetch('/site/publica-buscador-datos-ejemplo-v2.json');
   if (!response.ok) {
     throw new Error(`Error al cargar publica-buscador-datos-ejemplo-v2.json: ${response.status}`);
   }
