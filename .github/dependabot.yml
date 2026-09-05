@@ -1,0 +1,25 @@
+version: 2
+updates:
+  # Las acciones de terceros ancladas en ci.yml (actions/checkout@v4,
+  # actions/setup-node@v4) no tienen ningun mecanismo hoy que avise cuando sale
+  # una version nueva o con un aviso de seguridad. Con multiples equipos
+  # tocando la misma rama, que alguien lo note a mano no escala.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(ci)"
+
+  # package.json no declara dependencias todavia, pero el equipo de Funding va
+  # a agregar alguna tarde o temprano. Configurado ahora para que la primera
+  # dependencia que entre ya quede vigilada, en vez de acordarse despues.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(deps)"
+    # Solo parches y minor por defecto; un salto major entra como PR aparte
+    # para revision manual, no como ruido automatico.
+    open-pull-requests-limit: 5

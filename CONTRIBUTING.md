@@ -1,9 +1,19 @@
 # Cómo se trabaja en este repositorio
 
-Este repositorio es **público** y despliega solo: lo que entra a una rama de larga
-vida lo publica Vercel sin que nadie apriete nada. Con más de un equipo tocando
-las mismas ramas, las reglas de abajo son el único punto donde alguien mira antes
-de que algo salga a internet.
+Este repositorio es **privado** (pasó de público a privado el 2026-09-05) y
+despliega solo: lo que entra a una rama de larga vida lo publica Vercel sin que
+nadie apriete nada. Con más de un equipo tocando las mismas ramas, las reglas de
+abajo son el único punto donde alguien mira antes de que algo salga a internet.
+
+**Al ser privado, el secret scanning gratuito de GitHub ya no corre.** Esa red
+existía sólo mientras el repo era público. `scripts/ci/scan-secrets.sh` (§2) pasó
+de ser una capa extra a ser la única.
+
+**Pendiente de verificar tras la migración a organización:** la integración de
+Vercel con GitHub postea un check (`Vercel`) sobre cada commit — así se entera
+hoy del push. Mover el repo a una organización nueva puede exigir re-vincular esa
+integración. Revisarlo apenas la organización esté lista, **antes** de asumir que
+el deploy automático sigue funcionando: la falla, si ocurre, es silenciosa.
 
 `AGENTS.md` describe cómo opera el agente Demeter. Este documento describe cómo
 trabajan las personas. Cuando discrepen, manda éste para personas.
@@ -37,10 +47,17 @@ Excepción documentada: los respaldos automáticos de Demeter en `backups/` y
 Un PR en rojo no se mergea. Si una regla del barrido da falso positivo, se ajusta
 la regla **en el PR** y se explica por qué; no se saltea.
 
-> Configurar en GitHub, una sola vez: Settings → Branches → regla de protección
-> para `main` y `preview/*` con *Require a pull request* y *Require status checks
-> to pass* marcando los tres trabajos. **Sin eso, este archivo es una sugerencia,
-> no una compuerta.**
+`.github/dependabot.yml` vigila versiones de las acciones de GitHub ancladas y de
+las dependencias npm que el equipo agregue. Sus PRs pasan por la misma compuerta
+que cualquier otro.
+
+> Configurar en GitHub, una sola vez, **con una cuenta que tenga `Admin` sobre el
+> repositorio** (hoy ninguna cuenta activa lo tiene — ver nota de la organización
+> más arriba): Settings → Branches → regla de protección para `main` y
+> `preview/*` con *Require a pull request* y *Require status checks to pass*,
+> marcando los tres trabajos de CI **y el check `Vercel`** (o como se llame tras
+> la re-vinculación) — un PR cuyo preview no compila tampoco debería mergear.
+> **Sin esta configuración, este archivo es una sugerencia, no una compuerta.**
 
 ## 3. Antes de abrir el PR
 
