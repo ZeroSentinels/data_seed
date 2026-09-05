@@ -17,7 +17,6 @@
  * Body: { texto, solo_abiertas, region, limite, desde }
  * Respuesta: { total, resultados, metricas, meta }
  */
-/*
 async function buscarLicitacionesBackend(payload) {
   const response = await fetch('/api/buscar', {
     method: 'POST',
@@ -28,7 +27,7 @@ async function buscarLicitacionesBackend(payload) {
       texto: payload.texto || '',
       solo_abiertas: payload.solo_abiertas !== undefined ? payload.solo_abiertas : true,
       region: payload.region || null,
-      limite: payload.limite || 25,
+      limite: payload.limite || 50,
       desde: payload.desde || 0
     })
   });
@@ -39,14 +38,12 @@ async function buscarLicitacionesBackend(payload) {
 
   return await response.json();
 }
-*/
 
 /**
  * Endpoint real en producción — Sección 4-bis.2:
  * GET /api/licitacion/{codigo}
- * Respuesta: { codigo, items, referencia_historica, url_ficha }
+ * Respuesta: { codigo, items, referencia_historica, url_ficha, meta }
  */
-/*
 async function obtenerDetalleLicitacionBackend(codigo) {
   const response = await fetch(`/api/licitacion/${encodeURIComponent(codigo)}`);
 
@@ -56,44 +53,18 @@ async function obtenerDetalleLicitacionBackend(codigo) {
 
   return await response.json();
 }
-*/
 
 /**
- * Carga de datos de ejemplo base (archivo separado datos-ejemplo.json)
- */
-async function cargarDatosEjemplo() {
-  const response = await fetch('/site/publica-buscador-datos-ejemplo.json');
-  if (!response.ok) {
-    throw new Error(`Error al cargar datos de ejemplo: ${response.status}`);
-  }
-  return await response.json();
-}
-
-/**
- * Carga de datos de ejemplo ampliado v2 (archivo separado datos-ejemplo-v2.json)
- * Provee "metricas" del filtro vigente y "detalles" masticados por código.
- */
-async function cargarDatosEjemploV2() {
-  const response = await fetch('/site/publica-buscador-datos-ejemplo-v2.json');
-  if (!response.ok) {
-    throw new Error(`Error al cargar publica-buscador-datos-ejemplo-v2.json: ${response.status}`);
-  }
-  return await response.json();
-}
-
-/**
- * Obtiene el detalle masticado de una licitación (items + referencia histórica)
- * En entorno mock lee desde datos-ejemplo-v2.json (o caché si ya fue cargado).
+ * Obtiene el detalle masticado de una licitación (items + referencia histórica).
+ * Cachea por código para no repetir la llamada si el usuario reabre el modal.
  */
 async function obtenerDetalleLicitacion(codigo, cacheDetalles = null) {
-  // En producción: return await obtenerDetalleLicitacionBackend(codigo);
   if (cacheDetalles && cacheDetalles[codigo]) {
     return cacheDetalles[codigo];
   }
 
   try {
-    const dataV2 = await cargarDatosEjemploV2();
-    return (dataV2.detalles && dataV2.detalles[codigo]) || null;
+    return await obtenerDetalleLicitacionBackend(codigo);
   } catch (err) {
     console.warn(`No se pudo obtener detalle para ${codigo}:`, err);
     return null;
@@ -123,6 +94,35 @@ function obtenerNombreTipo(sigla) {
   if (!sigla) return 'Licitación Pública';
   return GLOSARIO_TIPOS[sigla.toUpperCase()] || `Licitación Pública (${sigla})`;
 }
+
+// =========================================================================
+// 1-bis. LAS 16 REGIONES OFICIALES (para el filtro de región)
+// =========================================================================
+// [MEDIDO 2026-09-05] region_comprador en la base real trae, mezclados con las
+// 16 regiones, nombres de comuna, nombres de organismo mal cargados y un
+// artefacto de parseo ("AwardCriteria.Text14"), ademas de espacios finales
+// inconsistentes. Poblar el <select> con lo que devuelve la base mostraria
+// esa basura al usuario. Esta lista son los 16 valores oficiales medidos
+// directo de la base (sin el espacio final); el backend compara con trim() en
+// los dos lados, asi que estos valores encuentran las filas sucias igual.
+const REGIONES_OFICIALES = [
+  'Región de Arica y Parinacota',
+  'Región de Tarapacá',
+  'Región de Antofagasta',
+  'Región de Atacama',
+  'Región de Coquimbo',
+  'Región de Valparaíso',
+  'Región Metropolitana de Santiago',
+  'Región del Libertador General Bernardo O´Higgins',
+  'Región del Maule',
+  'Región del Ñuble',
+  'Región del Biobío',
+  'Región de la Araucanía',
+  'Región de Los Ríos',
+  'Región de los Lagos',
+  'Región Aysén del General Carlos Ibáñez del Campo',
+  'Región de Magallanes y de la Antártica'
+];
 
 // =========================================================================
 // 3. NORMALIZACIÓN DE TEXTO EN MAYÚSCULAS Y ACRÓNIMOS (Sección 3 y 6.3)
@@ -1009,7 +1009,8 @@ class BuscadorPublicaApp {
         }
       ]
     };
-    this.totalServidor = 83;
+    this.totalServidor = 0;
+    this.idPeticionVigente = 0; // descarta respuestas tardias de busquedas viejas
     this.haBuscado = false;
 
     // Filtros activos
@@ -1057,67 +1058,37 @@ class BuscadorPublicaApp {
 
   async inicializar() {
     this.vincularEventos();
+    this.poblarRegiones();
 
-    // Cargar datos base y ampliados (datos-ejemplo.json y datos-ejemplo-v2.json)
+    // Llamada minima solo para tener meta.as_of real en el pie antes de que el
+    // usuario busque nada (Sección 6.1: sin resultados visibles todavia).
+    // limite:1 porque no se muestra nada de esto, solo se lee meta y total.
     try {
-      const [dataBase, dataV2] = await Promise.all([
-        cargarDatosEjemplo(),
-        cargarDatosEjemploV2().catch(err => {
-          console.warn('datos-ejemplo-v2.json no disponible, usando fallback:', err);
-          return null;
-        })
-      ]);
+      const resp = await buscarLicitacionesBackend({ texto: '', solo_abiertas: true, limite: 1 });
+      this.meta = resp.meta || this.meta;
+      this.totalServidor = resp.total || 0;
 
-      this.datasetCompleto = dataBase.resultados || [];
-      this.meta = dataBase.meta || this.meta;
-      this.totalServidor = dataBase.total || 83;
-
-      if (dataV2) {
-        this.metricas = dataV2.metricas || null;
-        this.detalles = dataV2.detalles || {};
-
-        // Vincular cada detalle con su ítem del dataset
-        this.datasetCompleto.forEach(item => {
-          if (this.detalles[item.codigo]) {
-            item.detalle = this.detalles[item.codigo];
-          }
-        });
-      }
-
-      // Poblar selector de regiones dinámicamente con las presentes en los datos
-      this.poblarRegiones();
-
-      // Actualizar fecha de corte en el pie en formato largo de la spec
       if (this.dom.footerAsOfDate && this.meta.as_of) {
         this.dom.footerAsOfDate.textContent = formatearFechaLarga(this.meta.as_of);
       }
-
-      // Renderizar limitaciones dinámicas desde meta
       this.renderizarLimitacionesFooter();
-
-      // Si hay un query en la URL (ej: ?q=inteligencia+artificial), ejecutar de inmediato
-      const urlParams = new URLSearchParams(window.location.search);
-      const queryParam = urlParams.get('q') || urlParams.get('texto');
-      if (queryParam) {
-        this.dom.searchInput.value = queryParam;
-        this.ejecutarBusqueda(queryParam);
-      }
     } catch (err) {
-      console.error('Error inicializando el buscador:', err);
-      this.mostrarErrorCarga(err.message);
+      // No bloquea la pantalla: si el backend esta caido, se descubre recien
+      // cuando el usuario busca (mostrarErrorCarga en ejecutarBusqueda).
+      console.warn('No se pudo precargar meta.as_of:', err);
+    }
+
+    // Si hay un query en la URL (ej: ?q=inteligencia+artificial), ejecutar de inmediato
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryParam = urlParams.get('q') || urlParams.get('texto');
+    if (queryParam) {
+      this.dom.searchInput.value = queryParam;
+      this.ejecutarBusqueda(queryParam);
     }
   }
 
   poblarRegiones() {
-    const regionesSet = new Set();
-    this.datasetCompleto.forEach(item => {
-      if (item.region_comprador) {
-        regionesSet.add(item.region_comprador.trim());
-      }
-    });
-
-    const regionesOrdenadas = Array.from(regionesSet).sort();
-    regionesOrdenadas.forEach(reg => {
+    REGIONES_OFICIALES.forEach(reg => {
       const opt = document.createElement('option');
       opt.value = reg;
       opt.textContent = reg;
@@ -1272,16 +1243,43 @@ class BuscadorPublicaApp {
     }
   }
 
-  aplicarFiltrosYRenderizar() {
+  // texto/solo_abiertas/region los aplica el backend (Sección 4-bis). El único
+  // filtro que sigue siendo de cliente es 'monto': el contrato del endpoint no
+  // lo tiene (ver docs/architecture/publica-buscador.md §4.1), así que sólo
+  // acota la página ya traída — no vuelve a pedir con un total distinto.
+  async aplicarFiltrosYRenderizar() {
     if (!this.haBuscado) return;
 
-    const fechaBase = this.meta.as_of || '2026-09-03';
-    const resultadosFiltrados = filtrarResultados(this.datasetCompleto, this.filtros, fechaBase);
-    this.renderizarResultados(resultadosFiltrados);
+    const idPeticion = ++this.idPeticionVigente;
+    try {
+      const resp = await buscarLicitacionesBackend({
+        texto: this.filtros.texto,
+        solo_abiertas: this.filtros.soloAbiertas,
+        region: this.filtros.region || null,
+        limite: 50
+      });
 
-    // Renderizar lateral de métricas
-    if (this.dom.metricsSidebar && this.metricas) {
-      this.dom.metricsSidebar.innerHTML = renderizarMetricasLateral(this.metricas, this.meta);
+      // Una respuesta tardía de una búsqueda vieja no debe pisar la de una
+      // más nueva si el usuario tipeó rápido.
+      if (idPeticion !== this.idPeticionVigente) return;
+
+      this.datasetCompleto = resp.resultados || [];
+      this.metricas = resp.metricas || null;
+      this.meta = resp.meta || this.meta;
+      this.totalServidor = resp.total || 0;
+
+      const fechaBase = this.meta.as_of || '2026-09-03';
+      const resultadosFiltrados = filtrarResultados(this.datasetCompleto, this.filtros, fechaBase);
+      this.renderizarResultados(resultadosFiltrados);
+
+      if (this.dom.metricsSidebar && this.metricas) {
+        this.dom.metricsSidebar.innerHTML = renderizarMetricasLateral(this.metricas, this.meta);
+      }
+      this.renderizarLimitacionesFooter();
+    } catch (err) {
+      if (idPeticion !== this.idPeticionVigente) return;
+      console.error('Error buscando en el backend:', err);
+      this.mostrarErrorCarga(err.message);
     }
   }
 
