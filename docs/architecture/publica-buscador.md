@@ -162,6 +162,60 @@ frontend **está obligado a imprimirlo junto al número**. Si no se puede mostra
 así, se saca la métrica: un número de competencia mal atribuido es peor que
 ninguno.
 
+### 4.1-bis Cómo se calcula `meta.as_of`, y por qué no se le pregunta a la ingesta
+
+`[MEDIDO 2026-09-05]` **La tabla `ingesta_log` no es una fuente de verdad sobre
+frescura.** La corrida del 2026-09-04 19:16 escribió `ok=True` en esa tabla
+mientras el script que la invoca la registraba como **FALLO**: el ZIP mensual de
+ChileCompra devolvió **870 bytes** — la cáscara HTML de su SPA, no datos — y esa
+carga se omitió. Un chequeo de frescura que lea `ingesta_log.ok` habría dicho que
+todo estaba bien.
+
+`as_of` = `max(fecha_publicacion)`. Además el endpoint emite dos avisos en
+`meta.limitaciones`, ambos con severidad **alta**:
+
+| Aviso | Cuándo |
+|---|---|
+| Almacén atrasado | `as_of` a más de **2 días** de hoy. Es la señal robusta: si la ingesta muere, este número crece solo |
+| Carga incompleta | un día hábil ya cerrado trae **menos del 60 %** de la mediana de los días hábiles previos |
+
+**Dos calibraciones que costaron una medición cada una:**
+
+1. **No se evalúa el último día.** El día más nuevo está parcial por construcción
+   — la fuente publica durante el día y el bulk llega con atraso. Se evalúa el
+   **penúltimo**. Evidencia: el 2026-09-04 cerró con 270 licitaciones frente a una
+   mediana de 421; a la mañana siguiente, tras el sync de las 07:00, el mismo día
+   tenía **448**. Alarmar sobre el último día habría gritado por algo que se curó
+   solo en doce horas.
+2. **Sólo días hábiles.** `[MEDIDO]` los fines de semana traen **1 a 6**
+   licitaciones contra **378-501** de un día hábil — una caída del 99 %. Sin ese
+   filtro la sonda daría falso positivo cada lunes y cada martes, que es la forma
+   más rápida de que nadie vuelva a mirar la alarma.
+
+### 4.1-ter El filtro `region` no puede compararse por igualdad exacta
+
+`[MEDIDO 2026-09-05]` `region_comprador` **no es un campo limpio**. Entre las 16
+regiones oficiales convive:
+
+- nombres de **comuna** (`Concepción`, `Coquimbo`, `Iquique`, `Peumo`, `San Clemente`);
+- nombres de **organismo** mal cargados (`SERVICIO DE SALUD OCCIDENTE HOSPITAL SAN JUAN DE D`);
+- un **artefacto de parseo** (`AwardCriteria.Text14`);
+- y **espacios finales inconsistentes**: `"Región de Antofagasta "` con espacio
+  convive con la forma sin espacio.
+
+Consecuencias, las dos verificadas:
+
+1. **El backend compara con `trim()` en los dos lados.** Medido: buscar
+   `"Región de Antofagasta"` sin espacio final devolvía **0** resultados contra
+   los **2.590** reales. Un filtro que falla en silencio es peor que uno que no existe.
+2. **El selector de la interfaz no se puebla con lo que devuelve la base.** Usa
+   una lista fija de las 16 regiones oficiales (`REGIONES_OFICIALES` en
+   `site/publica-buscador.js`). Poblarlo dinámicamente le mostraría al cliente
+   `AwardCriteria.Text14` como si fuera una región.
+
+**No se corrige el dato en origen.** El almacén replica lo que publica
+ChileCompra; limpiarlo ahí sería inventar una precisión que la fuente no tiene.
+
 ### 4.2 `metricas` — dentro de la misma respuesta
 
 Van en la respuesta de `/api/buscar`, no en un endpoint aparte: son siempre del
@@ -176,7 +230,8 @@ filtro vigente y un segundo viaje sólo agrega latencia.
   "top_organismos": [ { "nombre": "…", "n": 3 } ],
   "top_regiones":   [ { "nombre": "…", "n": 4 } ],
   "competencia": { "oferentes_mediana": 5, "n": 612,
-                   "universo": "adjudicadas historicas del mismo rubro" }
+                   "universo": "licitaciones ya adjudicadas que coinciden
+                   con la misma busqueda -- NO son las que se estan mostrando" }
 }
 ```
 
@@ -206,11 +261,21 @@ Reemplaza al enlace a Mercado Público como destino principal.
     "monto_mediana_clp": 11250000,
     "monto_p10_clp": 8100000,
     "monto_p90_clp": 19400000,
-    "oferentes_mediana": 3
+    "oferentes_mediana": 3,
+    "montos_clp": [11250000]        // solo cuando n < 3 — ver §5.1
   },
-  "url_ficha": "https://www.mercadopublico.cl/…"
+  "url_ficha": "https://www.mercadopublico.cl/…",
+  "meta": { }                        // mismo bloque meta que /api/buscar
 }
 ```
+
+> **Enmienda `[2026-09-05]` — `montos_clp`.** El contrato original no tenía dónde
+> poner el valor cuando `n < 3`, y la regla §5.1 exige mostrarlo *"como dato
+> puntual"*. Sin este campo la regla no se puede cumplir: o se calla el dato, o
+> se lo disfraza de mediana. Viaja **sólo** con `n < 3`, y en ese caso
+> `monto_mediana_clp`, `monto_p10_clp` y `monto_p90_clp` van todos en `null`.
+> Verificado con el caso del propio SDD: `1002772-83-LE26` →
+> `alcance: "organismo_y_rubro"`, `n_licitaciones: 1`, sin mediana ni percentiles.
 
 **Cobertura de `referencia_historica`** `[MEDIDO 2026-09-04]`, sobre las 2.281
 abiertas con presupuesto oculto:
@@ -309,7 +374,8 @@ solo hecho de haber podido correr confirma cualquier cosa.
 | 8 | Origen de sólo lectura | una escritura desde el servicio del buscador falla |
 | 9 | Límite de tasa propio | ráfaga contra `/api/buscar` → 429, **y los demás servicios de Pública siguen respondiendo** |
 | 10 | `solo_abiertas` no cuela cerradas | ninguna fila con `fecha_cierre < as_of` |
-| 11 | Frescura | si `meta.as_of` se atrasa respecto de la fecha del día, hay que avisar: la pantalla no puede servir datos rancios con cara de frescos |
+| 11 | Frescura | **implementado** — ver §4.1-bis. `/health` de `mp-api` expone `as_of` y los avisos; el vigía del VPS (`poc-watchdog.sh`) lo consulta cada 10 min y alarma con atraso > 2 días o carga parcial. **Verificado apagando `mp-api` a propósito:** registró los 4 síntomas y luego `RECUPERADO` |
+| 12 | El vigía no inventa causas | Con `mp-api` apagado, la primera versión reportaba *"almacén atrasado 99 días"* — el almacén estaba intacto y lo caído era la API. Corregido: ahora dice **"la frescura quedó SIN VERIFICAR"**. Un diagnóstico inventado que se lee como medición es peor que un hueco declarado |
 
 **Al agregar las rutas, hay que actualizar `tests/deployment/topology.test.js`.**
 Ese test compara la lista completa de `rewrites` de `vercel.json` con
