@@ -1,0 +1,69 @@
+name: CI
+
+# Compuerta de la rama compartida. Corre en cada PR y en cada push a las ramas
+# de larga vida. Lo que este flujo deja pasar es lo que Vercel despliega.
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'preview/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: Sintaxis y pruebas
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 22 es el minimo declarado en package.json (engines.node).
+        # 24 es lo que corre hoy en las maquinas de desarrollo.
+        # Probar los dos evita que una dependencia de version nueva entre sin verse.
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: npm run check
+        run: npm run check
+
+  secretos:
+    name: Barrido de secretos y de nombres de infraestructura
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Necesita el historial de la rama base para comparar solo lo agregado.
+          fetch-depth: 0
+
+      - name: Barrido
+        run: ./scripts/ci/scan-secrets.sh "${{ github.event.pull_request.base.sha || github.event.before }}"
+
+  fin-de-linea:
+    name: Fin de linea normalizado
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ningun archivo de texto con CRLF
+        run: |
+          set -euo pipefail
+          # git ls-files --eol lista el fin de linea del indice (i/) y del arbol (w/).
+          malos=$(git ls-files --eol | grep -E '^i/crlf|^i/mixed' || true)
+          if [ -n "$malos" ]; then
+            echo "Archivos con CRLF o mixto en el indice:"
+            echo "$malos"
+            echo
+            echo "Arreglo: git add --renormalize . y commitear."
+            exit 1
+          fi
+          echo "OK: todos los archivos de texto en LF."
