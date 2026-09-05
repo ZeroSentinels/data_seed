@@ -47,7 +47,13 @@ jobs:
           fetch-depth: 0
 
       - name: Barrido
-        run: ./scripts/ci/scan-secrets.sh "${{ github.event.pull_request.base.sha || github.event.before }}"
+        # Se invoca con 'bash <script>' y no './<script>' a proposito. El equipo
+        # trabaja en Windows, donde 'chmod +x' es un no-op y git guarda el
+        # archivo como 100644: el runner de Linux respondia "Permission denied"
+        # (exit 126) y el trabajo fallaba sin haber barrido nada. El bit de
+        # ejecucion tambien se corrigio en el indice, pero llamar por 'bash' hace
+        # que no dependa de que alguien se acuerde la proxima vez.
+        run: bash ./scripts/ci/scan-secrets.sh "${{ github.event.pull_request.base.sha || github.event.before }}"
 
   fin-de-linea:
     name: Fin de linea normalizado
