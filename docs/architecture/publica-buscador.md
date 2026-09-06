@@ -4,10 +4,25 @@ Documento de diseño de la pantalla `/publica-buscador` y de los dos endpoints q
 la alimentan. Es la fuente de verdad del contrato: si el código y este documento
 discrepan, se corrigen los dos en el mismo PR.
 
-**Estado:** el preview de la rama sirve **datos de ejemplo estáticos**
-(`site/publica-buscador-datos-ejemplo*.json`). Los endpoints reales están
-especificados acá y **todavía no construidos**. Hasta que lo estén, nadie debe
-mostrar esta pantalla como si consultara datos en vivo.
+**Estado `[MEDIDO 2026-09-06]`:** los dos endpoints están **construidos y en
+producción** en `mp-api` (VPS), con las sondas del contrato en verde — ver
+`ops/mp-api/README.md`. El motor de búsqueda de tres capas también está
+implementado: `docs/architecture/publica-buscador-motor.md`.
+
+**Lo que sigue pendiente, y por qué el preview público puede seguir mostrando
+datos de ejemplo:**
+
+1. **Falta `MP_API_KEY` en las variables de entorno de Vercel.** Sin ella,
+   `api/buscar.js` y `api/licitacion/[codigo].js` devuelven `500` — el buscador
+   se ve roto en el navegador aunque el backend esté sano. El valor vive en
+   `/docker/mp-api/.env` del VPS (600); no se imprime acá.
+2. **Los PR que traen el backend y el motor todavía no están mergeados** a esta
+   rama — revisar PRs abiertos del repo antes de asumir que lo de abajo ya está
+   en `preview/buscador-licitaciones`.
+
+Hasta que los dos pasos anteriores se completen, nadie debe mostrar el preview
+público como si consultara datos en vivo — el backend existe, pero el camino
+completo (Vercel → `mp-api`) no está cerrado todavía.
 
 ---
 

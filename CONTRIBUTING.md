@@ -52,11 +52,20 @@ las dependencias npm que el equipo agregue. Sus PRs pasan por la misma compuerta
 que cualquier otro.
 
 > Configurar en GitHub, una sola vez, **con una cuenta que tenga `Admin` sobre el
-> repositorio** (hoy ninguna cuenta activa lo tiene — ver nota de la organización
-> más arriba): Settings → Branches → regla de protección para `main` y
-> `preview/*` con *Require a pull request* y *Require status checks to pass*,
-> marcando los tres trabajos de CI **y el check `Vercel`** (o como se llame tras
-> la re-vinculación) — un PR cuyo preview no compila tampoco debería mergear.
+> repositorio** (hoy `danielcaignet-dataseed` lo tiene): Settings → Branches →
+> regla de protección para `main` y `preview/*` con *Require a pull request* y
+> *Require status checks to pass*, marcando los cuatro trabajos de CI **y el
+> check `Vercel`** (o como se llame tras la re-vinculación) — un PR cuyo preview
+> no compila tampoco debería mergear.
+>
+> **`[MEDIDO 2026-09-06]` La regla se puede crear pero no se hace cumplir
+> todavía.** La organización `dataseed-cl` está en plan GitHub **free**, y
+> GitHub sólo aplica *rulesets* de rama en repos **privados** con plan **Pro o
+> superior** — la propia UI de GitHub lo dice al crear la regla. Mientras tanto
+> el CI corre en cada push a `preview/**` y a `main`, no sólo en PRs: si alguien
+> empuja directo, el check queda rojo y registrado, pero **no bloquea nada**. Es
+> detección, no prevención. Queda pendiente de decisión de negocio (upgrade a
+> GitHub Team, o separar el repo en uno público y uno privado).
 > **Sin esta configuración, este archivo es una sugerencia, no una compuerta.**
 
 ## 3. Antes de abrir el PR
