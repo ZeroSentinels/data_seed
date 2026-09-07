@@ -1897,6 +1897,33 @@ body.modal-open {
   overflow: hidden;
 }
 
+/* El encogido cuelga de "hay resultados" (.buscador-con-resultados), NO del
+   scroll. Es aposta y va en TODOS los anchos de pantalla: apenas hay una
+   busqueda real, el subtitulo de marketing y los chips de ejemplo dejan de
+   ganarse su lugar, sea cual sea la posicion del scroll.
+
+   [MEDIDO 2026-09-07, capturado por el usuario] con esto colgado del scroll
+   (de .hero-compacto en vez de esto) el resultado de una busqueda real
+   aparecia con el hero COMPLETO -- titulo grande, subtitulo y sugerencias
+   visibles -- porque justo despues de buscar la pagina sigue en scrollY 0. En
+   una pantalla de escritorio comun eso dejaba la primera tarjeta de resultado
+   asomando apenas 170px, sin espacio "practicamente para buscar". El pegado
+   bajo el header (mas abajo, .hero-compacto) sigue atado al scroll porque esa
+   parte SI es sobre desplazarse; esto es sobre haber buscado. */
+.buscador-con-resultados .search-hero-title {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+}
+
+.buscador-con-resultados .search-hero-subtitle,
+.buscador-con-resultados .search-suggestions {
+  max-height: 0;
+  margin: 0;
+}
+
+.buscador-con-resultados .search-suggestions {
+  pointer-events: none;
+}
+
 /* --- 2-bis. la caja de busqueda se pega bajo el header ------------------ */
 /* Tras buscar, la caja se pega debajo del header, a la altura del rotulo
    "Buscador de licitaciones publicas": asi no desaparece al hacer scroll y una
@@ -1950,26 +1977,12 @@ body.modal-open {
     transition: box-shadow 0.25s ease, background-color 0.25s ease;
   }
 
-  /* El encogido NO cuelga de "hay resultados", cuelga de "la pagina esta
-     desplazada" (.hero-compacto, que pone el JS con el centinela). Antes
-     colgaba de .buscador-con-resultados, asi que tras la primera busqueda el
-     hero se quedaba compacto PARA SIEMPRE: al volver al tope seguia chico, sin
-     titulo ni sugerencias, y no habia forma de recuperarlo salvo recargar. */
-  .buscador-con-resultados.hero-compacto .search-hero-title {
-    font-size: clamp(1.1rem, 2vw, 1.4rem);
-  }
+  /* El titulo/subtitulo/sugerencias YA se encogieron mas arriba, colgados de
+     .buscador-con-resultados sin importar el scroll (ver la nota junto a
+     `overflow: hidden` de esas tres reglas). Aca solo queda lo que SI depende
+     de estar desplazado: el fondo con blur y la sombra.
 
-  .buscador-con-resultados.hero-compacto .search-hero-subtitle,
-  .buscador-con-resultados.hero-compacto .search-suggestions {
-    max-height: 0;
-    margin: 0;
-  }
-
-  .buscador-con-resultados.hero-compacto .search-suggestions {
-    pointer-events: none;
-  }
-
-  /* Fondo con blur y sombra SOLO cuando esta pegado bajo el header: ahi las
+     Fondo con blur y sombra SOLO cuando esta pegado bajo el header: ahi las
      tarjetas pasan por debajo y tienen que leerse como "debajo", no atravesar
      el titulo. En el tope nada pasa por detras, y un panel opaco con sombra
      sobre contenido que no scrollea lee como error de capas. */
