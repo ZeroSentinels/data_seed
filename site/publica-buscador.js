@@ -588,12 +588,12 @@ function formatearReferenciaHistorica(refHistorica) {
 }
 
 // =========================================================================
-// 7. ÍTEMS MASTICADOS (Sección 4-bis.2)
+// 7. ÍTEMS SOLICITADOS (Sección 4-bis.2)
 // =========================================================================
 /**
  * Formatea los ítems adquiridos con producto, cantidad, unidad y código UNSPSC.
  */
-function formatearItemsMasticados(items) {
+function formatearItemsDetalle(items) {
   if (!Array.isArray(items) || items.length === 0) {
     return {
       cantidadTotal: 0,
@@ -695,7 +695,7 @@ function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null) {
     }
 
     if (det.items && det.items.length > 0) {
-      const itemsFormat = formatearItemsMasticados(det.items);
+      const itemsFormat = formatearItemsDetalle(det.items);
       bloqueItemsHtml = `
         <div class="card-items-detalle">
           <div class="items-detalle-tag">
@@ -929,7 +929,7 @@ function renderizarMetricasLateral(metricas, meta) {
 }
 
 // =========================================================================
-// 10. DETALLE MASTICADO EN MODAL (Sección 4-bis.2)
+// 10. DETALLE DE LICITACIÓN EN MODAL (Sección 4-bis.2)
 // =========================================================================
 /**
  * Renderiza los datos digeridos para el modal de detalle de la licitación
@@ -1335,17 +1335,43 @@ class BuscadorPublicaApp {
     this.anclajeListo = true;
 
     const header = document.querySelector('.pub-header');
-    const caja = this.dom.searchInput ? this.dom.searchInput.closest('.search-form-container') : null;
-    if (!header || !caja) return;
+    const hero = document.querySelector('.search-hero');
+    const aside = this.dom.metricsSidebar;
+    if (!header || !hero) return;
 
+    // Los desplazamientos se MIDEN de los elementos reales en vez de fijarlos en
+    // CSS: el header y el hero cambian de alto entre escritorio y móvil, y un
+    // valor a ojo deja el lateral tapado o flotando con un hueco.
     const ajustar = () => {
-      caja.style.top = header.getBoundingClientRect().height + 'px';
+      const altoHeader = header.getBoundingClientRect().height;
+      hero.style.top = altoHeader + 'px';
+
+      // El lateral arranca debajo de header + hero, y su tarjeta se acota a lo
+      // que sobra de pantalla. Sin esto el scroll interno queda de un alto
+      // arbitrario y el contenido se ve cortado.
+      if (aside) {
+        const altoHero = hero.getBoundingClientRect().height;
+        const arranque = altoHeader + altoHero + 16;
+        aside.style.top = arranque + 'px';
+        const tarjeta = aside.querySelector('.sidebar-inner');
+        if (tarjeta) {
+          tarjeta.style.maxHeight = Math.max(240, window.innerHeight - arranque - 24) + 'px';
+        }
+      }
     };
+
     ajustar();
     window.addEventListener('resize', ajustar);
+    // El hero cambia de alto cuando el título se encoge y las sugerencias se
+    // colapsan; sin re-medir, el lateral queda con el desplazamiento viejo.
+    if (typeof ResizeObserver === 'function') {
+      new ResizeObserver(ajustar).observe(hero);
+    } else {
+      setTimeout(ajustar, 700);
+    }
 
-    // La sombra sólo cuando la página está desplazada: fija, sobre contenido
-    // que no scrollea, lee como un error de capas.
+    // La sombra sólo cuando la página está desplazada: fija, sobre contenido que
+    // no scrollea, lee como un error de capas.
     const alScroll = () => {
       document.body.classList.toggle('hay-scroll', window.scrollY > 8);
     };
@@ -1388,6 +1414,9 @@ class BuscadorPublicaApp {
 
       if (this.dom.metricsSidebar && this.metricas) {
         this.dom.metricsSidebar.innerHTML = renderizarMetricasLateral(this.metricas, this.meta);
+        // La tarjeta se acaba de reemplazar: hay que volver a acotarle el alto,
+        // o el max-height del CSS queda sobre un elemento que ya no existe.
+        if (this.anclajeListo) window.dispatchEvent(new Event('resize'));
       }
       this.renderizarLimitacionesFooter();
     } catch (err) {
@@ -1597,7 +1626,7 @@ if (typeof module !== 'undefined' && module.exports) {
     evaluarCierre,
     formatearMonto,
     formatearReferenciaHistorica,
-    formatearItemsMasticados,
+    formatearItemsDetalle,
     renderizarMetricasLateral,
     renderizarModalDetalle,
     obtenerNombreTipo,

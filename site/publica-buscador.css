@@ -1085,38 +1085,30 @@ html[data-theme="light"] .filter-select {
 
 .metrics-sidebar {
   position: sticky;
-  /* Debajo del header (68px) mas la caja de busqueda anclada, para que no la
-     tape cuando el usuario scrollea. */
-  top: 11rem;
+  /* El JS lo sobrescribe con el alto real de header + hero. Respaldo si no corre. */
+  top: 14rem;
   width: 100%;
-  /* Scroll propio: el lateral es mas alto que la pantalla en filtros con muchos
-     organismos, y sin esto obliga a scrollear toda la pagina para ver el final
-     de las metricas. La altura se acota a lo que queda de viewport. */
-  max-height: calc(100vh - 12rem);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  /* La barra se oculta pero el scroll sigue funcionando -- rueda, teclado y
-     gesto tactil. Ocultarla NO debe quitar la capacidad de desplazarse: eso
-     rompe la accesibilidad, no la mejora. */
-  scrollbar-width: none;          /* Firefox */
-  -ms-overflow-style: none;       /* Edge antiguo */
-  padding-right: 2px;             /* aire para el foco visible de los hijos */
-}
-
-/* WebKit / Blink: la barra se oculta con pseudo-elemento. */
-.metrics-sidebar::-webkit-scrollbar {
-  width: 0;
-  height: 0;
 }
 
 /* En pantalla chica el lateral deja de ser columna y pasa a fluir con el
    contenido: fijarlo ahi lo volveria una ventana de 100px con scroll propio,
    que es peor que dejarlo largo. */
 @media (max-width: 1024px) {
+  /* En pantalla chica el lateral deja de ser columna y fluye con el contenido:
+     fijarlo ahi lo volveria una ventana diminuta con scroll, peor que largo. */
   .metrics-sidebar {
     position: static;
+  }
+  .sidebar-inner {
     max-height: none;
     overflow-y: visible;
+  }
+  .buscador-con-resultados .search-hero {
+    position: static;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
   }
 }
 
@@ -1129,6 +1121,25 @@ html[data-theme="light"] .filter-select {
   flex-direction: column;
   gap: 1.15rem;
   box-shadow: 0 4px 18px rgb(from var(--g) r g b / 0.05);
+
+  /* El scroll va ACA y no en el <aside> que la contiene.
+     [MEDIDO 2026-09-07] con overflow en el aside, el recorte caia sobre esta
+     tarjeta y le cortaba el borde y las esquinas redondeadas arriba y abajo:
+     se veia como contenido tajeado, no como una tarjeta con scroll. Scrolleando
+     por dentro, el marco queda quieto y solo se mueve el contenido.
+     El JS ajusta max-height al viewport disponible. */
+  max-height: calc(100vh - 15rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Barra oculta en los tres motores. Ocultarla NO quita la capacidad de
+     desplazarse: rueda, teclado y gesto tactil siguen funcionando. */
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* Edge antiguo */
+}
+
+.sidebar-inner::-webkit-scrollbar {   /* WebKit / Blink */
+  width: 0;
+  height: 0;
 }
 
 .sidebar-header {
@@ -1344,7 +1355,7 @@ html[data-theme="light"] .filter-select {
 }
 
 /* =========================================================================
-   MODAL DE DETALLE MASTICADO (Sección 4-bis.2)
+   MODAL DE DETALLE DE LICITACIÓN (Sección 4-bis.2)
    ========================================================================= */
 
 body.modal-open {
@@ -1907,22 +1918,29 @@ body.modal-open {
    scroll y una segunda busqueda no obliga a volver arriba.
    El top se calcula desde el alto real del header (padding 0.9rem x2 + 32px
    del logo = ~4rem). */
-.buscador-con-resultados .search-form-container {
+/* El sticky va en el HERO COMPLETO, no en la caja sola.
+   [MEDIDO 2026-09-07] con position:sticky en .search-form-container la caja se
+   despegaba y volvia a irse a los ~150px de scroll: sticky solo funciona
+   DENTRO del alto de su padre, y .search-hero colapsa a ese alto en el estado
+   con resultados. El padre del hero es .pub-main, que si es alto, asi que el
+   hero entero puede quedarse pegado todo el scroll. */
+.buscador-con-resultados .search-hero {
   position: sticky;
-  top: 4rem;
+  /* El JS lo sobrescribe con el alto real del header. Este valor es el
+     respaldo por si el JS no corre. */
+  top: 68px;
   z-index: 40;
-  padding: 0.5rem 0;
-  /* El fondo evita que las tarjetas se vean por debajo al pasar. Con blur para
-     que se lea sobre cualquier contenido, igual que el header. */
-  background: rgb(from var(--bg) r g b / 0.88);
+  /* Fondo con blur: las tarjetas pasan por debajo y tienen que leerse como
+     "debajo", no atravesar el titulo. */
+  background: rgb(from var(--bg) r g b / 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transition: box-shadow 0.25s ease;
 }
 
-/* Sombra solo cuando de verdad esta despegada, no siempre: una sombra fija
-   sobre contenido que no scrollea lee como error de capas. */
-.buscador-con-resultados.hay-scroll .search-form-container {
+/* Sombra solo cuando de verdad esta despegada: fija, sobre contenido que no
+   scrollea, lee como error de capas. */
+.buscador-con-resultados.hay-scroll .search-hero {
   box-shadow: 0 6px 18px rgb(from var(--g) r g b / 0.10);
 }
 
