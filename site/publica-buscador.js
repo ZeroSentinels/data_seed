@@ -762,8 +762,20 @@ function renderizarMetricasLateral(metricas, meta) {
   const cMas7 = metricas.cierre ? (metricas.cierre.mas_de_7 || 0) : 0;
 
   // 3. Competencia
-  const compMediana = metricas.competencia ? metricas.competencia.oferentes_mediana : null;
-  const compN = metricas.competencia ? metricas.competencia.n : 0;
+  // El backend aplica la regla del umbral y declara si el dato alcanza para
+  // llamarse "mediana" (docs/architecture/publica-buscador.md §4.1c y §5.1).
+  // El frontend NO decide el rótulo: lo lee.
+  //
+  // [BUG 2026-09-07] Buscar "fermin" -- una palabra sin significado de rubro --
+  // devolvía CERO resultados y esta tarjeta decía "2 oferentes mediana, medido
+  // sobre 4 licitaciones del rubro". Dos mentiras: "mediana" sobre n=4 es
+  // precisión falsa, y "del rubro" era literalmente incorrecto (eran transporte
+  // escolar, luminarias y un laboratorio, unidas por el nombre propio "Liceo
+  // Fermín del Real"). El backend nunca dijo "rubro": lo agregaba este archivo.
+  const comp = metricas.competencia || {};
+  const compMediana = comp.oferentes_mediana !== undefined ? comp.oferentes_mediana : null;
+  const compN = comp.n || 0;
+  const compSuficiente = comp.suficiente_para_mediana === true;
 
   // 4. Rankings
   const topOrganismos = Array.isArray(metricas.top_organismos) ? metricas.top_organismos : [];
@@ -824,13 +836,18 @@ function renderizarMetricasLateral(metricas, meta) {
       </div>
 
       <!-- Bloque 3: Competencia histórica -->
+      ${compMediana === null ? '' : `
       <div class="sidebar-card">
         <div class="sidebar-card-label">Intensidad competitiva</div>
-        <div class="sidebar-main-value">${compMediana !== null ? (compMediana === 1 ? '1 oferente' : `${Number(compMediana).toLocaleString('es-CL')} oferentes`) : 'S/D'} <span class="sidebar-inline-unit">mediana</span></div>
+        <div class="sidebar-main-value">${compMediana === 1 ? '1 oferente' : `${Number(compMediana).toLocaleString('es-CL')} oferentes`}${compSuficiente ? ' <span class="sidebar-inline-unit">mediana</span>' : ''}</div>
         <div class="sidebar-value-sub">
-          Medido sobre <strong>${Number(compN).toLocaleString('es-CL')}</strong> licitaciones del rubro (n = ${Number(compN).toLocaleString('es-CL')})
+          ${compSuficiente
+            ? `Mediana sobre <strong>${Number(compN).toLocaleString('es-CL')}</strong> licitaciones ya adjudicadas que coinciden con esta búsqueda`
+            : `Sólo <strong>${Number(compN).toLocaleString('es-CL')}</strong> ${compN === 1 ? 'antecedente' : 'antecedentes'} — muy pocos para hablar de mediana de mercado`}
+          <br>
+          <em>No son las licitaciones que se muestran arriba, y no necesariamente son del mismo rubro.</em>
         </div>
-      </div>
+      </div>`}
 
       <!-- Bloque 4: Top Compradores y Regiones -->
       <div class="sidebar-card">
