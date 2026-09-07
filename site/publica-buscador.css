@@ -844,15 +844,15 @@ html[data-theme="light"] .filter-select {
   margin-left: 0.25rem;
 }
 
-/* 4-bis.2 Ítems masticados en la tarjeta */
-.card-items-masticados {
+/* 4-bis.2 Ítems solicitados en la tarjeta */
+.card-items-detalle {
   background: var(--surface);
   border: 1px solid var(--card-b);
   border-radius: 10px;
   padding: 0.75rem 0.95rem;
 }
 
-.items-masticados-tag {
+.items-detalle-tag {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -862,14 +862,14 @@ html[data-theme="light"] .filter-select {
   margin-bottom: 0.45rem;
 }
 
-.items-masticados-ul {
+.items-detalle-ul {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
-.item-masticado-row {
+.item-detalle-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -878,27 +878,27 @@ html[data-theme="light"] .filter-select {
   font-size: 0.82rem;
 }
 
-.item-masticado-main {
+.item-detalle-main {
   display: flex;
   align-items: baseline;
   gap: 0.35rem;
   color: var(--text);
 }
 
-.item-masticado-bullet {
+.item-detalle-bullet {
   color: var(--g);
   font-weight: bold;
 }
 
-.item-masticado-nombre {
+.item-detalle-nombre {
   font-weight: 600;
 }
 
-.item-masticado-qty {
+.item-detalle-qty {
   color: var(--sub);
 }
 
-.item-masticado-unspsc {
+.item-detalle-unspsc {
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: 0.72rem;
   color: var(--muted);
@@ -990,7 +990,7 @@ html[data-theme="light"] .filter-select {
   gap: 0.65rem;
 }
 
-/* Destino Principal nuevo (Sección 2.2): Ver detalle masticado */
+/* Destino Principal nuevo (Sección 2.2): Ver detalle de la licitación */
 .btn-ver-detalle {
   background: var(--g);
   color: #f7fff8;
@@ -1785,4 +1785,161 @@ body.modal-open {
   .tender-modal-title {
     font-size: 1.15rem;
   }
+}
+
+/* =========================================================================
+   ANIMACIONES
+   =========================================================================
+   Tres movimientos, todos con proposito y ninguno decorativo:
+
+   1. El hero arranca centrado verticalmente y sube al buscar (patron Chrome /
+      Google). Da la senal de que la pantalla cambio de modo.
+   2. Los resultados entran escalonados. [OBSERVADO] la busqueda tarda ~150 ms:
+      sin animacion el cambio es tan rapido que no se percibe y parece que no
+      paso nada.
+   3. La barra muestra progreso mientras la peticion esta en vuelo.
+
+   Todo se apaga con prefers-reduced-motion: el movimiento es una ayuda, no un
+   requisito, y para quien lo desactivo es una molestia. */
+
+/* --- 1. el hero: centrado al inicio, arriba tras buscar ---------------- */
+.search-hero {
+  transition: padding 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+              gap 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Estado inicial: ocupa el alto util y queda centrado. El calc descuenta el
+   header pegajoso y el pie para que no aparezca scroll de entrada. */
+.buscador-inicial .search-hero {
+  min-height: calc(100vh - 15rem);
+  justify-content: center;
+  padding: 0 0 2rem;
+  gap: 1.75rem;
+}
+
+/* Tras la primera busqueda el hero se compacta y sube. */
+.buscador-con-resultados .search-hero {
+  min-height: 0;
+  justify-content: flex-start;
+  padding: 0.75rem 0 0.5rem;
+  gap: 0.9rem;
+}
+
+/* El titulo y el subtitulo se encogen en vez de desaparecer de golpe:
+   desaparecer produce un salto que se lee como error de carga. */
+.search-hero-title,
+.search-hero-subtitle {
+  transition: font-size 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.35s ease,
+              max-height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              margin 0.45s ease;
+  overflow: hidden;
+}
+
+.buscador-con-resultados .search-hero-title {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+}
+
+.buscador-con-resultados .search-hero-subtitle {
+  opacity: 0;
+  max-height: 0;
+  margin: 0;
+}
+
+/* Las sugerencias sobran una vez que hay resultados. */
+.search-suggestions {
+  transition: opacity 0.3s ease, max-height 0.4s ease, margin 0.4s ease;
+  overflow: hidden;
+}
+
+.buscador-con-resultados .search-suggestions {
+  opacity: 0;
+  max-height: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+/* --- 2. los resultados entran escalonados ------------------------------ */
+@keyframes entrada-tarjeta {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.tender-card {
+  animation: entrada-tarjeta 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Escalon acotado a las primeras 12: mas alla el usuario ya esta leyendo y una
+   espera creciente se vuelve lentitud percibida, no pulido. */
+.tender-card:nth-child(1)  { animation-delay: 0.00s; }
+.tender-card:nth-child(2)  { animation-delay: 0.03s; }
+.tender-card:nth-child(3)  { animation-delay: 0.06s; }
+.tender-card:nth-child(4)  { animation-delay: 0.09s; }
+.tender-card:nth-child(5)  { animation-delay: 0.12s; }
+.tender-card:nth-child(6)  { animation-delay: 0.15s; }
+.tender-card:nth-child(7)  { animation-delay: 0.18s; }
+.tender-card:nth-child(8)  { animation-delay: 0.21s; }
+.tender-card:nth-child(9)  { animation-delay: 0.24s; }
+.tender-card:nth-child(10) { animation-delay: 0.27s; }
+.tender-card:nth-child(11) { animation-delay: 0.30s; }
+.tender-card:nth-child(n+12) { animation-delay: 0.33s; }
+
+/* El contador y el lateral acompanan, sin escalon. */
+@keyframes entrada-suave {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.results-count-row,
+.metrics-sidebar > * {
+  animation: entrada-suave 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* --- 3. progreso mientras la peticion esta en vuelo -------------------- */
+.search-form::after {
+  content: "";
+  position: absolute;
+  left: 1.25rem;
+  right: 1.25rem;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--g), transparent);
+  transform: scaleX(0);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.buscador-cargando .search-form::after {
+  opacity: 1;
+  animation: barrido-carga 1.1s ease-in-out infinite;
+}
+
+@keyframes barrido-carga {
+  0%   { transform: translateX(-40%) scaleX(0.3); }
+  50%  { transform: translateX(0) scaleX(0.75); }
+  100% { transform: translateX(40%) scaleX(0.3); }
+}
+
+/* Mientras carga, los resultados viejos se atenuan: deja claro que lo que se
+   ve todavia no corresponde a lo que se pidio. */
+.buscador-cargando .results-main-col {
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
+}
+
+/* --- respeto por quien desactivo el movimiento ------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .search-hero,
+  .search-hero-title,
+  .search-hero-subtitle,
+  .search-suggestions,
+  .tender-card,
+  .results-count-row,
+  .metrics-sidebar > * {
+    transition: none !important;
+    animation: none !important;
+  }
+  .buscador-cargando .search-form::after { animation: none; }
+  .buscador-inicial .search-hero { min-height: 0; padding: 1.5rem 0 1rem; }
 }
