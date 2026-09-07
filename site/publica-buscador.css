@@ -1834,17 +1834,29 @@ body.modal-open {
    requisito, y para quien lo desactivo es una molestia. */
 
 /* --- 1. el hero: centrado al inicio, arriba tras buscar ---------------- */
-/* [MEDIDO 2026-09-07, tres intentos] NO se usan transiciones de layout aca.
-   Se probo con min-height, con padding y con unidades planas en vez de calc(),
-   y en las tres el navegador dejaba la transicion en playState "running" con
-   currentTime = 0 PARA SIEMPRE: el reloj nunca arranca y el valor se queda en
-   el de partida. Verificado desactivando la transicion, con lo que el valor
-   correcto aparece al instante -- la regla CSS gana bien, la transicion es la
-   que no corre.
+/* Se usa transform y no padding/min-height porque es lo correcto para
+   desplazar un bloque: se compone en GPU, no dispara layout y no obliga al
+   navegador a recalcular geometria en cada frame.
 
-   Se usa transform, que se compone en GPU, no dispara layout y siempre
-   interpola. Es ademas lo correcto para mover un bloque: animar padding o
-   min-height obliga al navegador a recalcular layout en cada frame. */
+   CORRECCION DE UN DIAGNOSTICO PROPIO EQUIVOCADO (2026-09-07). Tres commits
+   anteriores afirmaron, con "[MEDIDO]" adelante, que las transiciones de este
+   elemento quedaban colgadas: primero se culpo a que min-height faltaba en la
+   lista, despues a que arrancaban desde calc(), y por ultimo se escribio que
+   "ninguna transicion de layout arranca en este navegador". Las tres son
+   FALSAS y eran el mismo artefacto: se median con el panel del navegador
+   OCULTO. Medido despues:
+
+     document.hidden = true
+     document.timeline.currentTime = 0 (congelado)
+     requestAnimationFrame = 0 frames en 1,5 s
+
+   Una pagina que no compone frames no avanza el reloj de animaciones, asi que
+   TODA transicion queda en playState 'running' con currentTime 0, sea de layout
+   o de transform. El CSS anterior probablemente funcionaba.
+
+   Leccion para quien mida animaciones aca: getComputedStyle sobre una pestana
+   oculta no dice nada sobre si una transicion corre. Hay que verificar
+   document.hidden y que rAF entregue frames ANTES de concluir. */
 
 .search-hero {
   justify-content: flex-start;

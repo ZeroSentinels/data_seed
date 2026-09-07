@@ -35,6 +35,11 @@ compartida.
 
 ---
 
+> **Guía de interfaz para el equipo de frontend:**
+> [`docs/frontend/buscador-publica.md`](../frontend/buscador-publica.md) —
+> reglas de contenido, lenguaje, iconos, estados de animación y las trampas ya
+> pagadas. Este documento es el contrato de **datos**; ese es el de **interfaz**.
+
 ## 1. Qué es y qué no es
 
 Un **buscador**. Una caja de texto y resultados. No es un dashboard.
