@@ -413,3 +413,5 @@ sitio estático o a las funciones. Ya se rompió una vez, al agregar
   (`html[data-theme="light"]`), aplicado antes del primer paint. El buscador
   soporta los dos con el mismo mecanismo. Medir el tema con el navegador en una
   sola condición de visita **no** es medir el CSS.
+
+<!-- prueba de webhook Vercel 2026-09-06 -->
