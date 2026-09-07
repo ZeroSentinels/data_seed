@@ -1370,13 +1370,62 @@ class BuscadorPublicaApp {
       setTimeout(ajustar, 700);
     }
 
-    // La sombra sólo cuando la página está desplazada: fija, sobre contenido que
-    // no scrollea, lee como un error de capas.
-    const alScroll = () => {
-      document.body.classList.toggle('hay-scroll', window.scrollY > 8);
+    this.vigilarCompactadoDelHero(header);
+  }
+
+  /**
+   * Decide si el hero va compacto (pegado bajo el header, sin subtítulo ni
+   * sugerencias) o desplegado (su presentación completa).
+   *
+   * La regla es: compacto mientras la página esté desplazada, desplegado al
+   * volver al tope. Antes el compacto colgaba de la clase
+   * `buscador-con-resultados`, así que tras la primera búsqueda el hero se
+   * quedaba encogido para siempre y volver arriba no lo recuperaba.
+   *
+   * POR QUÉ UN CENTINELA Y NO UN UMBRAL DE window.scrollY: el hero pierde
+   * ~90px de alto al compactarse. Con un umbral sobre scrollY eso se
+   * retroalimenta — el documento se acorta, el scroll cruza el umbral en
+   * sentido contrario, el hero se despliega, vuelve a crecer, cruza otra vez —
+   * y queda alternando. El centinela está ANTES del hero, así que su posición
+   * no cambia cuando el hero cambia de alto: la señal no puede oscilar.
+   */
+  vigilarCompactadoDelHero(header) {
+    const centinela = document.getElementById('heroSentinel');
+    const compactar = (si) => {
+      document.body.classList.toggle('hero-compacto', si);
     };
-    alScroll();
-    window.addEventListener('scroll', alScroll, { passive: true });
+
+    // Respaldo para navegadores sin IntersectionObserver. Mantiene la
+    // histéresis a mano: se compacta pasados los 140px y se despliega recién
+    // bajo los 40px, para que el cambio de alto del hero no reabra el umbral.
+    if (!centinela || typeof IntersectionObserver !== 'function') {
+      const alScroll = () => {
+        const y = window.scrollY;
+        if (y > 140) compactar(true);
+        else if (y < 40) compactar(false);
+      };
+      alScroll();
+      window.addEventListener('scroll', alScroll, { passive: true });
+      return;
+    }
+
+    // El margen superior negativo mueve la línea de disparo justo al borde
+    // inferior del header: el hero se compacta cuando el contenido empieza a
+    // pasarle por debajo, no antes.
+    let observador = null;
+    const observar = () => {
+      if (observador) observador.disconnect();
+      const altoHeader = Math.round(header.getBoundingClientRect().height);
+      observador = new IntersectionObserver(
+        ([entrada]) => compactar(!entrada.isIntersecting),
+        { rootMargin: `-${altoHeader}px 0px 0px 0px`, threshold: 0 }
+      );
+      observador.observe(centinela);
+    };
+    observar();
+    // El header cambia de alto entre escritorio y móvil; sin re-observar, la
+    // línea de disparo queda en el sitio viejo.
+    window.addEventListener('resize', observar);
   }
 
   // texto/solo_abiertas/region los aplica el backend (Sección 4-bis). El único
