@@ -1085,8 +1085,39 @@ html[data-theme="light"] .filter-select {
 
 .metrics-sidebar {
   position: sticky;
-  top: 5.5rem;
+  /* Debajo del header (68px) mas la caja de busqueda anclada, para que no la
+     tape cuando el usuario scrollea. */
+  top: 11rem;
   width: 100%;
+  /* Scroll propio: el lateral es mas alto que la pantalla en filtros con muchos
+     organismos, y sin esto obliga a scrollear toda la pagina para ver el final
+     de las metricas. La altura se acota a lo que queda de viewport. */
+  max-height: calc(100vh - 12rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* La barra se oculta pero el scroll sigue funcionando -- rueda, teclado y
+     gesto tactil. Ocultarla NO debe quitar la capacidad de desplazarse: eso
+     rompe la accesibilidad, no la mejora. */
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* Edge antiguo */
+  padding-right: 2px;             /* aire para el foco visible de los hijos */
+}
+
+/* WebKit / Blink: la barra se oculta con pseudo-elemento. */
+.metrics-sidebar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* En pantalla chica el lateral deja de ser columna y pasa a fluir con el
+   contenido: fijarlo ahi lo volveria una ventana de 100px con scroll propio,
+   que es peor que dejarlo largo. */
+@media (max-width: 1024px) {
+  .metrics-sidebar {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+  }
 }
 
 .sidebar-inner {
@@ -1803,29 +1834,32 @@ body.modal-open {
    requisito, y para quien lo desactivo es una molestia. */
 
 /* --- 1. el hero: centrado al inicio, arriba tras buscar ---------------- */
-/* min-height VA en la lista. [MEDIDO 2026-09-07] sin el, el hero saltaba de
-   480px a 0 de golpe mientras padding y gap si animaban: eso era el corte
-   brusco de la primera busqueda. justify-content queda FUERA a proposito --
-   es una propiedad discreta, no interpola, y cambiarla produce el mismo salto.
-   El centrado se logra con padding-top, que si es animable. */
+/* [MEDIDO 2026-09-07, dos veces] Tres cosas que NO se pueden animar aca, y las
+   tres producian el corte brusco:
+     1. justify-content es DISCRETA: no interpola. Queda fija en flex-start y el
+        centrado inicial se hace con padding-top.
+     2. Una transicion que ARRANCA en calc() no interpola: min-height y
+        padding-top quedaban clavados en el valor de partida (480px y 88px
+        medidos) aunque la clase ya hubiera cambiado. Es el mismo defecto que
+        tuvo la transicion de opacity. Se usan unidades planas (vh, rem).
+     3. min-height tampoco se anima: el desplazamiento lo da padding-top solo,
+        que alcanza para el efecto y es una sola propiedad que interpola bien. */
 .search-hero {
   justify-content: flex-start;
-  transition: min-height 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-              padding 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+  transition: padding-top 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+              padding-bottom 0.55s cubic-bezier(0.22, 1, 0.36, 1),
               gap 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Estado inicial: ocupa el alto util y queda centrado. El calc descuenta el
    header pegajoso y el pie para que no aparezca scroll de entrada. */
 .buscador-inicial .search-hero {
-  min-height: calc(100vh - 15rem);
-  padding: calc((100vh - 34rem) / 2) 0 2rem;
+  padding: 20vh 0 2rem;
   gap: 1.75rem;
 }
 
 /* Tras la primera busqueda el hero se compacta y sube. */
 .buscador-con-resultados .search-hero {
-  min-height: 0;
   padding: 0.5rem 0 0.5rem;
   gap: 0.75rem;
 }
@@ -1986,7 +2020,7 @@ body.modal-open {
     animation: none !important;
   }
   .buscador-cargando .search-form::after { animation: none; }
-  .buscador-inicial .search-hero { min-height: 0; padding: 1.5rem 0 1rem; }
+  .buscador-inicial .search-hero { padding: 1.5rem 0 1rem; }
   .buscador-con-resultados .results-layout { animation: none !important; }
   .buscador-con-resultados .search-form-container { transition: none !important; }
 }
