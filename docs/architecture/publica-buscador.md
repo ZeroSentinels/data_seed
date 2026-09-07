@@ -415,3 +415,5 @@ sitio estático o a las funciones. Ya se rompió una vez, al agregar
   sola condición de visita **no** es medir el CSS.
 
 <!-- prueba de webhook Vercel 2026-09-06 -->
+
+<!-- verificacion webhook post-retorno a cuenta personal 2026-09-06 -->
