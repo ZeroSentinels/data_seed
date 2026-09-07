@@ -844,15 +844,15 @@ html[data-theme="light"] .filter-select {
   margin-left: 0.25rem;
 }
 
-/* 4-bis.2 Ítems masticados en la tarjeta */
-.card-items-masticados {
+/* 4-bis.2 Ítems solicitados en la tarjeta */
+.card-items-detalle {
   background: var(--surface);
   border: 1px solid var(--card-b);
   border-radius: 10px;
   padding: 0.75rem 0.95rem;
 }
 
-.items-masticados-tag {
+.items-detalle-tag {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -862,14 +862,14 @@ html[data-theme="light"] .filter-select {
   margin-bottom: 0.45rem;
 }
 
-.items-masticados-ul {
+.items-detalle-ul {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
-.item-masticado-row {
+.item-detalle-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -878,27 +878,27 @@ html[data-theme="light"] .filter-select {
   font-size: 0.82rem;
 }
 
-.item-masticado-main {
+.item-detalle-main {
   display: flex;
   align-items: baseline;
   gap: 0.35rem;
   color: var(--text);
 }
 
-.item-masticado-bullet {
+.item-detalle-bullet {
   color: var(--g);
   font-weight: bold;
 }
 
-.item-masticado-nombre {
+.item-detalle-nombre {
   font-weight: 600;
 }
 
-.item-masticado-qty {
+.item-detalle-qty {
   color: var(--sub);
 }
 
-.item-masticado-unspsc {
+.item-detalle-unspsc {
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: 0.72rem;
   color: var(--muted);
@@ -990,7 +990,7 @@ html[data-theme="light"] .filter-select {
   gap: 0.65rem;
 }
 
-/* Destino Principal nuevo (Sección 2.2): Ver detalle masticado */
+/* Destino Principal nuevo (Sección 2.2): Ver detalle de la licitación */
 .btn-ver-detalle {
   background: var(--g);
   color: #f7fff8;
@@ -1085,8 +1085,39 @@ html[data-theme="light"] .filter-select {
 
 .metrics-sidebar {
   position: sticky;
-  top: 5.5rem;
+  /* Debajo del header (68px) mas la caja de busqueda anclada, para que no la
+     tape cuando el usuario scrollea. */
+  top: 11rem;
   width: 100%;
+  /* Scroll propio: el lateral es mas alto que la pantalla en filtros con muchos
+     organismos, y sin esto obliga a scrollear toda la pagina para ver el final
+     de las metricas. La altura se acota a lo que queda de viewport. */
+  max-height: calc(100vh - 12rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* La barra se oculta pero el scroll sigue funcionando -- rueda, teclado y
+     gesto tactil. Ocultarla NO debe quitar la capacidad de desplazarse: eso
+     rompe la accesibilidad, no la mejora. */
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* Edge antiguo */
+  padding-right: 2px;             /* aire para el foco visible de los hijos */
+}
+
+/* WebKit / Blink: la barra se oculta con pseudo-elemento. */
+.metrics-sidebar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* En pantalla chica el lateral deja de ser columna y pasa a fluir con el
+   contenido: fijarlo ahi lo volveria una ventana de 100px con scroll propio,
+   que es peor que dejarlo largo. */
+@media (max-width: 1024px) {
+  .metrics-sidebar {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+  }
 }
 
 .sidebar-inner {
@@ -1785,4 +1816,209 @@ body.modal-open {
   .tender-modal-title {
     font-size: 1.15rem;
   }
+}
+
+/* =========================================================================
+   ANIMACIONES
+   =========================================================================
+   Tres movimientos, todos con proposito y ninguno decorativo:
+
+   1. El hero arranca centrado verticalmente y sube al buscar (patron Chrome /
+      Google). Da la senal de que la pantalla cambio de modo.
+   2. Los resultados entran escalonados. [OBSERVADO] la busqueda tarda ~150 ms:
+      sin animacion el cambio es tan rapido que no se percibe y parece que no
+      paso nada.
+   3. La barra muestra progreso mientras la peticion esta en vuelo.
+
+   Todo se apaga con prefers-reduced-motion: el movimiento es una ayuda, no un
+   requisito, y para quien lo desactivo es una molestia. */
+
+/* --- 1. el hero: centrado al inicio, arriba tras buscar ---------------- */
+/* Se usa transform y no padding/min-height porque es lo correcto para
+   desplazar un bloque: se compone en GPU, no dispara layout y no obliga al
+   navegador a recalcular geometria en cada frame.
+
+   CORRECCION DE UN DIAGNOSTICO PROPIO EQUIVOCADO (2026-09-07). Tres commits
+   anteriores afirmaron, con "[MEDIDO]" adelante, que las transiciones de este
+   elemento quedaban colgadas: primero se culpo a que min-height faltaba en la
+   lista, despues a que arrancaban desde calc(), y por ultimo se escribio que
+   "ninguna transicion de layout arranca en este navegador". Las tres son
+   FALSAS y eran el mismo artefacto: se median con el panel del navegador
+   OCULTO. Medido despues:
+
+     document.hidden = true
+     document.timeline.currentTime = 0 (congelado)
+     requestAnimationFrame = 0 frames en 1,5 s
+
+   Una pagina que no compone frames no avanza el reloj de animaciones, asi que
+   TODA transicion queda en playState 'running' con currentTime 0, sea de layout
+   o de transform. El CSS anterior probablemente funcionaba.
+
+   Leccion para quien mida animaciones aca: getComputedStyle sobre una pestana
+   oculta no dice nada sobre si una transicion corre. Hay que verificar
+   document.hidden y que rAF entregue frames ANTES de concluir. */
+
+.search-hero {
+  justify-content: flex-start;
+  padding: 0.5rem 0;
+  gap: 0.75rem;
+  transform: translateY(0);
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Estado inicial: el hero se empuja hacia abajo para quedar a media pantalla.
+   transform no ocupa espacio en el flujo, asi que el empujon no genera scroll;
+   el alto util lo reserva el <main>. */
+.buscador-inicial .search-hero {
+  transform: translateY(18vh);
+}
+
+.buscador-inicial .pub-main {
+  min-height: 78vh;
+}
+
+/* El titulo se encoge; el subtitulo y las sugerencias se colapsan por altura.
+   font-size y max-height se dejan SIN transicion: son las mismas propiedades de
+   layout que no animan en este navegador, y una transicion declarada que no
+   corre solo confunde a quien lea el CSS despues. */
+.search-hero-title,
+.search-hero-subtitle,
+.search-suggestions {
+  overflow: hidden;
+}
+
+.buscador-con-resultados .search-hero-title {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+}
+
+.buscador-con-resultados .search-hero-subtitle,
+.buscador-con-resultados .search-suggestions {
+  max-height: 0;
+  margin: 0;
+}
+
+.buscador-con-resultados .search-suggestions {
+  pointer-events: none;
+}
+
+/* --- 2-bis. la caja de busqueda sube al header y se queda --------------- */
+/* Tras la primera busqueda la caja se pega debajo del header, a la altura del
+   rotulo "Buscador de licitaciones publicas". Asi no desaparece al hacer
+   scroll y una segunda busqueda no obliga a volver arriba.
+   El top se calcula desde el alto real del header (padding 0.9rem x2 + 32px
+   del logo = ~4rem). */
+.buscador-con-resultados .search-form-container {
+  position: sticky;
+  top: 4rem;
+  z-index: 40;
+  padding: 0.5rem 0;
+  /* El fondo evita que las tarjetas se vean por debajo al pasar. Con blur para
+     que se lea sobre cualquier contenido, igual que el header. */
+  background: rgb(from var(--bg) r g b / 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: box-shadow 0.25s ease;
+}
+
+/* Sombra solo cuando de verdad esta despegada, no siempre: una sombra fija
+   sobre contenido que no scrollea lee como error de capas. */
+.buscador-con-resultados.hay-scroll .search-form-container {
+  box-shadow: 0 6px 18px rgb(from var(--g) r g b / 0.10);
+}
+
+/* --- 3-bis. el bloque de resultados entra sin salto -------------------- */
+/* [MEDIDO] resultsLayout pasaba de [hidden] a visible de golpe: el atributo
+   hidden no es animable y el bloque aparecia de una. Se anima su entrada. */
+@keyframes entrada-resultados {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.buscador-con-resultados .results-layout {
+  animation: entrada-resultados 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+/* --- 2. los resultados entran escalonados ------------------------------ */
+@keyframes entrada-tarjeta {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.tender-card {
+  animation: entrada-tarjeta 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Escalon acotado a las primeras 12: mas alla el usuario ya esta leyendo y una
+   espera creciente se vuelve lentitud percibida, no pulido. */
+.tender-card:nth-child(1)  { animation-delay: 0.00s; }
+.tender-card:nth-child(2)  { animation-delay: 0.03s; }
+.tender-card:nth-child(3)  { animation-delay: 0.06s; }
+.tender-card:nth-child(4)  { animation-delay: 0.09s; }
+.tender-card:nth-child(5)  { animation-delay: 0.12s; }
+.tender-card:nth-child(6)  { animation-delay: 0.15s; }
+.tender-card:nth-child(7)  { animation-delay: 0.18s; }
+.tender-card:nth-child(8)  { animation-delay: 0.21s; }
+.tender-card:nth-child(9)  { animation-delay: 0.24s; }
+.tender-card:nth-child(10) { animation-delay: 0.27s; }
+.tender-card:nth-child(11) { animation-delay: 0.30s; }
+.tender-card:nth-child(n+12) { animation-delay: 0.33s; }
+
+/* El contador y el lateral acompanan, sin escalon. */
+@keyframes entrada-suave {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.results-count-row,
+.metrics-sidebar > * {
+  animation: entrada-suave 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* --- 3. progreso mientras la peticion esta en vuelo -------------------- */
+.search-form::after {
+  content: "";
+  position: absolute;
+  left: 1.25rem;
+  right: 1.25rem;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--g), transparent);
+  transform: scaleX(0);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.buscador-cargando .search-form::after {
+  opacity: 1;
+  animation: barrido-carga 1.1s ease-in-out infinite;
+}
+
+@keyframes barrido-carga {
+  0%   { transform: translateX(-40%) scaleX(0.3); }
+  50%  { transform: translateX(0) scaleX(0.75); }
+  100% { transform: translateX(40%) scaleX(0.3); }
+}
+
+/* Mientras carga, los resultados viejos se atenuan: deja claro que lo que se
+   ve todavia no corresponde a lo que se pidio. */
+.buscador-cargando .results-main-col {
+  opacity: 0.45;
+  transition: opacity 0.2s ease;
+}
+
+/* --- respeto por quien desactivo el movimiento ------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .search-hero,
+  .tender-card,
+  .results-count-row,
+  .metrics-sidebar > * {
+    transition: none !important;
+    animation: none !important;
+  }
+  .buscador-cargando .search-form::after { animation: none; }
+  .buscador-inicial .search-hero { transform: none; }
+  .buscador-inicial .pub-main { min-height: 0; }
+  .buscador-con-resultados .results-layout { animation: none !important; }
+  .buscador-con-resultados .search-form-container { transition: none !important; }
 }
