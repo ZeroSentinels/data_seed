@@ -1260,6 +1260,7 @@ class BuscadorPublicaApp {
     // volver a animarlo sería un salto sin motivo.
     document.body.classList.remove('buscador-inicial');
     document.body.classList.add('buscador-con-resultados');
+    this.anclarCajaBusqueda();
 
     // Aplicar filtros y renderizar
     this.aplicarFiltrosYRenderizar();
@@ -1268,6 +1269,38 @@ class BuscadorPublicaApp {
     if (window.innerWidth < 768 && this.dom.filterBar) {
       this.dom.filterBar.scrollIntoView({ behavior: 'smooth' });
     }
+  }
+
+  /**
+   * Deja la caja de búsqueda pegada justo debajo del header, a la altura del
+   * rótulo "Buscador de licitaciones públicas", y le pone sombra sólo cuando
+   * de verdad hay scroll.
+   *
+   * El desplazamiento se mide del header real en vez de dejarlo fijo en CSS:
+   * el header cambia de alto entre escritorio y móvil, y un valor a ojo
+   * dejaría la caja tapada o flotando con un hueco.
+   */
+  anclarCajaBusqueda() {
+    if (this.anclajeListo) return;
+    this.anclajeListo = true;
+
+    const header = document.querySelector('.pub-header');
+    const caja = this.dom.searchInput ? this.dom.searchInput.closest('.search-form-container') : null;
+    if (!header || !caja) return;
+
+    const ajustar = () => {
+      caja.style.top = header.getBoundingClientRect().height + 'px';
+    };
+    ajustar();
+    window.addEventListener('resize', ajustar);
+
+    // La sombra sólo cuando la página está desplazada: fija, sobre contenido
+    // que no scrollea, lee como un error de capas.
+    const alScroll = () => {
+      document.body.classList.toggle('hay-scroll', window.scrollY > 8);
+    };
+    alScroll();
+    window.addEventListener('scroll', alScroll, { passive: true });
   }
 
   // texto/solo_abiertas/region los aplica el backend (Sección 4-bis). El único
