@@ -51,6 +51,15 @@
         Buscador de licitaciones públicas
       </div>
 
+      <!-- Hueco donde la caja de busqueda SE MUEVE tras la primera busqueda.
+           Vive dentro del <header> a proposito: el header ya es full-bleed y ya
+           es sticky, asi que la caja hereda las dos cosas y queda fundida con
+           el header en una sola barra continua, sin fondo ni sombra propios.
+           La version anterior la dejaba en .pub-main con sticky y fondo
+           propios: se veia como un panel flotante de 1140px con bordes, que no
+           llegaba a los lados de la pantalla. -->
+      <div class="pub-header-search" id="headerSearchSlot"></div>
+
       <button class="pub-theme-toggle" type="button" id="themeToggle" aria-label="Cambiar a tema oscuro" aria-pressed="false">
         <span class="moon" aria-hidden="true">☾</span><span class="sun" aria-hidden="true">☀</span>
       </button>
@@ -62,15 +71,6 @@
        ============================================================ -->
   <main class="pub-main" role="main">
 
-    <!-- Centinela del hero. Va ANTES del hero y a propósito: marca dónde
-         empieza el contenido, y su posición NO depende del alto del hero.
-         El JS observa cuándo cruza el borde inferior del header para decidir
-         si el hero va compacto o desplegado. Medirlo con un umbral de
-         window.scrollY en vez de esto oscila: al compactarse el hero pierde
-         ~90px de alto, el documento se acorta, scrollY vuelve a cruzar el
-         umbral al revés y el hero alterna sin parar. El centinela no se
-         mueve cuando el hero cambia de alto, así que no puede oscilar. -->
-    <div id="heroSentinel" class="hero-sentinel" aria-hidden="true"></div>
 
     <!-- 6.1 BARRA DE BÚSQUEDA (Caja ancha, centrada, con autofocus) -->
     <section class="search-hero" aria-labelledby="search-heading">

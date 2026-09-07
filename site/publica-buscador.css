@@ -339,14 +339,53 @@ html[data-theme="light"] .pub-theme-toggle .sun { display: inline; }
   transform: scale(0.98);
 }
 
-/* Centinela del hero: marca donde empieza el contenido para el observador que
-   decide si el hero va compacto. 1px y no 0 a proposito -- un rect de area cero
-   es un caso borde de IntersectionObserver que no vale la pena apostar. No
-   ocupa lugar visible ni recibe foco. */
-.hero-sentinel {
-  height: 1px;
-  margin-bottom: -1px;
-  pointer-events: none;
+/* --- la caja de busqueda DENTRO del header ------------------------------- */
+/* Hueco vacio y sin espacio hasta que el JS le mete la caja. `flex: 1` para
+   que se coma todo el ancho que quede libre en la fila del header: el pedido
+   era que ocupara todo el espacio horizontal, no que quedara una cajita
+   centrada. `min-width: 0` porque un hijo flex con un <input> adentro no se
+   deja encoger por debajo de su ancho intrinseco sin esto, y desbordaria la
+   fila en pantallas medianas. */
+.pub-header-search {
+  display: none;
+}
+
+.buscador-con-resultados .pub-header-search {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Dentro del header la caja no lleva tope de ancho: el tope de 780px es para
+   el estado inicial, donde esta centrada en una pagina vacia. Aca tiene que
+   estirarse. */
+.buscador-con-resultados .pub-header-search .search-form-container {
+  max-width: none;
+}
+
+/* Mas baja y mas discreta que en el estado inicial: es cromo de barra, no el
+   elemento principal de la pagina. Sin sombra propia -- la sombra era parte de
+   lo que la hacia leer como un panel aparte. */
+.buscador-con-resultados .pub-header-search .search-form {
+  padding: 0.15rem 0.15rem 0.15rem 0.9rem;
+  box-shadow: none;
+}
+
+.buscador-con-resultados .pub-header-search .search-input {
+  font-size: 0.95rem;
+  padding: 0.45rem 0;
+}
+
+.buscador-con-resultados .pub-header-search .btn-search {
+  padding: 0.5rem 1.15rem;
+  font-size: 0.88rem;
+}
+
+/* El rotulo "Buscador de licitaciones publicas" se va con resultados en
+   pantalla: es el ancho que necesita la caja, y con resultados ya es obvio en
+   que pagina esta el usuario. */
+.buscador-con-resultados .pub-header-tag {
+  display: none;
 }
 
 /* Sugerencias contextuales */
@@ -1887,6 +1926,30 @@ body.modal-open {
   min-height: 78vh;
 }
 
+/* Con resultados el hero ya no ocupa lugar, asi que los 2,5rem de aire de
+   arriba dejaban un hueco muerto entre el header y la barra de filtros.
+   [MEDIDO 2026-09-07] antes de esto la primera tarjeta de resultado recien
+   aparecia en y=495 de una pantalla de 760px de alto. */
+.buscador-con-resultados .pub-main {
+  padding-top: 1rem;
+  gap: 1.25rem;
+}
+
+/* En pantalla chica el header pasa a dos filas: la caja no cabe al lado de la
+   marca y del interruptor de tema sin quedar de 120px. `flex-wrap` mas
+   `flex-basis: 100%` la bajan a una fila propia, de ancho completo, y el header
+   sigue siendo una sola barra continua -- solo mas alta. */
+@media (max-width: 1024px) {
+  .buscador-con-resultados .pub-header-inner {
+    flex-wrap: wrap;
+    row-gap: 0.6rem;
+  }
+  .buscador-con-resultados .pub-header-search {
+    flex-basis: 100%;
+    order: 3;
+  }
+}
+
 /* El titulo se encoge; el subtitulo y las sugerencias se colapsan por altura.
    font-size y max-height se dejan SIN transicion: son las mismas propiedades de
    layout que no animan en este navegador, y una transicion declarada que no
@@ -1924,74 +1987,33 @@ body.modal-open {
   pointer-events: none;
 }
 
-/* --- 2-bis. la caja de busqueda se pega bajo el header ------------------ */
-/* Tras buscar, la caja se pega debajo del header, a la altura del rotulo
-   "Buscador de licitaciones publicas": asi no desaparece al hacer scroll y una
-   segunda busqueda no obliga a volver arriba. Al volver al tope de la pagina
-   se despega y el hero recupera su presentacion completa.
+/* --- 2-bis. con resultados, el hero desaparece --------------------------- */
+/* El hero YA NO se pega ni se pinta: la caja de busqueda se muda dentro del
+   <header> (ver anclarCajaBusqueda() en el JS) y el header entero hace de barra
+   pegada. Aca solo queda sacar el hero de en medio.
 
-   TODO ESTE BLOQUE ES SOLO DE ESCRITORIO (min-width: 1025px), y esa es la
-   razon de que este envuelto en un @media en vez de anularse despues para
-   pantalla chica. Anularlo obligaba a repetir valores: el titulo compacto se
-   devolvia con `clamp(1.8rem, 3.5vw, 2.5rem)` = 28,8px, pisando el 1,7rem =
-   27,2px que la seccion de pantalla chica ya define para ese titulo. Un valor
-   escrito dos veces se desincroniza en el primer cambio. Declarando el efecto
-   solo donde aplica, pantalla chica conserva sus reglas sin que nadie las
-   contradiga. En pantalla chica el hero pegado se comeria una franja de una
-   pantalla que ya es corta, y el lateral tampoco es columna ahi.
+   QUE HABIA ANTES Y POR QUE SE FUE (2026-09-07): el hero se quedaba en
+   `.pub-main` con `position: sticky`, fondo con blur, sombra y `top` igual al
+   alto del header. Resultado medido: un panel flotante limitado a los 1140px
+   de `.pub-main` -- sin llegar a los lados de la pantalla -- separado del
+   header por su propia sombra y por 72px de aire. Se leia como una caja
+   pegoteada encima del contenido, no como parte del encabezado. Encoger la
+   tipografia no lo arreglaba porque el problema era estructural: la caja
+   estaba en el contenedor equivocado.
 
-   [MEDIDO 2026-09-07, sobre el sitio ya desplegado] la version anterior de
-   esta separacion NO funcionaba: las reglas de pantalla chica vivian ~800
-   lineas ANTES de las del sticky, con la misma especificidad (0,2,0), y un
-   @media no aporta especificidad. Con especificidad empatada decide el orden
-   de fuente, asi que el sticky ganaba y a 375px el sitio reportaba
-   position:sticky y backdrop-filter:blur(12px) cuando el @media pedia static y
-   none. Emparentado con la leccion 5.6 del traspaso: ahi un selector que no
-   matchea falla callado; aca una regla que SI matchea pierde, igual de
-   callada, y ninguna herramienta lo avisa. */
-@media (min-width: 1025px) {
-  /* El sticky se declara UNA vez y no se conmuta nunca. Alternar
-     position:sticky <-> static segun el scroll saca al hero del flujo y lo
-     devuelve, y el salto es de una altura de bloque entero. Estando siempre
-     sticky, cuando la pagina esta en el tope el hero ya esta en su posicion
-     natural: se ve despegado sin que nadie toque el position.
-
-     El sticky va en el HERO COMPLETO, no en la caja sola.
-     [MEDIDO 2026-09-07] con position:sticky en .search-form-container la caja
-     se despegaba y volvia a irse a los ~150px de scroll: sticky solo funciona
-     DENTRO del alto de su padre, y .search-hero colapsa a ese alto en el
-     estado con resultados. El padre del hero es .pub-main, que si es alto, asi
-     que el hero entero puede quedarse pegado todo el scroll. */
-  .buscador-con-resultados .search-hero {
-    position: sticky;
-    /* El JS lo sobrescribe con el alto real del header. Este valor es el
-       respaldo por si el JS no corre. */
-    top: 68px;
-    z-index: 40;
-    /* El color de partida es el MISMO del estado compacto con alfa 0, no
-       `transparent`. `transparent` es negro con alfa 0: al interpolar hacia un
-       color claro puede pasar por gris sucio segun como el navegador mezcle el
-       alfa. Partiendo del mismo color, la transicion solo mueve el alfa y el
-       resultado no depende de eso. */
-    background: rgb(from var(--bg) r g b / 0);
-    transition: box-shadow 0.25s ease, background-color 0.25s ease;
-  }
-
-  /* El titulo/subtitulo/sugerencias YA se encogieron mas arriba, colgados de
-     .buscador-con-resultados sin importar el scroll (ver la nota junto a
-     `overflow: hidden` de esas tres reglas). Aca solo queda lo que SI depende
-     de estar desplazado: el fondo con blur y la sombra.
-
-     Fondo con blur y sombra SOLO cuando esta pegado bajo el header: ahi las
-     tarjetas pasan por debajo y tienen que leerse como "debajo", no atravesar
-     el titulo. En el tope nada pasa por detras, y un panel opaco con sombra
-     sobre contenido que no scrollea lee como error de capas. */
-  .buscador-con-resultados.hero-compacto .search-hero {
-    background: rgb(from var(--bg) r g b / 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 6px 18px rgb(from var(--g) r g b / 0.10);
-  }
+   El hero se oculta pero NO con `display: none`: el <h1> de la pagina vive
+   dentro. Se usa el patron de solo-lectores-de-pantalla para que el titulo
+   siga en el DOM y en el arbol de accesibilidad -- y que la pagina no quede
+   sin h1 -- ocupando cero pixeles. */
+.buscador-con-resultados .search-hero {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* --- 3-bis. el bloque de resultados entra sin salto -------------------- */
