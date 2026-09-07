@@ -62,6 +62,16 @@
        ============================================================ -->
   <main class="pub-main" role="main">
 
+    <!-- Centinela del hero. Va ANTES del hero y a propósito: marca dónde
+         empieza el contenido, y su posición NO depende del alto del hero.
+         El JS observa cuándo cruza el borde inferior del header para decidir
+         si el hero va compacto o desplegado. Medirlo con un umbral de
+         window.scrollY en vez de esto oscila: al compactarse el hero pierde
+         ~90px de alto, el documento se acorta, scrollY vuelve a cruzar el
+         umbral al revés y el hero alterna sin parar. El centinela no se
+         mueve cuando el hero cambia de alto, así que no puede oscilar. -->
+    <div id="heroSentinel" class="hero-sentinel" aria-hidden="true"></div>
+
     <!-- 6.1 BARRA DE BÚSQUEDA (Caja ancha, centrada, con autofocus) -->
     <section class="search-hero" aria-labelledby="search-heading">
       <h1 id="search-heading" class="search-hero-title">
@@ -94,7 +104,6 @@
             Buscar
           </button>
         </form>
-        <p class="search-sample-note">Muestra fija de ejemplo — la búsqueda real la resuelve el servidor</p>
       </div>
 
       <!-- Sugerencias contextuales -->

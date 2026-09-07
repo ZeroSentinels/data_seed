@@ -339,12 +339,14 @@ html[data-theme="light"] .pub-theme-toggle .sun { display: inline; }
   transform: scale(0.98);
 }
 
-.search-sample-note {
-  margin-top: 0.65rem;
-  font-size: 0.8125rem;
-  color: var(--muted);
-  text-align: center;
-  font-style: normal;
+/* Centinela del hero: marca donde empieza el contenido para el observador que
+   decide si el hero va compacto. 1px y no 0 a proposito -- un rect de area cero
+   es un caso borde de IntersectionObserver que no vale la pena apostar. No
+   ocupa lugar visible ni recibe foco. */
+.hero-sentinel {
+  height: 1px;
+  margin-bottom: -1px;
+  pointer-events: none;
 }
 
 /* Sugerencias contextuales */
@@ -1103,13 +1105,10 @@ html[data-theme="light"] .filter-select {
     max-height: none;
     overflow-y: visible;
   }
-  .buscador-con-resultados .search-hero {
-    position: static;
-    background: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
-  }
+  /* El hero pegado NO se anula aca. Ya no hace falta: el efecto entero se
+     declara solo para escritorio, en un @media (min-width: 1025px). Ver el
+     bloque "2-bis. la caja de busqueda se pega bajo el header", que explica
+     por que se declara donde aplica en vez de anularse despues. */
 }
 
 .sidebar-inner {
@@ -1898,50 +1897,88 @@ body.modal-open {
   overflow: hidden;
 }
 
-.buscador-con-resultados .search-hero-title {
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
-}
+/* --- 2-bis. la caja de busqueda se pega bajo el header ------------------ */
+/* Tras buscar, la caja se pega debajo del header, a la altura del rotulo
+   "Buscador de licitaciones publicas": asi no desaparece al hacer scroll y una
+   segunda busqueda no obliga a volver arriba. Al volver al tope de la pagina
+   se despega y el hero recupera su presentacion completa.
 
-.buscador-con-resultados .search-hero-subtitle,
-.buscador-con-resultados .search-suggestions {
-  max-height: 0;
-  margin: 0;
-}
+   TODO ESTE BLOQUE ES SOLO DE ESCRITORIO (min-width: 1025px), y esa es la
+   razon de que este envuelto en un @media en vez de anularse despues para
+   pantalla chica. Anularlo obligaba a repetir valores: el titulo compacto se
+   devolvia con `clamp(1.8rem, 3.5vw, 2.5rem)` = 28,8px, pisando el 1,7rem =
+   27,2px que la seccion de pantalla chica ya define para ese titulo. Un valor
+   escrito dos veces se desincroniza en el primer cambio. Declarando el efecto
+   solo donde aplica, pantalla chica conserva sus reglas sin que nadie las
+   contradiga. En pantalla chica el hero pegado se comeria una franja de una
+   pantalla que ya es corta, y el lateral tampoco es columna ahi.
 
-.buscador-con-resultados .search-suggestions {
-  pointer-events: none;
-}
+   [MEDIDO 2026-09-07, sobre el sitio ya desplegado] la version anterior de
+   esta separacion NO funcionaba: las reglas de pantalla chica vivian ~800
+   lineas ANTES de las del sticky, con la misma especificidad (0,2,0), y un
+   @media no aporta especificidad. Con especificidad empatada decide el orden
+   de fuente, asi que el sticky ganaba y a 375px el sitio reportaba
+   position:sticky y backdrop-filter:blur(12px) cuando el @media pedia static y
+   none. Emparentado con la leccion 5.6 del traspaso: ahi un selector que no
+   matchea falla callado; aca una regla que SI matchea pierde, igual de
+   callada, y ninguna herramienta lo avisa. */
+@media (min-width: 1025px) {
+  /* El sticky se declara UNA vez y no se conmuta nunca. Alternar
+     position:sticky <-> static segun el scroll saca al hero del flujo y lo
+     devuelve, y el salto es de una altura de bloque entero. Estando siempre
+     sticky, cuando la pagina esta en el tope el hero ya esta en su posicion
+     natural: se ve despegado sin que nadie toque el position.
 
-/* --- 2-bis. la caja de busqueda sube al header y se queda --------------- */
-/* Tras la primera busqueda la caja se pega debajo del header, a la altura del
-   rotulo "Buscador de licitaciones publicas". Asi no desaparece al hacer
-   scroll y una segunda busqueda no obliga a volver arriba.
-   El top se calcula desde el alto real del header (padding 0.9rem x2 + 32px
-   del logo = ~4rem). */
-/* El sticky va en el HERO COMPLETO, no en la caja sola.
-   [MEDIDO 2026-09-07] con position:sticky en .search-form-container la caja se
-   despegaba y volvia a irse a los ~150px de scroll: sticky solo funciona
-   DENTRO del alto de su padre, y .search-hero colapsa a ese alto en el estado
-   con resultados. El padre del hero es .pub-main, que si es alto, asi que el
-   hero entero puede quedarse pegado todo el scroll. */
-.buscador-con-resultados .search-hero {
-  position: sticky;
-  /* El JS lo sobrescribe con el alto real del header. Este valor es el
-     respaldo por si el JS no corre. */
-  top: 68px;
-  z-index: 40;
-  /* Fondo con blur: las tarjetas pasan por debajo y tienen que leerse como
-     "debajo", no atravesar el titulo. */
-  background: rgb(from var(--bg) r g b / 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: box-shadow 0.25s ease;
-}
+     El sticky va en el HERO COMPLETO, no en la caja sola.
+     [MEDIDO 2026-09-07] con position:sticky en .search-form-container la caja
+     se despegaba y volvia a irse a los ~150px de scroll: sticky solo funciona
+     DENTRO del alto de su padre, y .search-hero colapsa a ese alto en el
+     estado con resultados. El padre del hero es .pub-main, que si es alto, asi
+     que el hero entero puede quedarse pegado todo el scroll. */
+  .buscador-con-resultados .search-hero {
+    position: sticky;
+    /* El JS lo sobrescribe con el alto real del header. Este valor es el
+       respaldo por si el JS no corre. */
+    top: 68px;
+    z-index: 40;
+    /* El color de partida es el MISMO del estado compacto con alfa 0, no
+       `transparent`. `transparent` es negro con alfa 0: al interpolar hacia un
+       color claro puede pasar por gris sucio segun como el navegador mezcle el
+       alfa. Partiendo del mismo color, la transicion solo mueve el alfa y el
+       resultado no depende de eso. */
+    background: rgb(from var(--bg) r g b / 0);
+    transition: box-shadow 0.25s ease, background-color 0.25s ease;
+  }
 
-/* Sombra solo cuando de verdad esta despegada: fija, sobre contenido que no
-   scrollea, lee como error de capas. */
-.buscador-con-resultados.hay-scroll .search-hero {
-  box-shadow: 0 6px 18px rgb(from var(--g) r g b / 0.10);
+  /* El encogido NO cuelga de "hay resultados", cuelga de "la pagina esta
+     desplazada" (.hero-compacto, que pone el JS con el centinela). Antes
+     colgaba de .buscador-con-resultados, asi que tras la primera busqueda el
+     hero se quedaba compacto PARA SIEMPRE: al volver al tope seguia chico, sin
+     titulo ni sugerencias, y no habia forma de recuperarlo salvo recargar. */
+  .buscador-con-resultados.hero-compacto .search-hero-title {
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+  }
+
+  .buscador-con-resultados.hero-compacto .search-hero-subtitle,
+  .buscador-con-resultados.hero-compacto .search-suggestions {
+    max-height: 0;
+    margin: 0;
+  }
+
+  .buscador-con-resultados.hero-compacto .search-suggestions {
+    pointer-events: none;
+  }
+
+  /* Fondo con blur y sombra SOLO cuando esta pegado bajo el header: ahi las
+     tarjetas pasan por debajo y tienen que leerse como "debajo", no atravesar
+     el titulo. En el tope nada pasa por detras, y un panel opaco con sombra
+     sobre contenido que no scrollea lee como error de capas. */
+  .buscador-con-resultados.hero-compacto .search-hero {
+    background: rgb(from var(--bg) r g b / 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 6px 18px rgb(from var(--g) r g b / 0.10);
+  }
 }
 
 /* --- 3-bis. el bloque de resultados entra sin salto -------------------- */
