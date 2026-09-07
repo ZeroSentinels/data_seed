@@ -100,6 +100,11 @@ está construido.**
 - **Sin jerga interna.** La palabra *"masticado"* llegó del nombre de una sección
   de la spec y terminó en la interfaz del cliente **y en nombres de clase CSS**
   (41 ocurrencias). Se dice *"detalle de la licitación"* e *"ítems solicitados"*.
+  > **Costó cuatro pasadas**, porque las tres primeras reemplazaron *las formas
+  > que uno recuerda* — quedaron `masticada` (femenino), `Masticados`
+  > (capitalizado) y `MASTICADO` (mayúscula sostenida). Para sacar una palabra:
+  > barrido **insensible a mayúsculas** y verificar que quede en cero. Adivinar
+  > flexiones no es un método.
 - **Registro profesional.** Es una herramienta de trabajo para alguien que
   decide si presenta una oferta, no una app de consumo.
 
@@ -165,6 +170,23 @@ layout o de `transform`.
 `requestAnimationFrame` entregue frames.** `getComputedStyle` sobre una pestaña
 oculta no dice nada.
 
+### 5.2-bis `position: sticky` está limitado por el alto de su padre
+
+`[MEDIDO 2026-09-07]` La caja de búsqueda se despegaba y volvía a irse a los
+~150 px de scroll. Causa: el sticky estaba en `.search-form-container`, que vive
+en `.search-hero`, y **un elemento sticky sólo se queda pegado mientras su padre
+está en pantalla**. El hero colapsa a ~150 px en el estado con resultados, así
+que ése era todo el recorrido disponible.
+
+**El sticky va en `.search-hero` completo**, cuyo padre `.pub-main` sí es alto.
+Si mañana hay que pegar otra cosa, la pregunta es siempre: *¿qué tan alto es el
+padre?*
+
+Los desplazamientos (`top`) los **mide el JS** de los elementos reales
+(`anclarCajaBusqueda()`), no están fijos en CSS: header y hero cambian de alto
+entre escritorio y móvil, y un valor a ojo deja el lateral tapado o flotando.
+Los valores del CSS son sólo el respaldo por si el JS no corre.
+
 ### 5.3 Respeto por `prefers-reduced-motion`
 
 Todo el movimiento se apaga. El movimiento es una ayuda, no un requisito, y para
@@ -175,9 +197,20 @@ bloque `@media (prefers-reduced-motion: reduce)`.
 
 ## 6. Lateral de métricas
 
-`position: sticky` con scroll propio y **barra oculta** en Firefox, Edge y
-WebKit. Ocultar la barra **no** quita la capacidad de desplazarse: rueda, teclado
-y gesto táctil siguen funcionando.
+`position: sticky` en el `<aside>`, y el **scroll dentro de `.sidebar-inner`** —
+la tarjeta — no en el `<aside>` que la contiene.
+
+`[MEDIDO 2026-09-07]` Con el `overflow` en el `<aside>`, el recorte caía sobre la
+tarjeta y le cortaba **el borde y las esquinas redondeadas arriba y abajo**: se
+veía como contenido tajeado, no como una tarjeta con scroll. Scrolleando por
+dentro, el marco queda quieto y sólo se mueve el contenido.
+
+**Barra oculta** en Firefox, Edge y WebKit. Ocultarla **no** quita la capacidad
+de desplazarse: rueda, teclado y gesto táctil siguen funcionando.
+
+El `max-height` lo calcula el JS del viewport disponible y **se re-mide tras cada
+render**: el lateral se reemplaza entero en cada búsqueda, así que un
+`max-height` puesto una sola vez queda apuntando a un elemento que ya no existe.
 
 Bajo 1024 px el lateral vuelve a fluir con el contenido: fijarlo ahí lo dejaría
 como una ventana diminuta con scroll, peor que dejarlo largo.
