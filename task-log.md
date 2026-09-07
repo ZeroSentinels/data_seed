@@ -7,6 +7,13 @@
 
 <!-- ENTRADAS -->
 
+## 2026-09-07 01:04 -03 (America/Santiago)
+- **Solicitud:** Daniel: "¿qué pasó con el cronjob, por qué se rompió?" (Daily Operations).
+- **Resultado:** Diagnóstico (solo lectura): el scheduler y los jobs están vivos (jobs.json OK; Auto-provision corre cada 10 min sin errores). El job 2073a6cc3d6e (Daily Operations) FALLÓ el 2026-09-05 05:00 -04 y el 2026-09-06 05:00 -03 (script exit 1, ❌ ROJO) en la fase de Resumen diario: `github_api_commit ERROR: GitHub API GET .../task-log.md?ref=feat/task-tracking-system failed HTTP 404`. Consecuencia: sin resumen → sin reportes por áreas/Drive/correo esos 2 días; task-log preservado (3 entradas del 2026-09-04 siguen sin procesar). El 404 era transitorio: verificado AHORA materializando task-log.md OK. Grafo del 6: fetch remoto falló (403 "Write access not granted") pero se regeneró con refs locales (⚠️ no bloqueante, diseño resiliente). El job corre 08:00 y 09:00 UTC (cubre 05:00 local con -04 y -03); la corrida que no cae en 05:00 local sale "silent" (esperado).
+- **Estado:** completada. (diagnóstico; monitoreo pendiente de la corrida 05:00 de hoy)
+- **Verificación:** outputs del job 5-6 (script failed, mismo 404); logs técnicos daily-operations-20260905/0605; materialización exitosa del task-log remoto al momento del diagnóstico; task-log remoto con 3 entradas del 04 acumuladas (14:19, 15:06, 15:25).
+- **Pendientes:** observar corrida 2026-09-07 05:00 -03 (08:00 UTC): si el 404 reaparece, revisar estado del GITHUB_TOKEN en Agent Vault (rotado el 03). Opcional: corregir auth del fetch remoto del grafo (usa refs locales).
+
 ## 2026-09-04 15:25 -04 (America/Santiago)
 - **Solicitud:** Daniel (audio) reporta que el preview del buscador de Pública (preview/buscador-licitaciones) "se ve mal, rústico, sin la configuración visual" y "nada está funcional", a diferencia de su versión local.
 - **Resultado:** Diagnóstico: el preview servía el HTML (200) pero TODOS los assets daban 404 (`/publica-buscador.css`, `/publica-buscador.js`, JSON de ejemplo, iconos) porque `publica-buscador.html` usaba rutas RELATIVAS (`publica-buscador.css`, `assets/…`) y Vercel lo sirve en `/publica-buscador` (rewrite), resolviendo a la raíz donde no existen; el resto del sitio usa rutas absolutas `/site/…` (verificado contra `site/publica.html`). Fix aplicado al branch (sin tocar main): rutas absolutas `/site/` en `publica-buscador.html` (5 refs: css, js, favicon, icono x2) y en `publica-buscador.js` (2 fetches a JSON de ejemplo). Commit `9326219` publicado en `preview/buscador-licitaciones`.
