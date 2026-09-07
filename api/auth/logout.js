@@ -1,4 +1,5 @@
 import { AuthorizationError } from './_lib/authorization.js';
+import { logAuthFailure } from './_lib/diagnostics.js';
 import {
   ACCESS_COOKIE,
   REFRESH_COOKIE,
@@ -42,7 +43,9 @@ export function createLogoutHandler({
       try {
         ({ accessToken } = await authenticate(req, { env }));
       } catch (error) {
-        if (!(error instanceof AuthorizationError)) providerFailed = true;
+        const failed = !(error instanceof AuthorizationError);
+        logAuthFailure('logout_authenticate', error, { providerFailed: failed });
+        if (failed) providerFailed = true;
       }
     }
 
@@ -51,9 +54,10 @@ export function createLogoutHandler({
         const session = await refresh(refreshToken, { env });
         accessToken = session.access_token;
       } catch (error) {
-        if (!(error instanceof SupabaseRequestError) || ![400, 401].includes(error.status)) {
-          providerFailed = true;
-        }
+        const failed = !(error instanceof SupabaseRequestError)
+          || ![400, 401].includes(error.status);
+        logAuthFailure('logout_refresh', error, { providerFailed: failed });
+        if (failed) providerFailed = true;
       }
     }
 
@@ -62,14 +66,18 @@ export function createLogoutHandler({
         await revoke(accessToken, { env });
       } catch (error) {
         const expired = error instanceof SupabaseRequestError && [400, 401].includes(error.status);
+        // Acá el fallo significa que el token sigue vivo en el proveedor: es el
+        // 503 que el usuario ve como "no pudimos confirmar la revocación remota".
+        logAuthFailure('logout_revoke', error, { expired, retrying: expired && Boolean(refreshToken) });
         if (expired && refreshToken) {
           try {
             const session = await refresh(refreshToken, { env });
             await revoke(session.access_token, { env });
           } catch (retryError) {
-            if (!(retryError instanceof SupabaseRequestError) || ![400, 401].includes(retryError.status)) {
-              providerFailed = true;
-            }
+            const failed = !(retryError instanceof SupabaseRequestError)
+              || ![400, 401].includes(retryError.status);
+            logAuthFailure('logout_revoke_retry', retryError, { providerFailed: failed });
+            if (failed) providerFailed = true;
           }
         } else {
           providerFailed = true;

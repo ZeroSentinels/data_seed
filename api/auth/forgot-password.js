@@ -7,6 +7,7 @@ import {
   sendJson,
 } from './_lib/http.js';
 import { SupabaseRequestError, sendPasswordRecovery } from './_lib/supabase.js';
+import { logAuthFailure } from './_lib/diagnostics.js';
 
 export const config = { runtime: 'nodejs' };
 
@@ -34,6 +35,7 @@ export function createForgotPasswordHandler({
     try {
       await recover(email, redirectTo, { env });
     } catch (error) {
+      logAuthFailure('password_recovery', error);
       if (!(error instanceof SupabaseRequestError) || error.status >= 500) {
         return sendJson(res, 503, {
           error: 'No pudimos procesar la solicitud. Intenta nuevamente.',
