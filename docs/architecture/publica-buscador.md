@@ -4,25 +4,34 @@ Documento de diseño de la pantalla `/publica-buscador` y de los dos endpoints q
 la alimentan. Es la fuente de verdad del contrato: si el código y este documento
 discrepan, se corrigen los dos en el mismo PR.
 
-**Estado `[MEDIDO 2026-09-06]`:** los dos endpoints están **construidos y en
-producción** en `mp-api` (VPS), con las sondas del contrato en verde — ver
-`ops/mp-api/README.md`. El motor de búsqueda de tres capas también está
-implementado: `docs/architecture/publica-buscador-motor.md`.
+**Estado `[MEDIDO 2026-09-07]`: FUNCIONANDO DE PUNTA A PUNTA.** La cadena
+completa está cerrada y verificada por el camino público:
 
-**Lo que sigue pendiente, y por qué el preview público puede seguir mostrando
-datos de ejemplo:**
+```
+navegador → Vercel /api/buscar → api.dataseed.cl → mp-api → DuckDB
+```
 
-1. **Falta `MP_API_KEY` en las variables de entorno de Vercel.** Sin ella,
-   `api/buscar.js` y `api/licitacion/[codigo].js` devuelven `500` — el buscador
-   se ve roto en el navegador aunque el backend esté sano. El valor vive en
-   `/docker/mp-api/.env` del VPS (600); no se imprime acá.
-2. **Los PR que traen el backend y el motor todavía no están mergeados** a esta
-   rama — revisar PRs abiertos del repo antes de asumir que lo de abajo ya está
-   en `preview/buscador-licitaciones`.
+Comprobado sobre el deployment real, no en local ni contra la IP interna:
 
-Hasta que los dos pasos anteriores se completen, nadie debe mostrar el preview
-público como si consultara datos en vivo — el backend existe, pero el camino
-completo (Vercel → `mp-api`) no está cerrado todavía.
+| Comprobación | Resultado |
+|---|---|
+| `POST /api/buscar` con `"limpieza"` | **200**, `total: 157` — el número exacto del motor de tres capas |
+| Primer resultado | *"CONVENIO DE TOALLA PEROXIDO DE LIMPIEZA"*, cierre 2026-09-16 |
+| Regla del hueco (§2) en vivo | `visibilidad_monto: false` con `monto_estimado_clp: null` |
+| `GET /api/buscar` | 405 — es POST-only, correcto |
+| `/publica-buscador` y su JS | 200 |
+| Deploy desde push | `success` — *"Deployment has completed"* |
+
+`MP_API_KEY` está configurada en Vercel; el endpoint devuelve datos reales de
+Mercado Público, no los `datos-ejemplo*.json`.
+
+Los dos endpoints corren en `mp-api` (VPS) con las sondas del contrato en verde
+— ver `ops/mp-api/README.md`. El motor de búsqueda de tres capas está
+implementado y medido: `docs/architecture/publica-buscador-motor.md`.
+
+**Lo único que falta:** activar la protección de rama, que recién ahora es
+posible (ver `CONTRIBUTING.md`). Sin ella nada impide un push directo a la rama
+compartida.
 
 ---
 
@@ -413,9 +422,3 @@ sitio estático o a las funciones. Ya se rompió una vez, al agregar
   (`html[data-theme="light"]`), aplicado antes del primer paint. El buscador
   soporta los dos con el mismo mecanismo. Medir el tema con el navegador en una
   sola condición de visita **no** es medir el CSS.
-
-<!-- prueba de webhook Vercel 2026-09-06 -->
-
-<!-- verificacion webhook post-retorno a cuenta personal 2026-09-06 -->
-
-<!-- verificacion final: repo publico 2026-09-06 -->
