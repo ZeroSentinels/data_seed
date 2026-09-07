@@ -4,10 +4,34 @@ Documento de diseño de la pantalla `/publica-buscador` y de los dos endpoints q
 la alimentan. Es la fuente de verdad del contrato: si el código y este documento
 discrepan, se corrigen los dos en el mismo PR.
 
-**Estado:** el preview de la rama sirve **datos de ejemplo estáticos**
-(`site/publica-buscador-datos-ejemplo*.json`). Los endpoints reales están
-especificados acá y **todavía no construidos**. Hasta que lo estén, nadie debe
-mostrar esta pantalla como si consultara datos en vivo.
+**Estado `[MEDIDO 2026-09-07]`: FUNCIONANDO DE PUNTA A PUNTA.** La cadena
+completa está cerrada y verificada por el camino público:
+
+```
+navegador → Vercel /api/buscar → api.dataseed.cl → mp-api → DuckDB
+```
+
+Comprobado sobre el deployment real, no en local ni contra la IP interna:
+
+| Comprobación | Resultado |
+|---|---|
+| `POST /api/buscar` con `"limpieza"` | **200**, `total: 157` — el número exacto del motor de tres capas |
+| Primer resultado | *"CONVENIO DE TOALLA PEROXIDO DE LIMPIEZA"*, cierre 2026-09-16 |
+| Regla del hueco (§2) en vivo | `visibilidad_monto: false` con `monto_estimado_clp: null` |
+| `GET /api/buscar` | 405 — es POST-only, correcto |
+| `/publica-buscador` y su JS | 200 |
+| Deploy desde push | `success` — *"Deployment has completed"* |
+
+`MP_API_KEY` está configurada en Vercel; el endpoint devuelve datos reales de
+Mercado Público, no los `datos-ejemplo*.json`.
+
+Los dos endpoints corren en `mp-api` (VPS) con las sondas del contrato en verde
+— ver `ops/mp-api/README.md`. El motor de búsqueda de tres capas está
+implementado y medido: `docs/architecture/publica-buscador-motor.md`.
+
+**Lo único que falta:** activar la protección de rama, que recién ahora es
+posible (ver `CONTRIBUTING.md`). Sin ella nada impide un push directo a la rama
+compartida.
 
 ---
 

@@ -1,19 +1,46 @@
 # Cómo se trabaja en este repositorio
 
-Este repositorio es **privado** (pasó de público a privado el 2026-09-05) y
-despliega solo: lo que entra a una rama de larga vida lo publica Vercel sin que
-nadie apriete nada. Con más de un equipo tocando las mismas ramas, las reglas de
-abajo son el único punto donde alguien mira antes de que algo salga a internet.
+Este repositorio es **público**, vive en `contacto101/data_seed`, y despliega
+solo: lo que entra a una rama de larga vida lo publica Vercel sin que nadie
+apriete nada. Con más de un equipo tocando las mismas ramas, las reglas de abajo
+son el único punto donde alguien mira antes de que algo salga a internet.
 
-**Al ser privado, el secret scanning gratuito de GitHub ya no corre.** Esa red
-existía sólo mientras el repo era público. `scripts/ci/scan-secrets.sh` (§2) pasó
-de ser una capa extra a ser la única.
+**Por ser público, todo lo que se sube es visible.** Rige el barrido de
+`scripts/ci/scan-secrets.sh` (§2) **y** el *secret scanning* gratuito de GitHub,
+que sólo corre en repos públicos. Son dos capas, no una — pero ninguna sustituye
+mirar el propio `git diff` antes de empujar.
 
-**Pendiente de verificar tras la migración a organización:** la integración de
-Vercel con GitHub postea un check (`Vercel`) sobre cada commit — así se entera
-hoy del push. Mover el repo a una organización nueva puede exigir re-vincular esa
-integración. Revisarlo apenas la organización esté lista, **antes** de asumir que
-el deploy automático sigue funcionando: la falla, si ocurre, es silenciosa.
+> ### Por qué es público, y no una decisión estética
+>
+> `[MEDIDO 2026-09-06 al 09-07]` El repositorio pasó por cuatro estados en dos
+> días — público → privado → organización `dataseed-cl` → cuenta personal →
+> público otra vez. Cada paso destapó un bloqueo de plan que no se puede
+> esquivar con configuración:
+>
+> | Estado | Qué se rompió | Evidencia |
+> |---|---|---|
+> | privado en organización | **Vercel no despliega.** `POST /projects/{id}/link` → `409 repo_owned_by_org`: *"private and owned by an organization, which is not supported on the Hobby plan"* | API de Vercel |
+> | privado en cuenta personal | **Vercel tampoco despliega.** El deployment se creó y quedó en estado `BLOCKED`, no `ERROR`: se frena antes de compilar | `v6/deployments` → `BLOCKED` |
+> | privado, cualquier dueño | **Branch protection no se aplica.** GitHub sólo hace cumplir *rulesets* en repos privados con plan Pro o superior | la propia UI de GitHub |
+> | **público** | **nada** — deploy en verde y *rulesets* aplicables | `state: success`, *"Deployment has completed"* |
+>
+> Volver a público resolvió **los dos bloqueos a la vez y sin pagar nada**. Las
+> alternativas medidas eran Vercel Pro (~USD 20/mes) para el deploy **más**
+> GitHub Team (~USD 4/asiento/mes, 6 asientos) para la protección de ramas.
+>
+> **Si en algún momento se vuelve a privatizar, los dos bloqueos vuelven.** La
+> salida sin costo sería separar en dos repos: éste público con `site/`, `api/`
+> y `tests/`, y uno privado aparte con `docs/operations/`, `backups/` y
+> `scripts/ops/`.
+
+**Trampa ya pagada, para no repetirla:** al mover el repositorio entre dueños,
+la integración de Vercel **no sigue el redirect de GitHub**. El proyecto quedó
+con `link: {org: "contacto101"}` apuntando a un path que ya no existía, y
+**dejó de recibir eventos en silencio** — el sitio seguía arriba sirviendo el
+último deployment, así que nada parecía roto. Se detectó recién al ver que los
+commits no tenían ningún status de Vercel. Tras cualquier cambio de dueño o de
+visibilidad: empujar un commit de prueba y confirmar que aparece el check
+`Vercel`, antes de asumir que el deploy automático funciona.
 
 `AGENTS.md` describe cómo opera el agente Demeter. Este documento describe cómo
 trabajan las personas. Cuando discrepen, manda éste para personas.
@@ -51,13 +78,31 @@ la regla **en el PR** y se explica por qué; no se saltea.
 las dependencias npm que el equipo agregue. Sus PRs pasan por la misma compuerta
 que cualquier otro.
 
-> Configurar en GitHub, una sola vez, **con una cuenta que tenga `Admin` sobre el
-> repositorio** (hoy ninguna cuenta activa lo tiene — ver nota de la organización
-> más arriba): Settings → Branches → regla de protección para `main` y
-> `preview/*` con *Require a pull request* y *Require status checks to pass*,
-> marcando los tres trabajos de CI **y el check `Vercel`** (o como se llame tras
-> la re-vinculación) — un PR cuyo preview no compila tampoco debería mergear.
-> **Sin esta configuración, este archivo es una sugerencia, no una compuerta.**
+> ### PENDIENTE — activar la compuerta
+>
+> **`[2026-09-07]` Ahora que el repositorio es público, esto YA SE PUEDE
+> aplicar** — GitHub hace cumplir *rulesets* gratis en repos públicos. Estuvo
+> bloqueado mientras fue privado; ya no lo está.
+>
+> Configurar una sola vez, con una cuenta que tenga `Admin` sobre el repositorio
+> (`contacto101` lo tiene por ser el dueño): Settings → Branches → regla de
+> protección para `main` y `preview/*` con *Require a pull request* y *Require
+> status checks to pass*, marcando los cuatro trabajos de CI **y el check
+> `Vercel`** — un PR cuyo preview no compila tampoco debería mergear.
+>
+> Nombres exactos de los checks:
+> ```
+> Sintaxis y pruebas (22)
+> Sintaxis y pruebas (24)
+> Barrido de secretos y de nombres de infraestructura
+> Fin de linea normalizado
+> Vercel
+> ```
+>
+> **Hasta que se configure, este archivo es una sugerencia, no una compuerta.**
+> El CI corre en cada push a `preview/**` y a `main`, no sólo en PRs: si alguien
+> empuja directo, el check queda rojo y registrado, pero **no bloquea nada**. Es
+> detección, no prevención.
 
 ## 3. Antes de abrir el PR
 

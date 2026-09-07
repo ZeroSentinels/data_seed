@@ -221,11 +221,34 @@ prueba nada.
 
 ---
 
-## 8. Decisiones abiertas
+## 8. Decisiones — estado real `[2026-09-06]`
 
-1. **§5.1: opción A o B.** Es la única que tiene costo operativo real.
-2. **¿`via` se muestra en la interfaz?** Mi inclinación: sí, discreto — un
-   resultado inferido por rubro no es lo mismo que una coincidencia literal.
-3. **Paginación.** Hoy el frontend pide 50 y no pagina: con `total: 2255` el
-   usuario ve 50 y no hay forma de ver el resto. El endpoint ya soporta `desde`.
-   Es independiente de este motor, pero se nota más cuanto mejor busca.
+1. **§5.1: resuelta, opción B.** Implementada en `ops/mp-api/construir_indice.py`
+   y enganchada a `mp-sync.sh`. La base de búsqueda vive en el mismo volumen que
+   `mp-api` ya monta; no se recrea ni reinicia ningún contenedor, nunca.
+   Verificado escondiendo el archivo a propósito: el buscador degrada a texto,
+   lo declara con severidad alta en `meta.limitaciones` y en
+   `/health.indice = "ausente"`, y se recupera solo al devolver el archivo.
+
+2. **`via` en la interfaz: implementado en el backend, pendiente en el
+   frontend.** Cada resultado ya trae `via: ["fts"|"rubro"|"texto"]`. Falta el
+   cambio de UI para mostrarlo — no toca el backend.
+
+3. **Paginación: sigue abierta, sin cambios.** El endpoint soporta `desde`; el
+   frontend sigue pidiendo `limite: 50` fijo, sin control para pedir la
+   siguiente página.
+
+4. **La latencia real, medida y corregida.** El primer despliegue del motor dio
+   **p95 = 4.523 ms** — muy por encima del objetivo. La causa:
+   `strip_accents(lower(descripcion))` calculado en caliente sobre las 98.000
+   filas en cada búsqueda, 805 de los ~830 ms. Se corrigió precomputando esas
+   columnas en `construir_indice.py`. **p95 final: 168 ms**, sondas M-2..M-6 en
+   verde. Ver `ops/mp-api/verificar_motor.py`.
+
+5. **Sinónimos fuera de UNSPSC y errores de tipeo: deliberadamente sin
+   construir.** `aseo` no encuentra `limpieza` por significado, sólo por
+   taxonomía oficial. Resolverlo exige embeddings — modelo del orden de 500 MB,
+   sin salida a internet en el contenedor hoy, y re-embeber en cada sync. Es
+   una decisión de otro tamaño: necesita su propio SDD, no una sección acá.
+   `damerau_levenshtein` y `jaro_winkler_similarity` están disponibles en
+   DuckDB sin usar, como capa 4 de menor costo si se prioriza.
