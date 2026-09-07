@@ -297,6 +297,47 @@ function formatearFechaLarga(fechaStr) {
 }
 
 /**
+ * Formatea meta.actualizado_en (ISO en UTC) como hora local de Chile.
+ *
+ * Es DISTINTO de as_of y hay que decirlo: as_of es hasta qué día hay
+ * licitaciones publicadas; actualizado_en es cuándo corrió la ingesta.
+ * [MEDIDO 2026-09-07] a las 09:53 de Chile, as_of decía 2026-09-04 mientras la
+ * ingesta había corrido esa misma madrugada — correcto como cobertura de datos,
+ * engañoso si se lo presenta como "última actualización".
+ *
+ * La zona se fija a America/Santiago a propósito: el usuario es chileno, y usar
+ * la del navegador haría que el mismo dato se lea distinto según dónde esté.
+ */
+function formatearActualizacion(isoUtc) {
+  if (!isoUtc) return '';
+  const d = new Date(isoUtc);
+  if (isNaN(d.getTime())) return '';
+  try {
+    return d.toLocaleString('es-CL', {
+      timeZone: 'America/Santiago',
+      day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
+    });
+  } catch (_e) {
+    return d.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
+  }
+}
+
+/**
+ * "hace X" a partir de un ISO en UTC. Sin librerías.
+ */
+function haceCuanto(isoUtc) {
+  if (!isoUtc) return '';
+  const ms = Date.now() - new Date(isoUtc).getTime();
+  if (isNaN(ms) || ms < 0) return '';
+  const min = Math.floor(ms / 60000);
+  if (min < 60) return `hace ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `hace ${h} ${h === 1 ? 'hora' : 'horas'}`;
+  const d = Math.floor(h / 24);
+  return `hace ${d} ${d === 1 ? 'día' : 'días'}`;
+}
+
+/**
  * Calcula la diferencia en días entre la fecha de cierre y la fecha de corte as_of.
  * Reglas exactas de la spec:
  * - Más de 7 días: gris
@@ -1086,7 +1127,16 @@ class BuscadorPublicaApp {
       this.totalServidor = resp.total || 0;
 
       if (this.dom.footerAsOfDate && this.meta.as_of) {
-        this.dom.footerAsOfDate.textContent = formatearFechaLarga(this.meta.as_of);
+        // Dos datos distintos, dichos por separado: hasta cuándo llegan las
+        // licitaciones, y cuándo se trajeron por última vez.
+        let txt = formatearFechaLarga(this.meta.as_of);
+        const act = formatearActualizacion(this.meta.actualizado_en);
+        if (act) {
+          const hace = haceCuanto(this.meta.actualizado_en);
+          txt += ` · última sincronización: ${act}${hace ? ` (${hace})` : ''}`;
+          if (this.meta.ingesta_cada) txt += ` · ${this.meta.ingesta_cada}`;
+        }
+        this.dom.footerAsOfDate.textContent = txt;
       }
       this.renderizarLimitacionesFooter();
     } catch (err) {
@@ -1489,6 +1539,8 @@ if (typeof module !== 'undefined' && module.exports) {
     generarHtmlTarjeta,
     formatearFechaCorta,
     formatearFechaLarga,
+    formatearActualizacion,
+    haceCuanto,
     evaluarCierre,
     formatearMonto,
     formatearReferenciaHistorica,
