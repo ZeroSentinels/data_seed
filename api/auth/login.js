@@ -56,8 +56,11 @@ export function createLoginHandler({
       logAuthFailure('resolve_identity', error);
       try {
         await revoke(session.access_token, { env });
-      } catch {
-        // The browser never receives this failed provider session.
+      } catch (revokeError) {
+        // The browser never receives this failed provider session, pero el token
+        // sigue vivo en Supabase hasta expirar para un usuario ya rechazado:
+        // el operador necesita saberlo para forzar la revocación.
+        logAuthFailure('revoke_after_reject', revokeError);
       }
       if (error instanceof AuthorizationError) {
         return sendJson(res, error.status, {

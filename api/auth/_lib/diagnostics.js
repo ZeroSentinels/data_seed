@@ -11,19 +11,25 @@
 const RESERVED_KEYS = new Set(['event', 'stage', 'name', 'code', 'status']);
 
 export function logAuthFailure(stage, error, extra = {}) {
-  const record = {
-    event: 'auth_failure',
-    stage: typeof stage === 'string' ? stage : 'unknown',
-    name: error?.name || 'Error',
-    code: error?.code || 'unknown',
-    status: Number.isInteger(error?.status) ? error.status : null,
-  };
-  for (const [key, value] of Object.entries(extra)) {
-    if (RESERVED_KEYS.has(key)) continue;
-    if (typeof value === 'number' && Number.isFinite(value)) record[key] = value;
-    else if (typeof value === 'boolean') record[key] = value;
-  }
+  // Todo va dentro del try, incluido el recorrido de `extra`. Si el bucle
+  // quedara afuera, un `extra` nulo o con un getter que lanza haría que esta
+  // función rompiera el flujo de autenticación desde dentro de un catch, y el
+  // endpoint devolvería 500 en vez del 401/403 previsto.
   try {
+    const record = {
+      event: 'auth_failure',
+      stage: typeof stage === 'string' ? stage : 'unknown',
+      name: error?.name || 'Error',
+      code: error?.code || 'unknown',
+      status: Number.isInteger(error?.status) ? error.status : null,
+    };
+    if (extra && typeof extra === 'object') {
+      for (const [key, value] of Object.entries(extra)) {
+        if (RESERVED_KEYS.has(key)) continue;
+        if (typeof value === 'number' && Number.isFinite(value)) record[key] = value;
+        else if (typeof value === 'boolean') record[key] = value;
+      }
+    }
     console.error(JSON.stringify(record));
   } catch {
     // El log no debe romper el flujo de autenticación.
