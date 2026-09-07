@@ -932,7 +932,7 @@ function renderizarMetricasLateral(metricas, meta) {
 // 10. DETALLE MASTICADO EN MODAL (Sección 4-bis.2)
 // =========================================================================
 /**
- * Renderiza los datos digeridos para el modal de inspección masticada
+ * Renderiza los datos digeridos para el modal de detalle de la licitación
  */
 function renderizarModalDetalle(codigo, item, detalle, fechaBase = '2026-09-03') {
   const nombre = normalizarTextoVisual(item ? item.nombre : '');
