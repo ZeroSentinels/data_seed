@@ -1,0 +1,32 @@
+# Sincronizacion de Mercado Publico: bulk historico (0 hits) + API del dia en curso.
+#
+# ZONA HORARIA: las horas son UTC. [MEDIDO 2026-08-21, re-verificado 2026-09-07]
+# el cron de Ubuntu (3.0pl1) NO soporta CRON_TZ -- cero menciones en su manual,
+# es una extension de cronie -- asi que poner CRON_TZ aca es inerte. Chile es
+# UTC-3 en verano (sep-abr) y UTC-4 en invierno, de modo que cada corrida se
+# corre una hora dos veces al ano; la grilla se elige para que eso no rompa nada.
+#
+# POR QUE EN HORARIO HABIL Y NO SOLO DE MADRUGADA: [MEDIDO 2026-09-07] la corrida
+# de las 04:00 Chile traia +2, +32, +755 filas; la de las 16:00 traia +1.101,
+# +34.439, +71.973. Se publica durante el dia laboral: una ingesta nocturna no
+# tiene nada nuevo que traer y deja el dia en curso vacio hasta la madrugada
+# siguiente. Medido ese dia a las 09:53 Chile: 0 licitaciones con fecha de hoy.
+#
+# VENTANA PROHIBIDA: no se descarga entre las 12:00 y 14:00 de Chile, cuando
+# ChileCompra regenera los archivos bulk (restriccion heredada del 2026-08-21).
+# En UTC esa ventana es 15:00-17:00 en verano y 16:00-18:00 en invierno, asi que
+# se evita el tramo 15:00-18:00 UTC completo. De ahi el hueco entre las 14:00 y
+# las 19:00 UTC: no es un olvido, es la ventana.
+#
+# CUOTA: la API de ChileCompra da 10.000 hits/dia por ticket (D-013) y cada
+# corrida consume ~1.500 (medido: cuota_restante ~8.450 tras la primera). Cuatro
+# corridas = ~6.000, deja ~40% de margen. NO subir la frecuencia sin volver a
+# medir el consumo por corrida.
+#
+#   UTC    Chile verano (UTC-3)   Chile invierno (UTC-4)
+#   11:00        08:00                   07:00
+#   14:00        11:00                   10:00
+#   19:00        16:00                   15:00
+#   22:00        19:00                   18:00
+0 11,14,19,22 * * * /usr/local/bin/mp-sync.sh
+*/10 * * * * /usr/local/bin/poc-watchdog.sh

@@ -111,8 +111,14 @@ def _as_of():
     disparo por 18 filas: el umbral estaba mal puesto y ademas sobre el dia
     equivocado.
     """
-    r = ALM.una("select max(fecha_publicacion) f from licitacion")
+    r = ALM.una("select max(fecha_publicacion) f, max(_ingerido_en) i from licitacion")
     as_of = _fecha(r["f"]) if r and r["f"] else None
+    # Instante real de la ultima escritura, en UTC y con hora. as_of es una FECHA
+    # (el ultimo dia con licitaciones publicadas) y no sirve para decirle al
+    # usuario "actualizado hace X": el 2026-09-07 a las 09:53 de Chile as_of
+    # decia 2026-09-04 -- correcto como cobertura de datos, inutil como senal de
+    # frescura del sistema. Son dos cosas distintas y viajan por separado.
+    actualizado = r["i"].isoformat() + "Z" if r and r.get("i") else None
     lims = []
 
     # 1) Atraso: es la senal robusta. Si la ingesta murio, esto crece solo.
@@ -150,14 +156,19 @@ def _as_of():
                     f"en los dias previos. La fuente puede haber fallado."),
                 "severidad": "alta",
             })
-    return as_of, lims
+    return as_of, lims, actualizado
 
 
 def _meta(extra=None):
-    as_of, lims = _as_of()
+    as_of, lims, actualizado = _as_of()
     return {
         "fuente": FUENTE,
         "as_of": as_of,
+        # Cuando corrio la ingesta por ultima vez, en UTC. Distinto de as_of:
+        # as_of = hasta que dia hay licitaciones; actualizado_en = cuando lo
+        # trajimos. El frontend muestra el segundo como "actualizado hace X".
+        "actualizado_en": actualizado,
+        "ingesta_cada": "4 veces al dia en horario habil de Chile",
         "limitaciones": [LIM_COMPRA_AGIL] + lims + list(extra or []),
     }
 
@@ -482,7 +493,7 @@ async def buscar(request):
         return _error(400, "limite y desde deben ser numeros.")
     limite = max(limite, 1)
 
-    as_of, _ = _as_of()
+    as_of, _, _actualizado = _as_of()
     if not as_of:
         return _error(503, "El almacen no esta disponible.")
 
@@ -761,7 +772,7 @@ async def licitacion(request):
 
 async def salud(request):
     try:
-        as_of, lims = _as_of()
+        as_of, lims, actualizado = _as_of()
         # El estado del indice viaja aca para que el vigia lo vea: sin esto,
         # el buscador degradado responde 200 y la degradacion pasa en silencio.
         indice = "ok" if BUS.viva else "ausente"
@@ -769,6 +780,7 @@ async def salud(request):
         if indice != "ok":
             avisos.append(f"indice de busqueda {indice}: {BUS.motivo}")
         return JSONResponse({"ok": True, "as_of": as_of,
+                             "actualizado_en": actualizado,
                              "indice": indice, "avisos": avisos})
     except Exception:
         return JSONResponse({"ok": False}, status_code=503)

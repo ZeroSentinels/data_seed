@@ -286,6 +286,77 @@ Consecuencias, las dos verificadas:
 **No se corrige el dato en origen.** El almacén replica lo que publica
 ChileCompra; limpiarlo ahí sería inventar una precisión que la fuente no tiene.
 
+### 4.1-quater Frescura: `as_of` y `actualizado_en` son dos cosas distintas
+
+`[MEDIDO 2026-09-07]` `meta` lleva **dos** campos de tiempo, y confundirlos
+engaña al usuario:
+
+| campo | qué es | ejemplo |
+|---|---|---|
+| `as_of` | **hasta qué día hay licitaciones publicadas.** Es cobertura de datos | `2026-09-06` |
+| `actualizado_en` | **cuándo corrió la ingesta.** Es frescura del sistema, con hora, en UTC | `2026-09-07T07:02:24Z` |
+
+El 2026-09-07 a las 09:53 de Chile, `as_of` decía **2026-09-04** mientras la
+ingesta había corrido esa misma madrugada. Correcto como cobertura; engañoso si
+se presenta como "última actualización". El pie del buscador muestra los dos por
+separado, y `actualizado_en` se convierte a hora de Chile —
+`America/Santiago` fija, no la del navegador, para que el mismo dato no se lea
+distinto según dónde esté el usuario.
+
+`meta.ingesta_cada` declara la cadencia en texto, para que el usuario sepa
+cuánto puede tardar en aparecer algo nuevo.
+
+#### Con qué frecuencia se actualiza la fuente, medido
+
+Dos fuentes con comportamientos distintos:
+
+| Fuente | Frecuencia real |
+|---|---|
+| **Bulk mensual** (ZIP de ChileCompra) | se rearma a diario **con un día de desfase**. El ZIP del **mes en curso** trae la cabecera y **cero filas**; se llena al cerrar el mes |
+| **API incremental** | trae **el día en curso**. Es la única fuente de datos de hoy |
+
+**El ZIP vacío del mes en curso no es un fallo.** Medido: `2026-8.zip` pesa
+11.364.415 bytes; `2026-9.zip` pesa **870 bytes con 1 sola línea** — es un ZIP
+válido (empieza con `PK`, contiene `lic_2026-9.csv`). El control negativo lo
+confirma: un mes que no existe devuelve **HTTP 404 de 215 bytes**, no un ZIP.
+
+> El chequeo `if n < 100_000` de `bulk.py` lo rechaza diciendo *"esto es la
+> cáscara HTML de su SPA o un error, no datos"*. **Ese diagnóstico es falso** y
+> hacía que el log reportara `FALLO` todos los días de todos los meses.
+> Corregir `bulk.py` exigiría rebuild de la imagen y recrear `mp-mcp`, lo que
+> corta la sesión de WhatsApp de Demeter; se reconoce el caso en `mp-sync.sh`,
+> en el host. La detección cuenta **URLs distintas**, no líneas: el mismo aviso
+> aparece 4 veces en la salida, así que un umbral por cantidad de líneas no
+> distingue nada. Verificado con control positivo (dos meses fallando → sigue
+> siendo `FALLO`) y negativo (sólo el mes en curso → `OK`).
+
+#### Cadencia elegida, y por qué no es de madrugada
+
+`[MEDIDO 2026-09-07]` Delta de filas por corrida:
+
+| corrida | Chile | filas nuevas |
+|---|---|---|
+| 07:00 UTC | 04:00 | **+2, +32, +755, +676** |
+| 19:00 UTC | 16:00 | **+1.101, +34.439, +36.441, +71.973** |
+
+**Una ingesta nocturna no tiene nada nuevo que traer:** se publica durante el día
+laboral. Medido ese día a las 09:53 de Chile, el almacén tenía **0 licitaciones
+con fecha de hoy** porque la única corrida del día había sido a las 04:00.
+
+Cadencia actual: **4 corridas, 11/14/19/22 UTC** = 08/11/16/19 Chile en verano.
+Tres restricciones que la definen:
+
+1. **El cron de Ubuntu (3.0pl1) no soporta `CRON_TZ`** — cero menciones en su
+   manual, es una extensión de cronie. Verificado dos veces (2026-08-21 y
+   2026-09-07). Las horas van en UTC y se corren una hora dos veces al año; la
+   grilla cubre el horario hábil chileno en ambos regímenes.
+2. **Ventana prohibida 12:00–14:00 de Chile**, cuando ChileCompra regenera los
+   bulk. En UTC es 15:00–18:00 contando los dos regímenes — de ahí el hueco
+   entre las 14:00 y las 19:00 UTC. No es un olvido.
+3. **Cuota de 10.000 hits/día** (D-013), ~1.500 por corrida. Cuatro corridas
+   ≈ 6.000, con ~40 % de margen. **No subir la frecuencia sin volver a medir el
+   consumo por corrida.**
+
 ### 4.2 `metricas` — dentro de la misma respuesta
 
 Van en la respuesta de `/api/buscar`, no en un endpoint aparte: son siempre del
