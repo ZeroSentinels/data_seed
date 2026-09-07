@@ -1330,102 +1330,55 @@ class BuscadorPublicaApp {
    * el header cambia de alto entre escritorio y móvil, y un valor a ojo
    * dejaría la caja tapada o flotando con un hueco.
    */
+  /**
+   * Mueve la caja de búsqueda DENTRO del <header> y acota el lateral.
+   *
+   * Se mueve el nodo, no se duplica: dos <input> serían dos estados que hay
+   * que sincronizar, y mover un nodo con appendChild conserva sus listeners y
+   * su valor. El destino vive en el <header>, que ya es de ancho completo y ya
+   * es `position: sticky`, así que la caja hereda las dos cosas y queda como
+   * una sola barra continua con el header.
+   *
+   * POR QUÉ SE MOVIÓ AL HEADER (2026-09-07): antes la caja se quedaba en
+   * `.pub-main` con `position: sticky` y fondo, blur y sombra propios. Eso la
+   * dibujaba como un panel flotante: limitado a los 1140px de `.pub-main` --
+   * o sea sin llegar a los lados de la pantalla -- y con borde y sombra que lo
+   * separaban visiblemente del header en vez de fundirlo con él. Ningún ajuste
+   * de tipografía arregla eso: el problema era de qué elemento la contiene.
+   */
   anclarCajaBusqueda() {
     if (this.anclajeListo) return;
     this.anclajeListo = true;
 
     const header = document.querySelector('.pub-header');
-    const hero = document.querySelector('.search-hero');
+    const hueco = document.getElementById('headerSearchSlot');
+    const caja = document.querySelector('.search-form-container');
     const aside = this.dom.metricsSidebar;
-    if (!header || !hero) return;
 
-    // Los desplazamientos se MIDEN de los elementos reales en vez de fijarlos en
-    // CSS: el header y el hero cambian de alto entre escritorio y móvil, y un
-    // valor a ojo deja el lateral tapado o flotando con un hueco.
+    if (hueco && caja && caja.parentElement !== hueco) {
+      hueco.appendChild(caja);
+    }
+    if (!header) return;
+
+    // El lateral arranca debajo del header y su tarjeta se acota a lo que
+    // sobra de pantalla. Ya NO se suma el alto del hero: el hero desaparece en
+    // el estado con resultados, y sumarlo dejaba el lateral 130px más abajo de
+    // donde corresponde.
     const ajustar = () => {
-      const altoHeader = header.getBoundingClientRect().height;
-      hero.style.top = altoHeader + 'px';
-
-      // El lateral arranca debajo de header + hero, y su tarjeta se acota a lo
-      // que sobra de pantalla. Sin esto el scroll interno queda de un alto
-      // arbitrario y el contenido se ve cortado.
-      if (aside) {
-        const altoHero = hero.getBoundingClientRect().height;
-        const arranque = altoHeader + altoHero + 16;
-        aside.style.top = arranque + 'px';
-        const tarjeta = aside.querySelector('.sidebar-inner');
-        if (tarjeta) {
-          tarjeta.style.maxHeight = Math.max(240, window.innerHeight - arranque - 24) + 'px';
-        }
+      if (!aside) return;
+      const arranque = header.getBoundingClientRect().height + 16;
+      aside.style.top = arranque + 'px';
+      const tarjeta = aside.querySelector('.sidebar-inner');
+      if (tarjeta) {
+        tarjeta.style.maxHeight = Math.max(240, window.innerHeight - arranque - 24) + 'px';
       }
     };
 
     ajustar();
     window.addEventListener('resize', ajustar);
-    // El hero cambia de alto cuando el título se encoge y las sugerencias se
-    // colapsan; sin re-medir, el lateral queda con el desplazamiento viejo.
     if (typeof ResizeObserver === 'function') {
-      new ResizeObserver(ajustar).observe(hero);
-    } else {
-      setTimeout(ajustar, 700);
+      new ResizeObserver(ajustar).observe(header);
     }
-
-    this.vigilarCompactadoDelHero(header);
-  }
-
-  /**
-   * Decide si el hero va compacto (pegado bajo el header, sin subtítulo ni
-   * sugerencias) o desplegado (su presentación completa).
-   *
-   * La regla es: compacto mientras la página esté desplazada, desplegado al
-   * volver al tope. Antes el compacto colgaba de la clase
-   * `buscador-con-resultados`, así que tras la primera búsqueda el hero se
-   * quedaba encogido para siempre y volver arriba no lo recuperaba.
-   *
-   * POR QUÉ UN CENTINELA Y NO UN UMBRAL DE window.scrollY: el hero pierde
-   * ~90px de alto al compactarse. Con un umbral sobre scrollY eso se
-   * retroalimenta — el documento se acorta, el scroll cruza el umbral en
-   * sentido contrario, el hero se despliega, vuelve a crecer, cruza otra vez —
-   * y queda alternando. El centinela está ANTES del hero, así que su posición
-   * no cambia cuando el hero cambia de alto: la señal no puede oscilar.
-   */
-  vigilarCompactadoDelHero(header) {
-    const centinela = document.getElementById('heroSentinel');
-    const compactar = (si) => {
-      document.body.classList.toggle('hero-compacto', si);
-    };
-
-    // Respaldo para navegadores sin IntersectionObserver. Mantiene la
-    // histéresis a mano: se compacta pasados los 140px y se despliega recién
-    // bajo los 40px, para que el cambio de alto del hero no reabra el umbral.
-    if (!centinela || typeof IntersectionObserver !== 'function') {
-      const alScroll = () => {
-        const y = window.scrollY;
-        if (y > 140) compactar(true);
-        else if (y < 40) compactar(false);
-      };
-      alScroll();
-      window.addEventListener('scroll', alScroll, { passive: true });
-      return;
-    }
-
-    // El margen superior negativo mueve la línea de disparo justo al borde
-    // inferior del header: el hero se compacta cuando el contenido empieza a
-    // pasarle por debajo, no antes.
-    let observador = null;
-    const observar = () => {
-      if (observador) observador.disconnect();
-      const altoHeader = Math.round(header.getBoundingClientRect().height);
-      observador = new IntersectionObserver(
-        ([entrada]) => compactar(!entrada.isIntersecting),
-        { rootMargin: `-${altoHeader}px 0px 0px 0px`, threshold: 0 }
-      );
-      observador.observe(centinela);
-    };
-    observar();
-    // El header cambia de alto entre escritorio y móvil; sin re-observar, la
-    // línea de disparo queda en el sitio viejo.
-    window.addEventListener('resize', observar);
   }
 
   // texto/solo_abiertas/region los aplica el backend (Sección 4-bis). El único
