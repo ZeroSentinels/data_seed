@@ -1,5 +1,6 @@
 import { buildSessionCookies } from './_lib/cookies.js';
 import { AuthorizationError, resolveIdentity } from './_lib/authorization.js';
+import { logAuthFailure } from './_lib/diagnostics.js';
 import {
   isSameOriginRequest,
   methodNotAllowed,
@@ -39,6 +40,7 @@ export function createLoginHandler({
     try {
       session = await signIn({ email, password }, { env });
     } catch (error) {
+      logAuthFailure('sign_in', error);
       if (error instanceof SupabaseRequestError && [400, 401].includes(error.status)) {
         return sendJson(res, 401, { error: 'No pudimos iniciar sesión. Revisa tus credenciales.' });
       }
@@ -49,6 +51,9 @@ export function createLoginHandler({
     try {
       identity = await resolve(session.access_token, { providerOptions: { env } });
     } catch (error) {
+      // Etapa crítica al dar de alta la primera cuenta: acá se distingue
+      // "perfil inactivo" de "sin organización" de "Supabase caído".
+      logAuthFailure('resolve_identity', error);
       try {
         await revoke(session.access_token, { env });
       } catch {

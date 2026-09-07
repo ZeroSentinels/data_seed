@@ -1,5 +1,6 @@
 import { AuthorizationError } from './_lib/authorization.js';
 import { clearSessionCookies } from './_lib/cookies.js';
+import { logAuthFailure } from './_lib/diagnostics.js';
 import { methodNotAllowed, sendJson } from './_lib/http.js';
 import { authenticateRequest } from './_lib/session.js';
 
@@ -28,6 +29,7 @@ export function createSessionHandler({
         },
       });
     } catch (error) {
+      logAuthFailure('session_authenticate', error);
       res.setHeader('Set-Cookie', clearCookies());
       if (error instanceof AuthorizationError || error?.status === 401) {
         const status = error.status === 403 ? 403 : 401;
