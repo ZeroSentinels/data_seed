@@ -289,6 +289,56 @@ BUS = Busqueda(os.environ.get("MP_BUSQUEDA", "/data/mp/mp_busqueda.duckdb"),
                os.environ.get("MP_FTS_EXT", "/data/mp/fts.duckdb_extension"))
 
 
+UMBRAL_COMPETENCIA = 10
+
+
+def _competencia(med, n, hay_resultados):
+    """Aplica la regla del umbral del SDD 5.1 a metricas.competencia.
+
+    [BUG 2026-09-07] Buscar 'fermin' devolvia CERO resultados en pantalla y aun
+    asi una tarjeta que decia "2 oferentes mediana, medido sobre 4 licitaciones".
+    Dos fallas encadenadas:
+
+      1. La regla del umbral estaba escrita solo para referencia_historica y
+         nunca se extendio aca. Una "mediana" sobre n=4 -- valores [6,1,2,2] --
+         es precision falsa, exactamente lo que el SDD prohibe.
+      2. Se calculaba aunque el filtro no encontrara nada. Con n=0 en pantalla
+         cualquier metrica es ruido: el usuario ve una estadistica de algo que
+         no esta mirando.
+
+    Ademas el universo NO es "del rubro". Las 4 licitaciones de 'fermin' eran
+    transporte escolar, luminarias y un laboratorio de computacion: coincidian
+    por un nombre propio en el titulo (Liceo Fermin del Real), no por rubro.
+    Por eso 'universo' se redacta sin esa palabra y viaja siempre.
+    """
+    universo = ("licitaciones ya adjudicadas cuyo texto coincide con la misma "
+                "busqueda -- NO son las que se estan mostrando, y no "
+                "necesariamente son del mismo rubro")
+    base = {"oferentes_mediana": None, "n": int(n or 0), "universo": universo}
+
+    if not hay_resultados:
+        # Sin resultados en pantalla no se publica ninguna metrica derivada.
+        base["motivo_sin_dato"] = "la busqueda no devolvio resultados"
+        return base
+    if not n or n < 3:
+        base["motivo_sin_dato"] = (
+            f"solo {int(n or 0)} antecedente(s): son muy pocos para una mediana")
+        return base
+    if n < UMBRAL_COMPETENCIA:
+        # Entre 3 y 9 se informa el dato pero SIN llamarlo mediana: el frontend
+        # tiene que leer 'suficiente_para_mediana' antes de rotular.
+        base["oferentes_mediana"] = float(med) if med is not None else None
+        base["suficiente_para_mediana"] = False
+        base["motivo_sin_dato"] = (
+            f"{int(n)} antecedentes: por debajo de {UMBRAL_COMPETENCIA}, "
+            "no se debe presentar como mediana de mercado")
+        return base
+
+    base["oferentes_mediana"] = float(med) if med is not None else None
+    base["suficiente_para_mediana"] = True
+    return base
+
+
 def _filtros_bus(solo_abiertas, region, as_of):
     """Filtros que no son de texto, sobre licitacion_texto."""
     cond, params = ["1=1"], []
@@ -534,11 +584,7 @@ def _buscar_con_indice(toks, texto, solo_abiertas, region, as_of, limite, desde)
         "cierre": {"en_3_dias": int(m["c3"] or 0), "en_7_dias": c7,
                    "mas_de_7": max(n - c7, 0)},
         "top_organismos": orgs, "top_regiones": regs,
-        "competencia": {
-            "oferentes_mediana": float(comp["med"]) if comp["med"] is not None else None,
-            "n": int(comp["n"] or 0),
-            "universo": ("licitaciones ya adjudicadas que coinciden con la misma "
-                         "busqueda -- NO son las que se estan mostrando")},
+        "competencia": _competencia(comp["med"], comp["n"], n > 0),
     }
 
     return JSONResponse({
@@ -619,12 +665,8 @@ def _buscar_sin_indice(texto, solo_abiertas, region, as_of, limite, desde, aviso
         "cierre": {"en_3_dias": c3, "en_7_dias": c7, "mas_de_7": max(n - c7, 0)},
         "top_organismos": orgs,
         "top_regiones": regs,
-        "competencia": {
-            "oferentes_mediana": float(comp["med"]) if comp and comp["med"] is not None else None,
-            "n": int(comp["n"] or 0) if comp else 0,
-            "universo": ("licitaciones ya adjudicadas que coinciden con la misma "
-                         "busqueda -- NO son las que se estan mostrando"),
-        },
+        "competencia": _competencia(comp["med"] if comp else None,
+                                    comp["n"] if comp else 0, n > 0),
     }
 
     return JSONResponse({

@@ -186,6 +186,52 @@ frontend **está obligado a imprimirlo junto al número**. Si no se puede mostra
 así, se saca la métrica: un número de competencia mal atribuido es peor que
 ninguno.
 
+> **`[BUG 2026-09-07]` La regla del umbral también aplica acá — y no aplicaba.**
+> Un usuario buscó **`fermin`**, una palabra sin significado de rubro. La pantalla
+> mostró **cero resultados** y aun así una tarjeta que decía:
+>
+> > *"2 oferentes mediana — Medido sobre 4 licitaciones del rubro (n = 4)"*
+>
+> Tres cosas mal, encadenadas:
+>
+> 1. **La regla del umbral (§5.1) estaba escrita sólo para
+>    `referencia_historica` y nunca se extendió a `competencia`.** Una "mediana"
+>    sobre `n = 4` — valores `[6, 1, 2, 2]` — es la misma **precisión falsa** que
+>    el documento prohíbe explícitamente unas secciones más abajo.
+> 2. **Se calculaba aunque el filtro no devolviera nada.** Su universo ignora
+>    `solo_abiertas` a propósito, pero no verificaba que la búsqueda hubiera
+>    encontrado algo. Con `n = 0` en pantalla, cualquier métrica derivada es ruido.
+> 3. **"del rubro" era literalmente falso.** Las 4 licitaciones eran transporte
+>    escolar, luminarias ornamentales y un laboratorio de computación: coincidían
+>    por el nombre propio *"Liceo Fermín del Real"* en el título, no por rubro.
+>    **El backend nunca dijo "rubro" — esa palabra la agregaba el frontend.**
+>
+> **Contrato corregido.** `competencia` ahora emite:
+>
+> ```jsonc
+> "competencia": {
+>   "oferentes_mediana": 2.0,          // null si no alcanza el umbral
+>   "n": 4,
+>   "universo": "licitaciones ya adjudicadas cuyo texto coincide con la misma
+>                busqueda -- NO son las que se estan mostrando, y no
+>                necesariamente son del mismo rubro",
+>   "suficiente_para_mediana": false,  // el frontend NO decide el rotulo: lo lee
+>   "motivo_sin_dato": "4 antecedentes: por debajo de 10, no se debe
+>                       presentar como mediana de mercado"
+> }
+> ```
+>
+> | tramo | qué emite |
+> |---|---|
+> | sin resultados en pantalla | `oferentes_mediana: null` + motivo |
+> | `n < 3` | `null` + *"son muy pocos para una mediana"* |
+> | `3 ≤ n < 10` | el valor, con **`suficiente_para_mediana: false`** |
+> | `n ≥ 10` | el valor, con `suficiente_para_mediana: true` |
+>
+> **El frontend está obligado a leer `suficiente_para_mediana` antes de escribir
+> la palabra "mediana", y a no inventar "del rubro".** Verificado con los cinco
+> tramos y seis invariantes: `ops/mp-api/probar_umbral.py`.
+
 ### 4.1-bis Cómo se calcula `meta.as_of`, y por qué no se le pregunta a la ingesta
 
 `[MEDIDO 2026-09-05]` **La tabla `ingesta_log` no es una fuente de verdad sobre
