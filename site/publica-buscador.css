@@ -1834,43 +1834,44 @@ body.modal-open {
    requisito, y para quien lo desactivo es una molestia. */
 
 /* --- 1. el hero: centrado al inicio, arriba tras buscar ---------------- */
-/* [MEDIDO 2026-09-07, dos veces] Tres cosas que NO se pueden animar aca, y las
-   tres producian el corte brusco:
-     1. justify-content es DISCRETA: no interpola. Queda fija en flex-start y el
-        centrado inicial se hace con padding-top.
-     2. Una transicion que ARRANCA en calc() no interpola: min-height y
-        padding-top quedaban clavados en el valor de partida (480px y 88px
-        medidos) aunque la clase ya hubiera cambiado. Es el mismo defecto que
-        tuvo la transicion de opacity. Se usan unidades planas (vh, rem).
-     3. min-height tampoco se anima: el desplazamiento lo da padding-top solo,
-        que alcanza para el efecto y es una sola propiedad que interpola bien. */
+/* [MEDIDO 2026-09-07, tres intentos] NO se usan transiciones de layout aca.
+   Se probo con min-height, con padding y con unidades planas en vez de calc(),
+   y en las tres el navegador dejaba la transicion en playState "running" con
+   currentTime = 0 PARA SIEMPRE: el reloj nunca arranca y el valor se queda en
+   el de partida. Verificado desactivando la transicion, con lo que el valor
+   correcto aparece al instante -- la regla CSS gana bien, la transicion es la
+   que no corre.
+
+   Se usa transform, que se compone en GPU, no dispara layout y siempre
+   interpola. Es ademas lo correcto para mover un bloque: animar padding o
+   min-height obliga al navegador a recalcular layout en cada frame. */
+
 .search-hero {
   justify-content: flex-start;
-  transition: padding-top 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-              padding-bottom 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-              gap 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Estado inicial: ocupa el alto util y queda centrado. El calc descuenta el
-   header pegajoso y el pie para que no aparezca scroll de entrada. */
-.buscador-inicial .search-hero {
-  padding: 20vh 0 2rem;
-  gap: 1.75rem;
-}
-
-/* Tras la primera busqueda el hero se compacta y sube. */
-.buscador-con-resultados .search-hero {
-  padding: 0.5rem 0 0.5rem;
+  padding: 0.5rem 0;
   gap: 0.75rem;
+  transform: translateY(0);
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* El titulo y el subtitulo se encogen en vez de desaparecer de golpe:
-   desaparecer produce un salto que se lee como error de carga. */
+/* Estado inicial: el hero se empuja hacia abajo para quedar a media pantalla.
+   transform no ocupa espacio en el flujo, asi que el empujon no genera scroll;
+   el alto util lo reserva el <main>. */
+.buscador-inicial .search-hero {
+  transform: translateY(18vh);
+}
+
+.buscador-inicial .pub-main {
+  min-height: 78vh;
+}
+
+/* El titulo se encoge; el subtitulo y las sugerencias se colapsan por altura.
+   font-size y max-height se dejan SIN transicion: son las mismas propiedades de
+   layout que no animan en este navegador, y una transicion declarada que no
+   corre solo confunde a quien lea el CSS despues. */
 .search-hero-title,
-.search-hero-subtitle {
-  transition: font-size 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-              max-height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-              margin 0.45s ease;
+.search-hero-subtitle,
+.search-suggestions {
   overflow: hidden;
 }
 
@@ -1878,26 +1879,13 @@ body.modal-open {
   font-size: clamp(1.1rem, 2vw, 1.4rem);
 }
 
-/* Se colapsa por altura, NO por opacidad. [MEDIDO 2026-09-07 en el preview] al
-   transicionar opacity y max-height juntas, la de opacity queda colgada: el
-   getAnimations() del elemento reporta una transicion 'running' que nunca
-   termina y el computed opacity se queda en 1 indefinidamente. El colapso de
-   altura oculta igual (offsetHeight = 0), asi que se usa solo eso: una regla
-   que no surte efecto es peor que no escribirla. */
-.buscador-con-resultados .search-hero-subtitle {
-  max-height: 0;
-  margin: 0;
-}
-
-/* Las sugerencias sobran una vez que hay resultados. */
-.search-suggestions {
-  transition: max-height 0.4s ease, margin 0.4s ease;
-  overflow: hidden;
-}
-
+.buscador-con-resultados .search-hero-subtitle,
 .buscador-con-resultados .search-suggestions {
   max-height: 0;
   margin: 0;
+}
+
+.buscador-con-resultados .search-suggestions {
   pointer-events: none;
 }
 
@@ -2010,9 +1998,6 @@ body.modal-open {
 /* --- respeto por quien desactivo el movimiento ------------------------- */
 @media (prefers-reduced-motion: reduce) {
   .search-hero,
-  .search-hero-title,
-  .search-hero-subtitle,
-  .search-suggestions,
   .tender-card,
   .results-count-row,
   .metrics-sidebar > * {
@@ -2020,7 +2005,8 @@ body.modal-open {
     animation: none !important;
   }
   .buscador-cargando .search-form::after { animation: none; }
-  .buscador-inicial .search-hero { padding: 1.5rem 0 1rem; }
+  .buscador-inicial .search-hero { transform: none; }
+  .buscador-inicial .pub-main { min-height: 0; }
   .buscador-con-resultados .results-layout { animation: none !important; }
   .buscador-con-resultados .search-form-container { transition: none !important; }
 }
