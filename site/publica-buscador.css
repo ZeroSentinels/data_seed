@@ -1830,7 +1830,6 @@ body.modal-open {
 .search-hero-title,
 .search-hero-subtitle {
   transition: font-size 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-              opacity 0.35s ease,
               max-height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
               margin 0.45s ease;
   overflow: hidden;
@@ -1840,20 +1839,24 @@ body.modal-open {
   font-size: clamp(1.1rem, 2vw, 1.4rem);
 }
 
+/* Se colapsa por altura, NO por opacidad. [MEDIDO 2026-09-07 en el preview] al
+   transicionar opacity y max-height juntas, la de opacity queda colgada: el
+   getAnimations() del elemento reporta una transicion 'running' que nunca
+   termina y el computed opacity se queda en 1 indefinidamente. El colapso de
+   altura oculta igual (offsetHeight = 0), asi que se usa solo eso: una regla
+   que no surte efecto es peor que no escribirla. */
 .buscador-con-resultados .search-hero-subtitle {
-  opacity: 0;
   max-height: 0;
   margin: 0;
 }
 
 /* Las sugerencias sobran una vez que hay resultados. */
 .search-suggestions {
-  transition: opacity 0.3s ease, max-height 0.4s ease, margin 0.4s ease;
+  transition: max-height 0.4s ease, margin 0.4s ease;
   overflow: hidden;
 }
 
 .buscador-con-resultados .search-suggestions {
-  opacity: 0;
   max-height: 0;
   margin: 0;
   pointer-events: none;
