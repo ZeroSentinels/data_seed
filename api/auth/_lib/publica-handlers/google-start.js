@@ -7,9 +7,15 @@
 // Supabase (https://<project-ref>.supabase.co/auth/v1/callback), NO esta
 // URL — Supabase reenvía acá (a redirect_to) después de procesar el login.
 //
+// NO se manda `state`: GoTrue genera el suyo (es el id de la fila que crea en
+// auth.flow_state) y lo valida al volver de Google. Mandar uno propio lo pisa,
+// el /callback de Supabase falla con "OAuth state not found or expired" y,
+// como el redirect_to vive dentro de ese state, cae al Site URL — la portada.
+// Medido el 2026-09-08: dos intentos, dos 400 en auth_logs. La protección CSRF
+// de este flujo es la cookie __Host-pub_oauth_verifier + PKCE, no el state.
+//
 // No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
 // función serverless): lo despacha api/auth/publica-router.js.
-import { randomUUID } from 'node:crypto';
 import { getHeader, methodNotAllowed } from '../http.js';
 import { buildOAuthVerifierCookie } from '../publica-cookies.js';
 import { generateCodeChallenge, generateCodeVerifier } from '../pkce.js';
@@ -36,14 +42,12 @@ export function createGoogleStartHandler({ env = process.env } = {}) {
 
     const verifier = generateCodeVerifier();
     const challenge = generateCodeChallenge(verifier);
-    const state = randomUUID();
 
     const authorizeUrl = new URL(`${supabaseUrl}/auth/v1/authorize`);
     authorizeUrl.searchParams.set('provider', 'google');
     authorizeUrl.searchParams.set('redirect_to', `${origin}/api/auth/publica/google/callback`);
     authorizeUrl.searchParams.set('code_challenge', challenge);
     authorizeUrl.searchParams.set('code_challenge_method', 's256');
-    authorizeUrl.searchParams.set('state', state);
 
     res.setHeader('Cache-Control', 'no-store, max-age=0');
     res.setHeader('Set-Cookie', buildOAuthVerifierCookie(verifier));
