@@ -1,24 +1,25 @@
 // Login por email/password para Pública. Mismo proyecto Supabase que
 // api/auth/login.js, pero sesión completamente independiente: cookies
-// __Host-pub_* propias (ver ../_lib/publica-cookies.js), nunca las
+// __Host-pub_* propias (ver ../publica-cookies.js), nunca las
 // __Host-ds_* del portal general. No modifica api/auth/login.js.
-import { buildSessionCookies } from '../_lib/publica-cookies.js';
-import { AuthorizationError, resolveIdentity } from '../_lib/authorization.js';
-import { ensureOrganizationForUser, ProvisioningError } from '../_lib/publica-provisioning.js';
+//
+// No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
+// función serverless): lo despacha api/auth/publica/[...action].js.
+import { buildSessionCookies } from '../publica-cookies.js';
+import { AuthorizationError, resolveIdentity } from '../authorization.js';
+import { ensureOrganizationForUser, ProvisioningError } from '../publica-provisioning.js';
 import {
   isSameOriginRequest,
   methodNotAllowed,
   normalizeEmail,
   parseRequestBody,
   sendJson,
-} from '../_lib/http.js';
+} from '../http.js';
 import {
   SupabaseRequestError,
   signInWithPassword,
   signOut,
-} from '../_lib/supabase.js';
-
-export const config = { runtime: 'nodejs' };
+} from '../supabase.js';
 
 export function createPublicaLoginHandler({
   env = process.env,

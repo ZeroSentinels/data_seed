@@ -1,18 +1,19 @@
-// Vuelta del login con Google (ver ../google/start.js). Es una navegación
+// Vuelta del login con Google (ver ./google-start.js). Es una navegación
 // del propio Google/Supabase, no un fetch — por eso responde con redirects
 // (302) y no con JSON, incluso en los casos de error.
-import { AuthorizationError, resolveIdentity } from '../../_lib/authorization.js';
+//
+// No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
+// función serverless): lo despacha api/auth/publica/[...action].js.
+import { AuthorizationError, resolveIdentity } from '../authorization.js';
 import {
   OAUTH_VERIFIER_COOKIE,
   buildSessionCookies,
   clearOAuthVerifierCookie,
-} from '../../_lib/publica-cookies.js';
-import { parseCookies } from '../../_lib/cookies.js';
-import { getHeader } from '../../_lib/http.js';
-import { ensureOrganizationForUser, ProvisioningError } from '../../_lib/publica-provisioning.js';
-import { SupabaseRequestError, exchangeOAuthCode, getUser } from '../../_lib/supabase.js';
-
-export const config = { runtime: 'nodejs' };
+} from '../publica-cookies.js';
+import { parseCookies } from '../cookies.js';
+import { getHeader } from '../http.js';
+import { ensureOrganizationForUser, ProvisioningError } from '../publica-provisioning.js';
+import { SupabaseRequestError, exchangeOAuthCode, getUser } from '../supabase.js';
 
 function redirect(res, cookies, location) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');

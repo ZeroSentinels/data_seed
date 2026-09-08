@@ -1,5 +1,8 @@
 // Igual que api/auth/forgot-password.js, pero el link de recuperación vuelve
 // a /publica-login en vez de /site/login.html.
+//
+// No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
+// función serverless): lo despacha api/auth/publica/[...action].js.
 import {
   getHeader,
   isSameOriginRequest,
@@ -7,10 +10,8 @@ import {
   normalizeEmail,
   parseRequestBody,
   sendJson,
-} from '../_lib/http.js';
-import { SupabaseRequestError, sendPasswordRecovery } from '../_lib/supabase.js';
-
-export const config = { runtime: 'nodejs' };
+} from '../http.js';
+import { SupabaseRequestError, sendPasswordRecovery } from '../supabase.js';
 
 const PUBLIC_MESSAGE = 'Si la cuenta existe, enviaremos instrucciones para recuperar el acceso.';
 

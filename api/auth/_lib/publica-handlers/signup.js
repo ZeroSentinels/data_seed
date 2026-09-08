@@ -1,24 +1,25 @@
 // Signup self-serve para Pública (email/password). Regla de negocio
 // confirmada: si es la primera vez, se le crea automáticamente su propia
-// organización con plan 'free' (ver ../_lib/publica-provisioning.js).
+// organización con plan 'free' (ver ../publica-provisioning.js).
 //
 // Si el proyecto de Supabase exige confirmar el correo (config del propio
 // proyecto, no de este código), Supabase no devuelve sesión todavía: se
 // aprovisiona la organización igual, para que quede lista apenas confirme,
 // y se responde pidiendo revisar el correo, sin dejarlo con sesión activa.
-import { buildSessionCookies } from '../_lib/publica-cookies.js';
-import { AuthorizationError, resolveIdentity } from '../_lib/authorization.js';
-import { ensureOrganizationForUser, ProvisioningError } from '../_lib/publica-provisioning.js';
+//
+// No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
+// función serverless): lo despacha api/auth/publica/[...action].js.
+import { buildSessionCookies } from '../publica-cookies.js';
+import { AuthorizationError, resolveIdentity } from '../authorization.js';
+import { ensureOrganizationForUser, ProvisioningError } from '../publica-provisioning.js';
 import {
   isSameOriginRequest,
   methodNotAllowed,
   normalizeEmail,
   parseRequestBody,
   sendJson,
-} from '../_lib/http.js';
-import { SupabaseRequestError, signUpWithPassword } from '../_lib/supabase.js';
-
-export const config = { runtime: 'nodejs' };
+} from '../http.js';
+import { SupabaseRequestError, signUpWithPassword } from '../supabase.js';
 
 function normalizeEmpresa(value) {
   const empresa = String(value || '').trim();
@@ -74,8 +75,8 @@ export function createPublicaSignupHandler({
     // Sin access_token (correo pendiente de confirmar) no hay con qué llamar
     // a la función de aprovisionamiento: necesita el JWT del propio usuario,
     // no admite una clave de privilegios elevados. Queda pendiente para el
-    // primer login exitoso (ver ../publica/login.js), que reintenta esto
-    // mismo de forma idempotente.
+    // primer login exitoso (ver ./login.js), que reintenta esto mismo de
+    // forma idempotente.
     if (!signUpResult.access_token) {
       return sendJson(res, 200, {
         ok: true,

@@ -1,6 +1,6 @@
 // PKCE para el login con Google de Pública, sin supabase-js: Node trae
-// crypto nativo, no agrega dependencias. Ver api/auth/publica/google/start.js
-// y api/auth/publica/google/callback.js.
+// crypto nativo, no agrega dependencias. Ver
+// api/auth/_lib/publica-handlers/google-start.js y ./google-callback.js.
 import { randomBytes, createHash } from 'node:crypto';
 
 function base64url(buffer) {

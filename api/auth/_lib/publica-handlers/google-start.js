@@ -6,12 +6,13 @@
 // El redirect URI que hay que registrar en Google Cloud Console es el de
 // Supabase (https://<project-ref>.supabase.co/auth/v1/callback), NO esta
 // URL — Supabase reenvía acá (a redirect_to) después de procesar el login.
+//
+// No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
+// función serverless): lo despacha api/auth/publica/[...action].js.
 import { randomUUID } from 'node:crypto';
-import { getHeader, methodNotAllowed } from '../../_lib/http.js';
-import { buildOAuthVerifierCookie } from '../../_lib/publica-cookies.js';
-import { generateCodeChallenge, generateCodeVerifier } from '../../_lib/pkce.js';
-
-export const config = { runtime: 'nodejs' };
+import { getHeader, methodNotAllowed } from '../http.js';
+import { buildOAuthVerifierCookie } from '../publica-cookies.js';
+import { generateCodeChallenge, generateCodeVerifier } from '../pkce.js';
 
 function resolveOrigin(req, env) {
   const configured = String(env.APP_ORIGIN || '').replace(/\/$/, '');

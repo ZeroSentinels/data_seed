@@ -1,26 +1,27 @@
 // Logout de la sesión de Pública. Solo toca cookies __Host-pub_* — nunca
 // afecta la sesión de /portal (__Host-ds_*). No modifica api/auth/logout.js.
-import { AuthorizationError } from '../_lib/authorization.js';
+//
+// No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
+// función serverless): lo despacha api/auth/publica/[...action].js.
+import { AuthorizationError } from '../authorization.js';
 import {
   ACCESS_COOKIE,
   REFRESH_COOKIE,
   clearSessionCookies,
-} from '../_lib/publica-cookies.js';
-import { parseCookies } from '../_lib/cookies.js';
+} from '../publica-cookies.js';
+import { parseCookies } from '../cookies.js';
 import {
   getHeader,
   isSameOriginRequest,
   methodNotAllowed,
   sendJson,
-} from '../_lib/http.js';
-import { authenticatePublicaRequest } from '../_lib/publica-session.js';
+} from '../http.js';
+import { authenticatePublicaRequest } from '../publica-session.js';
 import {
   SupabaseRequestError,
   refreshSession,
   signOut,
-} from '../_lib/supabase.js';
-
-export const config = { runtime: 'nodejs' };
+} from '../supabase.js';
 
 export function createPublicaLogoutHandler({
   env = process.env,

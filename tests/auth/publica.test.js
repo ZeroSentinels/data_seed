@@ -4,12 +4,12 @@ import assert from 'node:assert/strict';
 import { AuthorizationError } from '../../api/auth/_lib/authorization.js';
 import { SupabaseRequestError } from '../../api/auth/_lib/supabase.js';
 import { ProvisioningError } from '../../api/auth/_lib/publica-provisioning.js';
-import { createPublicaLoginHandler } from '../../api/auth/publica/login.js';
-import { createPublicaSignupHandler } from '../../api/auth/publica/signup.js';
-import { createPublicaLogoutHandler } from '../../api/auth/publica/logout.js';
-import { createPublicaSessionHandler } from '../../api/auth/publica/session.js';
-import { createGoogleStartHandler } from '../../api/auth/publica/google/start.js';
-import { createGoogleCallbackHandler } from '../../api/auth/publica/google/callback.js';
+import { createPublicaLoginHandler } from '../../api/auth/_lib/publica-handlers/login.js';
+import { createPublicaSignupHandler } from '../../api/auth/_lib/publica-handlers/signup.js';
+import { createPublicaLogoutHandler } from '../../api/auth/_lib/publica-handlers/logout.js';
+import { createPublicaSessionHandler } from '../../api/auth/_lib/publica-handlers/session.js';
+import { createGoogleStartHandler } from '../../api/auth/_lib/publica-handlers/google-start.js';
+import { createGoogleCallbackHandler } from '../../api/auth/_lib/publica-handlers/google-callback.js';
 
 function request(body = {}, overrides = {}) {
   return {
