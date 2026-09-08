@@ -148,3 +148,41 @@ export function signOut(accessToken, options = {}) {
     accessToken,
   });
 }
+
+// --- Añadido para el signup/login independiente de Pública (api/auth/publica/*). ---
+// No modifica ninguna función existente de este archivo.
+
+export function signUpWithPassword(credentials, options = {}) {
+  return request('/auth/v1/signup', {
+    ...options,
+    method: 'POST',
+    body: credentials,
+  });
+}
+
+// Intercambio PKCE del "code" que Supabase reenvía tras el login con Google
+// (ver api/auth/publica/google/callback.js). Documentado en
+// https://supabase.com/docs/guides/auth/server-side/pkce-flow
+export function exchangeOAuthCode(code, codeVerifier, options = {}) {
+  return request('/auth/v1/token?grant_type=pkce', {
+    ...options,
+    method: 'POST',
+    body: { auth_code: code, code_verifier: codeVerifier },
+  });
+}
+
+// Aprovisiona la organización del propio usuario autenticado (self-serve de
+// Pública) llamando a la función `security definer` que crea exactamente una
+// organización + membresía y activa su perfil. Corre con la clave anon + el
+// access_token del propio usuario — nunca con SUPABASE_SERVICE_ROLE_KEY. Ver
+// docs/security/service-role-key-decision.md y
+// supabase/migrations/20260908_publica_self_serve_provisioning.sql.
+export async function provisionSelfServeOrg(accessToken, orgName, options = {}) {
+  const rows = await request('/rest/v1/rpc/provision_self_serve_org', {
+    ...options,
+    method: 'POST',
+    accessToken,
+    body: { org_name: orgName || null },
+  });
+  return Array.isArray(rows) ? rows[0] || null : rows;
+}
