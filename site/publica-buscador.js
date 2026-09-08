@@ -1,7 +1,7 @@
 /**
  * =========================================================================
  * PÚBLICA BY DATASEED — BUSCADOR DE LICITACIONES PÚBLICAS
- * Lógica de búsqueda, renderizado, métricas laterales y detalle masticado
+ * Lógica de búsqueda, renderizado, métricas laterales y detalle de la licitación
  * según SPEC-buscador-publica.md (incluyendo sección 4-bis)
  * =========================================================================
  */
@@ -55,7 +55,7 @@ async function obtenerDetalleLicitacionBackend(codigo) {
 }
 
 /**
- * Obtiene el detalle masticado de una licitación (items + referencia histórica).
+ * Obtiene el detalle de la licitación de una licitación (items + referencia histórica).
  * Cachea por código para no repetir la llamada si el usuario reabre el modal.
  */
 async function obtenerDetalleLicitacion(codigo, cacheDetalles = null) {
@@ -297,6 +297,47 @@ function formatearFechaLarga(fechaStr) {
 }
 
 /**
+ * Formatea meta.actualizado_en (ISO en UTC) como hora local de Chile.
+ *
+ * Es DISTINTO de as_of y hay que decirlo: as_of es hasta qué día hay
+ * licitaciones publicadas; actualizado_en es cuándo corrió la ingesta.
+ * [MEDIDO 2026-09-07] a las 09:53 de Chile, as_of decía 2026-09-04 mientras la
+ * ingesta había corrido esa misma madrugada — correcto como cobertura de datos,
+ * engañoso si se lo presenta como "última actualización".
+ *
+ * La zona se fija a America/Santiago a propósito: el usuario es chileno, y usar
+ * la del navegador haría que el mismo dato se lea distinto según dónde esté.
+ */
+function formatearActualizacion(isoUtc) {
+  if (!isoUtc) return '';
+  const d = new Date(isoUtc);
+  if (isNaN(d.getTime())) return '';
+  try {
+    return d.toLocaleString('es-CL', {
+      timeZone: 'America/Santiago',
+      day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
+    });
+  } catch (_e) {
+    return d.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
+  }
+}
+
+/**
+ * "hace X" a partir de un ISO en UTC. Sin librerías.
+ */
+function haceCuanto(isoUtc) {
+  if (!isoUtc) return '';
+  const ms = Date.now() - new Date(isoUtc).getTime();
+  if (isNaN(ms) || ms < 0) return '';
+  const min = Math.floor(ms / 60000);
+  if (min < 60) return `hace ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `hace ${h} ${h === 1 ? 'hora' : 'horas'}`;
+  const d = Math.floor(h / 24);
+  return `hace ${d} ${d === 1 ? 'día' : 'días'}`;
+}
+
+/**
  * Calcula la diferencia en días entre la fecha de cierre y la fecha de corte as_of.
  * Reglas exactas de la spec:
  * - Más de 7 días: gris
@@ -455,7 +496,7 @@ function formatearReferenciaHistorica(refHistorica) {
           <div class="ref-meta-line">
             <span class="ref-badge-n">${nTexto}</span>
             <span class="ref-badge-alcance">en ${alcanceTexto}</span>
-            ${esBajaCompetencia ? `<span class="ref-badge-low-comp">⚡ Oportunidad: baja competencia (${oferentesPuntual || '1-2 oferentes'})</span>` : ''}
+            ${esBajaCompetencia ? `<span class="ref-badge-low-comp"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg> Oportunidad: baja competencia (${oferentesPuntual || '1-2 oferentes'})</span>` : ''}
           </div>
           <div class="ref-data-row">
             <div class="ref-data-item">
@@ -525,7 +566,7 @@ function formatearReferenciaHistorica(refHistorica) {
         <div class="ref-meta-line">
           <span class="ref-badge-n">${nTexto}</span>
           <span class="ref-badge-alcance">en ${alcanceTexto}</span>
-          ${esBajaCompetencia ? `<span class="ref-badge-low-comp">⚡ Oportunidad: baja competencia (${oferentesMedianaTexto})</span>` : ''}
+          ${esBajaCompetencia ? `<span class="ref-badge-low-comp"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg> Oportunidad: baja competencia (${oferentesMedianaTexto})</span>` : ''}
         </div>
         <div class="ref-data-row">
           <div class="ref-data-item">
@@ -547,16 +588,16 @@ function formatearReferenciaHistorica(refHistorica) {
 }
 
 // =========================================================================
-// 7. ÍTEMS MASTICADOS (Sección 4-bis.2)
+// 7. ÍTEMS SOLICITADOS (Sección 4-bis.2)
 // =========================================================================
 /**
  * Formatea los ítems adquiridos con producto, cantidad, unidad y código UNSPSC.
  */
-function formatearItemsMasticados(items) {
+function formatearItemsDetalle(items) {
   if (!Array.isArray(items) || items.length === 0) {
     return {
       cantidadTotal: 0,
-      htmlLista: '<li class="item-masticado-empty">Sin detalle de ítems disponible</li>',
+      htmlLista: '<li class="item-detalle-empty">Sin detalle de ítems disponible</li>',
       itemsResumen: 'Sin detalle de ítems'
     };
   }
@@ -568,13 +609,13 @@ function formatearItemsMasticados(items) {
     const unspsc = it.unspsc_commodity ? `UNSPSC ${it.unspsc_commodity}` : null;
 
     return `
-      <li class="item-masticado-row">
-        <div class="item-masticado-main">
-          <span class="item-masticado-bullet">•</span>
-          <span class="item-masticado-nombre">${nombre}</span>
-          <span class="item-masticado-qty">· ${cantidad} ${unidad}</span>
+      <li class="item-detalle-row">
+        <div class="item-detalle-main">
+          <span class="item-detalle-bullet">•</span>
+          <span class="item-detalle-nombre">${nombre}</span>
+          <span class="item-detalle-qty">· ${cantidad} ${unidad}</span>
         </div>
-        ${unspsc ? `<span class="item-masticado-unspsc">${unspsc}</span>` : ''}
+        ${unspsc ? `<span class="item-detalle-unspsc">${unspsc}</span>` : ''}
       </li>
     `;
   }).join('');
@@ -599,9 +640,9 @@ function formatearItemsMasticados(items) {
 // 1. Nombre, 2. Cierre y días restantes, 3. Monto, 4. Organismo y región,
 // 5. Tipo, 6. Código, 7. Enlace a Mercado Público (secundario).
 // Más las adiciones de Sección 4-bis:
-// - Detalle masticado (Ítems que compran de verdad)
+// - Detalle de la licitación (Ítems que compran de verdad)
 // - Referencia histórica debajo de "Monto no publicado" (llenar el vacío del competidor)
-// - Botón principal: "Ver detalle masticado"
+// - Botón principal: "Ver detalle de la licitación"
 // =========================================================================
 function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null) {
   if (!item) return '';
@@ -628,7 +669,7 @@ function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null) {
   // 7. Enlace a Mercado Público (patrón oficial medido en producción)
   const urlMp = (detalle && detalle.url_ficha) || item.url_ficha || `https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=${encodeURIComponent(codigo)}`;
 
-  // 8. Detalle masticado (Sección 4-bis): ítems y referencia histórica
+  // 8. Detalle de la licitación (Sección 4-bis): ítems y referencia histórica
   const det = detalle || item.detalle || null;
   let bloqueReferenciaHtml = '';
   let bloqueItemsHtml = '';
@@ -645,7 +686,7 @@ function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null) {
       bloqueReferenciaHtml = `
         <div class="card-ref-historica-container ${!monto.tieneMonto ? 'card-ref-fill-void' : ''}">
           <div class="card-ref-title">
-            <span class="card-ref-icon">💡</span>
+            <span class="card-ref-icon"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
             <span>${tituloBloque}</span>
           </div>
           ${ref.html}
@@ -654,14 +695,14 @@ function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null) {
     }
 
     if (det.items && det.items.length > 0) {
-      const itemsFormat = formatearItemsMasticados(det.items);
+      const itemsFormat = formatearItemsDetalle(det.items);
       bloqueItemsHtml = `
-        <div class="card-items-masticados">
-          <div class="items-masticados-tag">
-            <span class="items-masticados-icon">📦</span>
+        <div class="card-items-detalle">
+          <div class="items-detalle-tag">
+            <span class="items-detalle-icon"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>
             <span>Lo que compran de verdad (${itemsFormat.cantidadTotal} ${itemsFormat.cantidadTotal === 1 ? 'ítem' : 'ítems'}):</span>
           </div>
-          <ul class="items-masticados-ul">
+          <ul class="items-detalle-ul">
             ${itemsFormat.htmlLista}
           </ul>
         </div>
@@ -695,10 +736,10 @@ function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null) {
       <!-- 4-bis.3 Referencia histórica (Llena el vacío o compara) -->
       ${bloqueReferenciaHtml}
 
-      <!-- 4-bis.2 Ítems masticados: Lo que están comprando de verdad -->
+      <!-- 4-bis.2 Ítems solicitados: Lo que están comprando de verdad -->
       ${bloqueItemsHtml}
 
-      <!-- Fila 3: 5. Tipo, 6. Código y 7. Destino Principal masticado + Mercado Público secundario -->
+      <!-- Fila 3: 5. Tipo, 6. Código y 7. Destino Principal detallado + Mercado Público secundario -->
       <div class="card-footer-row">
         <div class="card-meta-left">
           <span class="tender-tipo-badge" title="Código de tipo: ${item.tipo || ''}">
@@ -713,9 +754,9 @@ function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null) {
         </div>
 
         <div class="card-actions-right">
-          <!-- Destino principal nuevo (Sección 2.2): Detalle masticado -->
-          <button type="button" class="btn-ver-detalle" data-codigo="${codigo}" aria-label="Ver detalle masticado de ${codigo}">
-            <span>Ver detalle masticado</span>
+          <!-- Destino principal nuevo (Sección 2.2): Detalle de la licitación -->
+          <button type="button" class="btn-ver-detalle" data-codigo="${codigo}" aria-label="Ver detalle de la licitación de ${codigo}">
+            <span>Ver detalle de la licitación</span>
           </button>
 
           <!-- Salida secundaria: Enlace a Mercado Público -->
@@ -762,8 +803,20 @@ function renderizarMetricasLateral(metricas, meta) {
   const cMas7 = metricas.cierre ? (metricas.cierre.mas_de_7 || 0) : 0;
 
   // 3. Competencia
-  const compMediana = metricas.competencia ? metricas.competencia.oferentes_mediana : null;
-  const compN = metricas.competencia ? metricas.competencia.n : 0;
+  // El backend aplica la regla del umbral y declara si el dato alcanza para
+  // llamarse "mediana" (docs/architecture/publica-buscador.md §4.1c y §5.1).
+  // El frontend NO decide el rótulo: lo lee.
+  //
+  // [BUG 2026-09-07] Buscar "fermin" -- una palabra sin significado de rubro --
+  // devolvía CERO resultados y esta tarjeta decía "2 oferentes mediana, medido
+  // sobre 4 licitaciones del rubro". Dos mentiras: "mediana" sobre n=4 es
+  // precisión falsa, y "del rubro" era literalmente incorrecto (eran transporte
+  // escolar, luminarias y un laboratorio, unidas por el nombre propio "Liceo
+  // Fermín del Real"). El backend nunca dijo "rubro": lo agregaba este archivo.
+  const comp = metricas.competencia || {};
+  const compMediana = comp.oferentes_mediana !== undefined ? comp.oferentes_mediana : null;
+  const compN = comp.n || 0;
+  const compSuficiente = comp.suficiente_para_mediana === true;
 
   // 4. Rankings
   const topOrganismos = Array.isArray(metricas.top_organismos) ? metricas.top_organismos : [];
@@ -824,13 +877,18 @@ function renderizarMetricasLateral(metricas, meta) {
       </div>
 
       <!-- Bloque 3: Competencia histórica -->
+      ${compMediana === null ? '' : `
       <div class="sidebar-card">
         <div class="sidebar-card-label">Intensidad competitiva</div>
-        <div class="sidebar-main-value">${compMediana !== null ? (compMediana === 1 ? '1 oferente' : `${Number(compMediana).toLocaleString('es-CL')} oferentes`) : 'S/D'} <span class="sidebar-inline-unit">mediana</span></div>
+        <div class="sidebar-main-value">${compMediana === 1 ? '1 oferente' : `${Number(compMediana).toLocaleString('es-CL')} oferentes`}${compSuficiente ? ' <span class="sidebar-inline-unit">mediana</span>' : ''}</div>
         <div class="sidebar-value-sub">
-          Medido sobre <strong>${Number(compN).toLocaleString('es-CL')}</strong> licitaciones del rubro (n = ${Number(compN).toLocaleString('es-CL')})
+          ${compSuficiente
+            ? `Mediana sobre <strong>${Number(compN).toLocaleString('es-CL')}</strong> licitaciones ya adjudicadas que coinciden con esta búsqueda`
+            : `Sólo <strong>${Number(compN).toLocaleString('es-CL')}</strong> ${compN === 1 ? 'antecedente' : 'antecedentes'} — muy pocos para hablar de mediana de mercado`}
+          <br>
+          <em>No son las licitaciones que se muestran arriba, y no necesariamente son del mismo rubro.</em>
         </div>
-      </div>
+      </div>`}
 
       <!-- Bloque 4: Top Compradores y Regiones -->
       <div class="sidebar-card">
@@ -871,10 +929,10 @@ function renderizarMetricasLateral(metricas, meta) {
 }
 
 // =========================================================================
-// 10. DETALLE MASTICADO EN MODAL (Sección 4-bis.2)
+// 10. DETALLE DE LICITACIÓN EN MODAL (Sección 4-bis.2)
 // =========================================================================
 /**
- * Renderiza los datos digeridos para el modal de inspección masticada
+ * Renderiza los datos digeridos para el modal de detalle de la licitación
  */
 function renderizarModalDetalle(codigo, item, detalle, fechaBase = '2026-09-03') {
   const nombre = normalizarTextoVisual(item ? item.nombre : '');
@@ -899,8 +957,8 @@ function renderizarModalDetalle(codigo, item, detalle, fechaBase = '2026-09-03')
     bodyHtml: `
       <div class="modal-section-block">
         <h3 class="modal-section-title">
-          <span class="section-icon">📦</span>
-          <span>Lo que compran de verdad (Ítems masticados)</span>
+          <span class="section-icon"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>
+          <span>Lo que compran de verdad (Ítems solicitados)</span>
         </h3>
         <p class="modal-section-sub">
           Líneas de producto y servicios extraídas directamente de las bases técnicas.
@@ -934,7 +992,7 @@ function renderizarModalDetalle(codigo, item, detalle, fechaBase = '2026-09-03')
 
       <div class="modal-section-block">
         <h3 class="modal-section-title">
-          <span class="section-icon">💰</span>
+          <span class="section-icon"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
           <span>Presupuesto y Referencia Histórica</span>
         </h3>
 
@@ -956,13 +1014,13 @@ function renderizarModalDetalle(codigo, item, detalle, fechaBase = '2026-09-03')
 
       <div class="modal-section-block">
         <h3 class="modal-section-title">
-          <span class="section-icon">🎯</span>
+          <span class="section-icon"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
           <span>Inteligencia Comercial y Competencia</span>
         </h3>
         <div class="modal-intel-card">
           ${refHist && refHist.oferentes_mediana !== null && refHist.oferentes_mediana <= 2 ? `
             <div class="intel-opportunity-banner">
-              <span class="intel-badge">⚡ Oportunidad de baja competencia</span>
+              <span class="intel-badge"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg> Oportunidad de baja competencia</span>
               <p class="intel-text">
                 Históricamente compiten sólo <strong>${Number(refHist.oferentes_mediana).toLocaleString('es-CL')} ${refHist.oferentes_mediana === 1 ? 'oferente' : 'oferentes'}</strong> en licitaciones comparables.
               </p>
@@ -979,7 +1037,7 @@ function renderizarModalDetalle(codigo, item, detalle, fechaBase = '2026-09-03')
           `}
           ${monto && !monto.tieneMonto ? `
             <div class="intel-void-banner">
-              <span class="intel-badge-void">💡 Diferenciador DataSeed</span>
+              <span class="intel-badge-void"><svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Diferenciador DataSeed</span>
               <p class="intel-text">
                 El 46,1 % de las licitaciones abiertas no publica presupuesto. DataSeed aporta el antecedente de compra anterior para definir tu precio de oferta con respaldo empírico.
               </p>
@@ -1038,7 +1096,7 @@ class BuscadorPublicaApp {
       footerAsOfDate: document.getElementById('footerAsOfDate'),
       footerLimitaciones: document.getElementById('footerLimitaciones'),
 
-      // Modal de detalle masticado
+      // Modal de detalle de la licitación
       tenderModal: document.getElementById('tenderModal'),
       modalCloseBtn: document.getElementById('modalCloseBtn'),
       modalFooterCloseBtn: document.getElementById('modalFooterCloseBtn'),
@@ -1052,6 +1110,11 @@ class BuscadorPublicaApp {
       modalTenderBody: document.getElementById('modalTenderBody'),
       modalMpLink: document.getElementById('modalMpLink')
     };
+
+    // Estado visual inicial: el hero arranca centrado (patron Chrome) y sube al
+    // buscar. Las clases viven en <body> para que el CSS pueda alcanzar tanto al
+    // hero como a la columna de resultados desde un solo interruptor.
+    document.body.classList.add('buscador-inicial');
 
     this.inicializar();
   }
@@ -1069,7 +1132,16 @@ class BuscadorPublicaApp {
       this.totalServidor = resp.total || 0;
 
       if (this.dom.footerAsOfDate && this.meta.as_of) {
-        this.dom.footerAsOfDate.textContent = formatearFechaLarga(this.meta.as_of);
+        // Dos datos distintos, dichos por separado: hasta cuándo llegan las
+        // licitaciones, y cuándo se trajeron por última vez.
+        let txt = formatearFechaLarga(this.meta.as_of);
+        const act = formatearActualizacion(this.meta.actualizado_en);
+        if (act) {
+          const hace = haceCuanto(this.meta.actualizado_en);
+          txt += ` · última sincronización: ${act}${hace ? ` (${hace})` : ''}`;
+          if (this.meta.ingesta_cada) txt += ` · ${this.meta.ingesta_cada}`;
+        }
+        this.dom.footerAsOfDate.textContent = txt;
       }
       this.renderizarLimitacionesFooter();
     } catch (err) {
@@ -1184,7 +1256,7 @@ class BuscadorPublicaApp {
       }
     });
 
-    // Delegación para botón "Ver detalle masticado" (Destino principal nuevo)
+    // Delegación para botón "Ver detalle de la licitación" (Destino principal nuevo)
     this.dom.resultsContainer.addEventListener('click', (e) => {
       const btn = e.target.closest('.btn-ver-detalle');
       if (btn) {
@@ -1234,12 +1306,78 @@ class BuscadorPublicaApp {
       this.dom.filterBar.hidden = false;
     }
 
+    // El hero sube. Una sola vez: en la segunda búsqueda ya está arriba y
+    // volver a animarlo sería un salto sin motivo.
+    document.body.classList.remove('buscador-inicial');
+    document.body.classList.add('buscador-con-resultados');
+    this.anclarCajaBusqueda();
+
     // Aplicar filtros y renderizar
     this.aplicarFiltrosYRenderizar();
 
     // Scroll suave hacia los resultados si es pantalla chica
     if (window.innerWidth < 768 && this.dom.filterBar) {
       this.dom.filterBar.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  /**
+   * Deja la caja de búsqueda pegada justo debajo del header, a la altura del
+   * rótulo "Buscador de licitaciones públicas", y le pone sombra sólo cuando
+   * de verdad hay scroll.
+   *
+   * El desplazamiento se mide del header real en vez de dejarlo fijo en CSS:
+   * el header cambia de alto entre escritorio y móvil, y un valor a ojo
+   * dejaría la caja tapada o flotando con un hueco.
+   */
+  /**
+   * Mueve la caja de búsqueda DENTRO del <header> y acota el lateral.
+   *
+   * Se mueve el nodo, no se duplica: dos <input> serían dos estados que hay
+   * que sincronizar, y mover un nodo con appendChild conserva sus listeners y
+   * su valor. El destino vive en el <header>, que ya es de ancho completo y ya
+   * es `position: sticky`, así que la caja hereda las dos cosas y queda como
+   * una sola barra continua con el header.
+   *
+   * POR QUÉ SE MOVIÓ AL HEADER (2026-09-07): antes la caja se quedaba en
+   * `.pub-main` con `position: sticky` y fondo, blur y sombra propios. Eso la
+   * dibujaba como un panel flotante: limitado a los 1140px de `.pub-main` --
+   * o sea sin llegar a los lados de la pantalla -- y con borde y sombra que lo
+   * separaban visiblemente del header en vez de fundirlo con él. Ningún ajuste
+   * de tipografía arregla eso: el problema era de qué elemento la contiene.
+   */
+  anclarCajaBusqueda() {
+    if (this.anclajeListo) return;
+    this.anclajeListo = true;
+
+    const header = document.querySelector('.pub-header');
+    const hueco = document.getElementById('headerSearchSlot');
+    const caja = document.querySelector('.search-form-container');
+    const aside = this.dom.metricsSidebar;
+
+    if (hueco && caja && caja.parentElement !== hueco) {
+      hueco.appendChild(caja);
+    }
+    if (!header) return;
+
+    // El lateral arranca debajo del header y su tarjeta se acota a lo que
+    // sobra de pantalla. Ya NO se suma el alto del hero: el hero desaparece en
+    // el estado con resultados, y sumarlo dejaba el lateral 130px más abajo de
+    // donde corresponde.
+    const ajustar = () => {
+      if (!aside) return;
+      const arranque = header.getBoundingClientRect().height + 16;
+      aside.style.top = arranque + 'px';
+      const tarjeta = aside.querySelector('.sidebar-inner');
+      if (tarjeta) {
+        tarjeta.style.maxHeight = Math.max(240, window.innerHeight - arranque - 24) + 'px';
+      }
+    };
+
+    ajustar();
+    window.addEventListener('resize', ajustar);
+    if (typeof ResizeObserver === 'function') {
+      new ResizeObserver(ajustar).observe(header);
     }
   }
 
@@ -1251,6 +1389,10 @@ class BuscadorPublicaApp {
     if (!this.haBuscado) return;
 
     const idPeticion = ++this.idPeticionVigente;
+    // [OBSERVADO] la búsqueda responde en ~150 ms: sin señal de progreso el
+    // cambio es tan rápido que el usuario no percibe que pasó algo. La barra y
+    // el atenuado de los resultados viejos dan ese acuse de recibo.
+    document.body.classList.add('buscador-cargando');
     try {
       const resp = await buscarLicitacionesBackend({
         texto: this.filtros.texto,
@@ -1274,12 +1416,21 @@ class BuscadorPublicaApp {
 
       if (this.dom.metricsSidebar && this.metricas) {
         this.dom.metricsSidebar.innerHTML = renderizarMetricasLateral(this.metricas, this.meta);
+        // La tarjeta se acaba de reemplazar: hay que volver a acotarle el alto,
+        // o el max-height del CSS queda sobre un elemento que ya no existe.
+        if (this.anclajeListo) window.dispatchEvent(new Event('resize'));
       }
       this.renderizarLimitacionesFooter();
     } catch (err) {
       if (idPeticion !== this.idPeticionVigente) return;
       console.error('Error buscando en el backend:', err);
       this.mostrarErrorCarga(err.message);
+    } finally {
+      // Sólo la petición vigente apaga el indicador: si una vieja termina
+      // después, apagarlo dejaría la barra quieta con una búsqueda en curso.
+      if (idPeticion === this.idPeticionVigente) {
+        document.body.classList.remove('buscador-cargando');
+      }
     }
   }
 
@@ -1299,18 +1450,18 @@ class BuscadorPublicaApp {
     if (items.length === 0) {
       this.dom.resultsContainer.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">🔍</div>
+          <div class="empty-state-icon"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
           <h3 class="empty-state-title">No encontramos licitaciones públicas</h3>
           <p class="empty-state-desc">
             No hay licitaciones que coincidan con los filtros seleccionados.
-            Probá desactivando "Sólo abiertas" o seleccionando otra región.
+            Prueba desactivando "Sólo abiertas" o seleccionando otra región.
           </p>
         </div>
       `;
       return;
     }
 
-    // Renderizar tarjetas con las 7 capas visuales obligatorias (Sección 6.3) y detalle masticado
+    // Renderizar tarjetas con las 7 capas visuales obligatorias (Sección 6.3) y detalle de la licitación
     const htmlCards = items.map(item => {
       const det = this.detalles[item.codigo] || item.detalle || null;
       return generarHtmlTarjeta(item, fechaBase, det);
@@ -1445,7 +1596,7 @@ class BuscadorPublicaApp {
     if (this.dom.resultsContainer) {
       this.dom.resultsContainer.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">⚠️</div>
+          <div class="empty-state-icon"><svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
           <h3 class="empty-state-title">No fue posible cargar los datos</h3>
           <p class="empty-state-desc">Detalle del error: ${mensaje}</p>
         </div>
@@ -1472,10 +1623,12 @@ if (typeof module !== 'undefined' && module.exports) {
     generarHtmlTarjeta,
     formatearFechaCorta,
     formatearFechaLarga,
+    formatearActualizacion,
+    haceCuanto,
     evaluarCierre,
     formatearMonto,
     formatearReferenciaHistorica,
-    formatearItemsMasticados,
+    formatearItemsDetalle,
     renderizarMetricasLateral,
     renderizarModalDetalle,
     obtenerNombreTipo,
