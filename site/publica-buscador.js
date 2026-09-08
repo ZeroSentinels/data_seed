@@ -1191,10 +1191,19 @@ class BuscadorPublicaApp {
       </p>
     `;
 
+    // [BUG 2026-09-08] El pie mostraba la salvedad de Compra Ágil DOS VECES:
+    // la de acá arriba ("Nota de cobertura", con acentos) y la del backend
+    // ("Limitación adicional (media)", sin acentos). El descarte comparaba
+    // contra 'Compra Ágil' con tilde y el backend manda 'Compra Agil' sin
+    // tilde, así que nunca calzaba. Se compara sin acentos y en minúsculas:
+    // el que queda es el de acá, que es la redacción obligatoria de la
+    // Sección 3 y no depende de cómo la escriba el backend.
+    const sinAcentos = (t) => t.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+
     // Renderizar limitaciones adicionales si existen en el bloque meta
     limitaciones.forEach(lim => {
       const desc = lim.limitacion || (typeof lim === 'string' ? lim : '');
-      if (desc && !desc.includes('Compra Ágil')) {
+      if (desc && !sinAcentos(desc).includes('compra agil')) {
         htmlLimitaciones += `
           <p class="footer-compra-agil-note">
             <strong>Limitación adicional (${lim.severidad || 'aviso'}):</strong> ${desc}
