@@ -1,10 +1,11 @@
 // Estado de sesión de Pública (independiente del /api/auth/session general).
-import { AuthorizationError } from '../_lib/authorization.js';
-import { clearSessionCookies } from '../_lib/publica-cookies.js';
-import { methodNotAllowed, sendJson } from '../_lib/http.js';
-import { authenticatePublicaRequest } from '../_lib/publica-session.js';
-
-export const config = { runtime: 'nodejs' };
+//
+// No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
+// función serverless): lo despacha api/auth/publica/[...action].js.
+import { AuthorizationError } from '../authorization.js';
+import { clearSessionCookies } from '../publica-cookies.js';
+import { methodNotAllowed, sendJson } from '../http.js';
+import { authenticatePublicaRequest } from '../publica-session.js';
 
 export function createPublicaSessionHandler({
   authenticate = authenticatePublicaRequest,

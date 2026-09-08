@@ -161,7 +161,7 @@ export function signUpWithPassword(credentials, options = {}) {
 }
 
 // Intercambio PKCE del "code" que Supabase reenvía tras el login con Google
-// (ver api/auth/publica/google/callback.js). Documentado en
+// (ver api/auth/_lib/publica-handlers/google-callback.js). Documentado en
 // https://supabase.com/docs/guides/auth/server-side/pkce-flow
 export function exchangeOAuthCode(code, codeVerifier, options = {}) {
   return request('/auth/v1/token?grant_type=pkce', {
