@@ -68,7 +68,7 @@ test('publica login: mismos requisitos que el login general, pero cookies y redi
   assert.equal(badOriginRes.statusCode, 403);
 
   const res = response();
-  await handler(request({ email: 'client@example.com', password: 'correct-password', remember: true }), res);
+  await handler(request({ email: 'client@example.com', password: 'pass1234', remember: true }), res);
   assert.equal(res.statusCode, 200);
   assert.deepEqual(res.headers['Set-Cookie'], ['pub-access-cookie', 'pub-refresh-cookie']);
   assert.equal(cookieCall.options.remember, true);
@@ -102,7 +102,7 @@ test('publica login: sin organización activa, falla cerrado y revoca la sesión
     buildCookies: () => [],
   });
   const res = response();
-  await handler(request({ email: 'client@example.com', password: 'correct-password' }), res);
+  await handler(request({ email: 'client@example.com', password: 'pass1234' }), res);
   assert.equal(res.statusCode, 403);
   assert.equal(revoked, true);
   assert.equal(res.headers['Set-Cookie'], undefined);
@@ -123,7 +123,7 @@ test('publica login: aprovisiona (idempotente) antes de resolver identidad, usan
     buildCookies: () => ['pub-access-cookie', 'pub-refresh-cookie'],
   });
   const res = response();
-  await handler(request({ email: 'client@example.com', password: 'correct-password' }), res);
+  await handler(request({ email: 'client@example.com', password: 'pass1234' }), res);
   assert.equal(res.statusCode, 200);
   assert.equal(provisionCall.accessToken, 'access');
   assert.equal(provisionCall.empresa, 'Empresa Nueva');
@@ -140,7 +140,7 @@ test('publica login: si falla el aprovisionamiento, no deja sesión activa y rev
     buildCookies: () => [],
   });
   const res = response();
-  await handler(request({ email: 'client@example.com', password: 'correct-password' }), res);
+  await handler(request({ email: 'client@example.com', password: 'pass1234' }), res);
   assert.equal(res.statusCode, 502);
   assert.equal(revoked, true);
   assert.equal(res.headers['Set-Cookie'], undefined);
@@ -156,7 +156,7 @@ test('publica signup: crea usuario, aprovisiona organización y deja sesión ini
     buildCookies: () => ['pub-access-cookie', 'pub-refresh-cookie'],
   });
   const res = response();
-  await handler(request({ email: 'nueva@empresa.cl', password: 'contraseña-larga', empresa: 'Empresa Nueva' }), res);
+  await handler(request({ email: 'nueva@empresa.cl', password: 'pass12345', empresa: 'Empresa Nueva' }), res);
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.redirectTo, '/publica');
   assert.deepEqual(res.headers['Set-Cookie'], ['pub-access-cookie', 'pub-refresh-cookie']);
@@ -177,7 +177,7 @@ test('publica signup: exige empresa y contraseña de al menos 8 caracteres, sin 
   assert.equal(called, false);
 
   const noEmpresaRes = response();
-  await handler(request({ email: 'a@b.cl', password: 'contraseña-larga', empresa: '' }), noEmpresaRes);
+  await handler(request({ email: 'a@b.cl', password: 'pass12345', empresa: '' }), noEmpresaRes);
   assert.equal(noEmpresaRes.statusCode, 400);
   assert.equal(called, false);
 });
@@ -189,7 +189,7 @@ test('publica signup: si falla el aprovisionamiento de organización, no deja al
     provision: async () => { throw new ProvisioningError('fail', { status: 502 }); },
   });
   const res = response();
-  await handler(request({ email: 'nueva@empresa.cl', password: 'contraseña-larga', empresa: 'Empresa Nueva' }), res);
+  await handler(request({ email: 'nueva@empresa.cl', password: 'pass12345', empresa: 'Empresa Nueva' }), res);
   assert.equal(res.statusCode, 502);
   assert.equal(res.headers['Set-Cookie'], undefined);
 });
@@ -202,7 +202,7 @@ test('publica signup: si Supabase exige confirmar el correo, no puede aprovision
     provision: async () => { provisioned = true; return { created: true }; },
   });
   const res = response();
-  await handler(request({ email: 'nueva@empresa.cl', password: 'contraseña-larga', empresa: 'Empresa Nueva' }), res);
+  await handler(request({ email: 'nueva@empresa.cl', password: 'pass12345', empresa: 'Empresa Nueva' }), res);
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.pendingConfirmation, true);
   assert.equal(res.headers['Set-Cookie'], undefined);
