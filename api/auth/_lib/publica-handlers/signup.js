@@ -13,6 +13,7 @@ import { buildSessionCookies } from '../publica-cookies.js';
 import { AuthorizationError, resolveIdentity } from '../authorization.js';
 import { ensureOrganizationForUser, ProvisioningError } from '../publica-provisioning.js';
 import {
+  getHeader,
   isSameOriginRequest,
   methodNotAllowed,
   normalizeEmail,
@@ -52,12 +53,19 @@ export function createPublicaSignupHandler({
       return sendJson(res, 400, { error: 'Indica el nombre de tu empresa.' });
     }
 
+    // Si Supabase exige confirmar el correo, el link del mail vuelve acá en
+    // vez de a la Site URL genérica (la home de dataseed.cl) — sin esto, el
+    // usuario confirma pero queda en la home sin ninguna indicación de que
+    // ya puede iniciar sesión en Pública.
+    const origin = String(env.APP_ORIGIN || getHeader(req, 'origin') || '').replace(/\/$/, '');
+    const redirectTo = `${origin}/publica-login?confirmado=1`;
+
     let signUpResult;
     try {
       // `empresa` viaja como user_metadata para que, si el correo requiere
       // confirmación (sin access_token todavía), el login posterior pueda
       // usarla como nombre de la organización al aprovisionar.
-      signUpResult = await signUp({ email, password, data: { empresa } }, { env });
+      signUpResult = await signUp({ email, password, data: { empresa }, redirect_to: redirectTo }, { env });
     } catch (error) {
       if (error instanceof SupabaseRequestError && error.status === 400) {
         return sendJson(res, 400, {

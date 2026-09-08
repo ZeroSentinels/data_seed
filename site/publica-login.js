@@ -272,6 +272,10 @@
       setStatus('Si el enlace es válido, ya puedes definir tu nueva contraseña iniciando sesión.', 'success');
       return;
     }
+    if (params.get('confirmado') === '1') {
+      setStatus('Tu correo quedó confirmado. Ya puedes iniciar sesión.', 'success');
+      return;
+    }
     if (!error) return;
     const messages = {
       google: 'No pudimos completar el acceso con Google. Intenta nuevamente.',

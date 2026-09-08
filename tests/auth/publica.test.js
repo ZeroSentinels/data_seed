@@ -148,9 +148,10 @@ test('publica login: si falla el aprovisionamiento, no deja sesión activa y rev
 
 test('publica signup: crea usuario, aprovisiona organización y deja sesión iniciada', async () => {
   let provisionCall;
+  let signUpCall;
   const handler = createPublicaSignupHandler({
-    env: {},
-    signUp: async () => ({ user: { id: 'new-user' }, access_token: 'access', refresh_token: 'refresh' }),
+    env: { APP_ORIGIN: 'https://dataseed.cl' },
+    signUp: async (credentials) => { signUpCall = credentials; return { user: { id: 'new-user' }, access_token: 'access', refresh_token: 'refresh' }; },
     provision: async (input) => { provisionCall = input; return { created: true }; },
     resolve: async () => identity,
     buildCookies: () => ['pub-access-cookie', 'pub-refresh-cookie'],
@@ -162,6 +163,10 @@ test('publica signup: crea usuario, aprovisiona organización y deja sesión ini
   assert.deepEqual(res.headers['Set-Cookie'], ['pub-access-cookie', 'pub-refresh-cookie']);
   assert.equal(provisionCall.accessToken, 'access');
   assert.equal(provisionCall.empresa, 'Empresa Nueva');
+  // El link de confirmación de correo tiene que volver a /publica-login, no a
+  // la Site URL genérica de Supabase (la home de dataseed.cl) — sin esto el
+  // usuario confirma y queda varado sin saber que ya puede iniciar sesión.
+  assert.equal(signUpCall.redirect_to, 'https://dataseed.cl/publica-login?confirmado=1');
 });
 
 test('publica signup: exige empresa y contraseña de al menos 8 caracteres, sin llamar a Supabase', async () => {
