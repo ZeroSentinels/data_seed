@@ -56,6 +56,15 @@
         Buscador de licitaciones públicas
       </div>
 
+      <!-- Hueco donde la caja de busqueda SE MUEVE tras la primera busqueda.
+           Vive dentro del <header> a proposito: el header ya es full-bleed y ya
+           es sticky, asi que la caja hereda las dos cosas y queda fundida con
+           el header en una sola barra continua, sin fondo ni sombra propios.
+           La version anterior la dejaba en .pub-main con sticky y fondo
+           propios: se veia como un panel flotante de 1140px con bordes, que no
+           llegaba a los lados de la pantalla. -->
+      <div class="pub-header-search" id="headerSearchSlot"></div>
+
       <button class="pub-theme-toggle" type="button" id="themeToggle" aria-label="Cambiar a tema oscuro" aria-pressed="false">
         <span class="moon" aria-hidden="true">☾</span><span class="sun" aria-hidden="true">☀</span>
       </button>
@@ -66,6 +75,7 @@
        CONTENIDO PRINCIPAL
        ============================================================ -->
   <main class="pub-main" role="main">
+
 
     <!-- 6.1 BARRA DE BÚSQUEDA (Caja ancha, centrada, con autofocus) -->
     <section class="search-hero" aria-labelledby="search-heading">
@@ -99,7 +109,6 @@
             Buscar
           </button>
         </form>
-        <p class="search-sample-note">Muestra fija de ejemplo — la búsqueda real la resuelve el servidor</p>
       </div>
 
       <!-- Sugerencias contextuales -->
@@ -169,7 +178,7 @@
       </aside>
     </div>
 
-    <!-- 4-bis.2 MODAL DE DETALLE MASTICADO DE LICITACIÓN -->
+    <!-- 4-bis.2 MODAL DE DETALLE DE LICITACIÓN -->
     <div id="tenderModal" class="tender-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="modalTenderTitle">
       <div class="tender-modal-container">
         <header class="tender-modal-header">
@@ -177,7 +186,7 @@
             <span id="modalTenderTipo" class="tender-tipo-badge"></span>
             <span id="modalTenderUrgencia" class="urgencia-badge"></span>
           </div>
-          <button type="button" id="modalCloseBtn" class="modal-close-btn" aria-label="Cerrar detalle masticado">✕</button>
+          <button type="button" id="modalCloseBtn" class="modal-close-btn" aria-label="Cerrar detalle de la licitación">✕</button>
         </header>
 
         <h2 id="modalTenderTitle" class="tender-modal-title"></h2>
@@ -195,7 +204,7 @@
 
         <div class="tender-modal-body" id="modalTenderBody">
           <!-- Inyectado dinámicamente desde js/app.js:
-               1. Lo que están comprando de verdad (Ítems masticados)
+               1. Lo que están comprando de verdad (Ítems solicitados)
                2. Presupuesto y Referencia Histórica (Regla del umbral y psicología de ventas)
                3. Datos de competencia del rubro
           -->
