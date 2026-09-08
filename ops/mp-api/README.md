@@ -82,6 +82,37 @@ docker run --rm -v mp-data:/data/mp alpine ls -li /data/mp/mp_busqueda.duckdb
 
 El inodo que `uvicorn` tiene abierto debe ser el mismo que el de `ls -li`.
 
+## `orden`: el defecto es `reciente`, y es deliberado
+
+`[MEDIDO 2026-09-08 20:2x UTC]` Antes el orden estaba fijo en `bm25 desc,
+fecha_cierre asc`: relevancia y despues lo que cierra antes. Una licitacion
+publicada hoy cierra mas tarde, asi que **se hundia bajo el corte de la pagina**.
+Buscando `"servicio"` (2.057 resultados) las tres primeras eran del 04, 07 y 04
+de septiembre: **ninguna del dia**, con el sello diciendo `as_of: 2026-09-08`.
+Parecia ingesta atrasada y no lo era.
+
+`POST /api/buscar` acepta `orden`:
+
+| valor | SQL | medido con `"servicio"` |
+|---|---|---|
+| `reciente` **(defecto)** | `fecha_publicacion desc nulls last, codigo` | primeras del **2026-09-08** |
+| `cierre` | `fecha_cierre asc nulls last, codigo` | cierran hoy |
+| `relevancia` | `bm25 desc, fecha_cierre asc` (el de antes) | 04, 07 |
+
+El defecto es `reciente` porque **el frontend no manda `orden`**: con cualquier
+otro defecto el arreglo no se ve. Sin texto de busqueda no hay relevancia que
+ordenar, asi que `relevancia` cae a `cierre`.
+
+## Una clave desconocida es un 400, no una busqueda
+
+`{"consulta": "servicio"}` devolvia **200 con el universo entero**: la clave se
+ignoraba y no quedaba ninguna senal de que el texto no se habia aplicado. Ahora
+el endpoint valida contra `CLAVES_BUSCAR` (`texto`, `solo_abiertas`, `region`,
+`limite`, `desde`, `orden`) y una clave de mas responde
+`400 Claves no reconocidas: ...`. Verificado que los dos unicos clientes
+—`site/publica-buscador.js` y el proxy `api/buscar.js`, que reenvia el cuerpo
+tal cual— mandan solo claves de esa lista.
+
 ## Lo que NO está acá
 
 `sync.py` (la ingesta) vive en el repo `mcp-mercado-publico`, no en éste. Su

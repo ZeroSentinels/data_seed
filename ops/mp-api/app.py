@@ -471,6 +471,24 @@ def _where(texto, solo_abiertas, region, as_of):
     return " and ".join(cond), params, toks
 
 
+ORDENES = {
+    # Lo mas nuevo primero. Es el defecto porque es lo que el usuario viene a
+    # buscar, y porque sin esto las licitaciones de hoy no entran en la pagina.
+    "reciente": "fecha_publicacion desc nulls last, codigo",
+    # Lo que cierra antes. Util para decidir a que llegar a tiempo.
+    "cierre": "fecha_cierre asc nulls last, codigo",
+    # Relevancia: se resuelve distinto en cada camino (bm25 con indice, la
+    # heuristica de _orden sin el), asi que aca no tiene SQL propio.
+    "relevancia": None,
+}
+ORDEN_DEFECTO = "reciente"
+
+# Claves que el endpoint reconoce. Una clave fuera de esta lista es un error
+# del cliente, no una busqueda: aceptarla en silencio devolvia el universo
+# entero con HTTP 200.
+CLAVES_BUSCAR = {"texto", "solo_abiertas", "region", "limite", "desde", "orden"}
+
+
 def _orden(toks):
     """Relevancia sin modelo: lo que coincide en el NOMBRE va primero.
 
@@ -497,9 +515,21 @@ async def buscar(request):
     if not isinstance(cuerpo, dict):
         return _error(400, "Cuerpo JSON invalido.")
 
+    # Una clave desconocida no se ignora: se rechaza. Ignorarla hacia que
+    # `{"consulta": "servicio"}` devolviera las 4.790 abiertas con 200, sin
+    # ninguna senal de que el texto no se habia aplicado.
+    desconocidas = sorted(set(cuerpo) - CLAVES_BUSCAR)
+    if desconocidas:
+        return _error(400, "Claves no reconocidas: %s. Validas: %s."
+                      % (", ".join(desconocidas), ", ".join(sorted(CLAVES_BUSCAR))))
+
     texto = (cuerpo.get("texto") or "")[:TEXTO_MAX]
     solo_abiertas = cuerpo.get("solo_abiertas", True) is not False
     region = cuerpo.get("region") or None
+    orden_pedido = cuerpo.get("orden") or ORDEN_DEFECTO
+    if orden_pedido not in ORDENES:
+        return _error(400, "orden debe ser uno de: %s."
+                      % ", ".join(sorted(ORDENES)))
     try:
         limite = min(int(cuerpo.get("limite") or 25), LIMITE_MAX)
         desde = max(int(cuerpo.get("desde") or 0), 0)
@@ -515,9 +545,10 @@ async def buscar(request):
 
     if BUS.viva:
         return _buscar_con_indice(toks, texto, solo_abiertas, region,
-                                  as_of, limite, desde)
+                                  as_of, limite, desde, orden_pedido)
     # Degradacion declarada: sin indice se busca peor, pero se busca, y se dice.
     return _buscar_sin_indice(texto, solo_abiertas, region, as_of, limite, desde,
+                              orden_pedido,
                               [{"limitacion": f"Busqueda en modo reducido: {BUS.motivo}. "
                                               "No se aplican stemming ni expansion por rubro.",
                                 "severidad": "alta"}])
@@ -528,7 +559,8 @@ CAMPOS_BUS = ("codigo, tipo, nombre, estado, fecha_publicacion, fecha_cierre, "
               "organismo_nombre, n_oferentes, url_ficha")
 
 
-def _buscar_con_indice(toks, texto, solo_abiertas, region, as_of, limite, desde):
+def _buscar_con_indice(toks, texto, solo_abiertas, region, as_of, limite, desde,
+                       orden_pedido=ORDEN_DEFECTO):
     """Una sola pasada de las tres capas, materializada en una tabla temporal.
 
     [MEDIDO 2026-09-05] La primera version corria la CTE una vez por cada
@@ -554,14 +586,16 @@ def _buscar_con_indice(toks, texto, solo_abiertas, region, as_of, limite, desde)
         sql = (f"create or replace temp table sel as with {cte} "
                f"select {sel} from agr join licitacion_texto l using (codigo) where {filtros}")
         params = cp + fp
-        orden = "bm25 desc, fecha_cierre asc nulls last, codigo"
+        orden = ("bm25 desc, fecha_cierre asc nulls last, codigo"
+                 if orden_pedido == "relevancia" else ORDENES[orden_pedido])
     else:
         sel = (", ".join(f"l.{c.strip()}" for c in CAMPOS_BUS.split(","))
                + ", -1 bm25, false via_fts, false via_rubro, false via_texto")
         sql = (f"create or replace temp table sel as "
                f"select {sel} from licitacion_texto l where {filtros}")
         params = fp
-        orden = "fecha_cierre asc nulls last, codigo"
+        # Sin texto no hay relevancia que ordenar: "relevancia" cae a cierre.
+        orden = ORDENES["cierre" if orden_pedido == "relevancia" else orden_pedido]
 
     BUS.con.execute(sql, params)
 
@@ -624,7 +658,8 @@ def _buscar_con_indice(toks, texto, solo_abiertas, region, as_of, limite, desde)
     })
 
 
-def _buscar_sin_indice(texto, solo_abiertas, region, as_of, limite, desde, avisos):
+def _buscar_sin_indice(texto, solo_abiertas, region, as_of, limite, desde,
+                       orden_pedido, avisos):
     """Capa 1 sola, sobre el almacen. Es el camino de degradacion cuando el
     indice de busqueda no esta disponible. Busca peor, y lo declara."""
     w, p, toks = _where(texto, solo_abiertas, region, as_of)
@@ -634,7 +669,10 @@ def _buscar_sin_indice(texto, solo_abiertas, region, as_of, limite, desde, aviso
     campos = ("codigo, tipo, nombre, estado, fecha_publicacion, fecha_cierre, "
               "region_comprador, monto_estimado_clp, visibilidad_monto, "
               "organismo_nombre, n_oferentes, url_ficha")
-    orden_sql, orden_p = _orden(toks)
+    if orden_pedido == "relevancia":
+        orden_sql, orden_p = _orden(toks)
+    else:
+        orden_sql, orden_p = ORDENES[orden_pedido], []
     filas = ALM.filas(
         f"select {campos} from licitacion where {w} "
         f"order by {orden_sql} limit ? offset ?",
