@@ -164,7 +164,7 @@
       }
       setStatus('Acceso correcto. Abriendo Pública…', 'success');
       setLoginLoading(true, 'Acceso correcto');
-      window.setTimeout(() => window.location.assign(payload.redirectTo || '/publica'), 350);
+      window.setTimeout(() => window.location.assign(payload.redirectTo || '/publica-buscador'), 350);
     } catch {
       setStatus('No pudimos conectar con el servidor. Intenta nuevamente.', 'error');
     } finally {
@@ -256,7 +256,7 @@
       }
       setStatus('Cuenta creada. Abriendo Pública…', 'success');
       setSignupLoading(true, 'Listo');
-      window.setTimeout(() => window.location.assign(payload.redirectTo || '/publica'), 350);
+      window.setTimeout(() => window.location.assign(payload.redirectTo || '/publica-buscador'), 350);
     } catch {
       setStatus('No pudimos conectar con el servidor. Intenta nuevamente.', 'error');
     } finally {
@@ -292,7 +292,7 @@
       });
       if (!response.ok) return;
       const payload = await parseResponse(response);
-      if (payload.authenticated === true) window.location.replace('/publica');
+      if (payload.authenticated === true) window.location.replace('/publica-buscador');
     } catch {
       // El formulario sigue disponible si no se puede validar la sesión.
     }

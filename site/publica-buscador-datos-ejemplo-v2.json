@@ -1,0 +1,218 @@
+{
+  "metricas": {
+    "n": 8,
+    "monto": {
+      "n_con_monto": 4,
+      "n_oculto_por_organismo": 4,
+      "suma_clp": 44013000.0,
+      "mediana_clp": 11266500.0
+    },
+    "cierre": {
+      "en_3_dias": 0,
+      "en_7_dias": 1,
+      "mas_de_7": 6
+    },
+    "top_organismos": [
+      {
+        "nombre": "CORP NACIONAL FORESTAL",
+        "n": 1
+      },
+      {
+        "nombre": "GOBIERNO REGIONAL DE LA REGION DEL BIO BIO",
+        "n": 1
+      },
+      {
+        "nombre": "GOBIERNO REGIONAL VII REGION",
+        "n": 1
+      }
+    ],
+    "top_regiones": [
+      {
+        "nombre": "Región Metropolitana de Santiago",
+        "n": 4
+      },
+      {
+        "nombre": "Región Aysén del General Carlos Ibáñez del Campo",
+        "n": 1
+      },
+      {
+        "nombre": "Región de Valparaíso ",
+        "n": 1
+      }
+    ],
+    "competencia": {
+      "oferentes_mediana": 8.0,
+      "n": 2025
+    }
+  },
+  "detalles": {
+    "1596-45-LE26": {
+      "codigo": "1596-45-LE26",
+      "items": [
+        {
+          "nombre_producto": "Capacitación a empleados",
+          "cantidad": 1.0,
+          "unidad_medida": "Unidad",
+          "unspsc_commodity": "86111604"
+        }
+      ],
+      "referencia_historica": {
+        "alcance": "organismo_y_rubro",
+        "n_licitaciones": 1,
+        "monto_mediana_clp": 10000000.0,
+        "oferentes_mediana": 4.0
+      },
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=1596-45-LE26"
+    },
+    "831-21-LE26": {
+      "codigo": "831-21-LE26",
+      "items": [
+        {
+          "nombre_producto": "Formación, capacitación y entrenamiento de personal",
+          "cantidad": 30.0,
+          "unidad_medida": "Unidad",
+          "unspsc_commodity": "80111504"
+        },
+        {
+          "nombre_producto": "Formación, capacitación y entrenamiento de personal",
+          "cantidad": 15.0,
+          "unidad_medida": "Unidad",
+          "unspsc_commodity": "80111504"
+        }
+      ],
+      "referencia_historica": {
+        "alcance": "rubro",
+        "n_licitaciones": 595,
+        "monto_mediana_clp": 2390000.0,
+        "oferentes_mediana": 9.0,
+        "monto_p10_clp": 696500.0,
+        "monto_p90_clp": 11735000.0
+      },
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=831-21-LE26"
+    },
+    "586-55-LE26": {
+      "codigo": "586-55-LE26",
+      "items": [
+        {
+          "nombre_producto": "Formación, capacitación y entrenamiento de personal",
+          "cantidad": 1.0,
+          "unidad_medida": "Unidad",
+          "unspsc_commodity": "80111504"
+        }
+      ],
+      "referencia_historica": {
+        "alcance": "organismo_y_rubro",
+        "n_licitaciones": 3,
+        "monto_mediana_clp": 21000000.0,
+        "oferentes_mediana": 1.0
+      },
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=586-55-LE26"
+    },
+    "85-35-LE26": {
+      "codigo": "85-35-LE26",
+      "items": [
+        {
+          "nombre_producto": "Software de gestión de licencias",
+          "cantidad": 1.0,
+          "unidad_medida": "Unidad",
+          "unspsc_commodity": "43231512"
+        }
+      ],
+      "referencia_historica": {
+        "alcance": "organismo_y_rubro",
+        "n_licitaciones": 3,
+        "monto_mediana_clp": 10000000.0,
+        "oferentes_mediana": 1.0
+      },
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=85-35-LE26"
+    },
+    "1016-8-LE26": {
+      "codigo": "1016-8-LE26",
+      "items": [
+        {
+          "nombre_producto": "Software de sistema experto",
+          "cantidad": 1.0,
+          "unidad_medida": "Unidad",
+          "unspsc_commodity": "43231511"
+        },
+        {
+          "nombre_producto": "Software de clasificación o categorización",
+          "cantidad": 1.0,
+          "unidad_medida": "Unidad",
+          "unspsc_commodity": "43232301"
+        }
+      ],
+      "referencia_historica": {
+        "alcance": "rubro",
+        "n_licitaciones": 42,
+        "monto_mediana_clp": 5889600.0,
+        "oferentes_mediana": 2.0,
+        "monto_p10_clp": 8492.0,
+        "monto_p90_clp": 301645498.0
+      },
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=1016-8-LE26"
+    },
+    "2658-284-L126": {
+      "codigo": "2658-284-L126",
+      "items": [
+        {
+          "nombre_producto": "Software de extracción de datos",
+          "cantidad": 5.0,
+          "unidad_medida": "Unidad",
+          "unspsc_commodity": "43232307"
+        }
+      ],
+      "referencia_historica": {
+        "alcance": "rubro",
+        "n_licitaciones": 13,
+        "monto_mediana_clp": 32705883.0,
+        "oferentes_mediana": 2.0,
+        "monto_p10_clp": 3263550.0,
+        "monto_p90_clp": 223487395.0
+      },
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=2658-284-L126"
+    },
+    "4778-14-LP26": {
+      "codigo": "4778-14-LP26",
+      "items": [
+        {
+          "nombre_producto": "Software para centrales de comunicación digital",
+          "cantidad": 24.0,
+          "unidad_medida": "Unidad",
+          "unspsc_commodity": "43232903"
+        }
+      ],
+      "referencia_historica": {
+        "alcance": "rubro",
+        "n_licitaciones": 6,
+        "monto_mediana_clp": 437205.0,
+        "oferentes_mediana": 4.0
+      },
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=4778-14-LP26"
+    },
+    "1039-10-L126": {
+      "codigo": "1039-10-L126",
+      "items": [
+        {
+          "nombre_producto": "Capacitación a empleados",
+          "cantidad": 1.0,
+          "unidad_medida": "Unidad no definida",
+          "unspsc_commodity": "86111604"
+        },
+        {
+          "nombre_producto": "CAPACITACIÓN A EMPLEADOS",
+          "cantidad": 1.0,
+          "unidad_medida": "Unidad no definida",
+          "unspsc_commodity": "86111604"
+        }
+      ],
+      "referencia_historica": {
+        "alcance": "organismo_y_rubro",
+        "n_licitaciones": 1,
+        "monto_mediana_clp": 1500000.0,
+        "oferentes_mediana": 6.0
+      },
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=1039-10-L126"
+    }
+  }
+}

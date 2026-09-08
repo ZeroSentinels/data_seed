@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Pública by DataSeed | Buscador de Licitaciones Públicas</title>
+  <meta name="description" content="Buscador de licitaciones públicas de ChileCompra y Mercado Público por industria, producto o servicio.">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="/site/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/site/assets/dataseed-icon.png">
+
+  <!-- Igual que site/publica.html en contacto101/data_seed: aplica el tema
+       ANTES del primer paint para que no haya parpadeo. Por defecto CLARO,
+       salvo que el visitante ya haya elegido oscuro antes (mismo comportamiento
+       que el resto del sitio, no "oscuro porque es la marca"). -->
+  <script>
+  (function(){
+    try{
+      var root=document.documentElement;
+      var saved=localStorage.getItem('dataseed-theme');
+      root.dataset.theme=saved||'light';
+    }catch(e){document.documentElement.dataset.theme='light';}
+  })();
+  </script>
+
+  <!-- Página protegida: sin sesión de Pública, redirige a /publica-login.
+       Ver site/publica-buscador-auth-guard.js. -->
+  <script src="/site/publica-buscador-auth-guard.js"></script>
+
+  <!-- Google Fonts: Space Grotesk + Inter (idéntico a dataseed.cl/publica) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS Core del Buscador -->
+  <link rel="stylesheet" href="/site/publica-buscador.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       ENCABEZADO / NAVBAR
+       ============================================================ -->
+  <header class="pub-header" role="banner">
+    <div class="pub-header-inner">
+      <a href="https://www.dataseed.cl/publica" class="pub-brand" aria-label="Volver a Pública by DataSeed">
+        <div class="pub-brand-logo">
+          <img src="/site/assets/dataseed-icon.png" alt="DataSeed" width="32" height="32">
+        </div>
+        <div class="pub-brand-titles">
+          <span class="pub-brand-title">Dataseed</span>
+          <span class="pub-brand-subtitle">Pública</span>
+        </div>
+      </a>
+
+      <div class="pub-header-tag" role="status">
+        Buscador de licitaciones públicas
+      </div>
+
+      <button class="pub-theme-toggle" type="button" id="themeToggle" aria-label="Cambiar a tema oscuro" aria-pressed="false">
+        <span class="moon" aria-hidden="true">☾</span><span class="sun" aria-hidden="true">☀</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       CONTENIDO PRINCIPAL
+       ============================================================ -->
+  <main class="pub-main" role="main">
+
+    <!-- 6.1 BARRA DE BÚSQUEDA (Caja ancha, centrada, con autofocus) -->
+    <section class="search-hero" aria-labelledby="search-heading">
+      <h1 id="search-heading" class="search-hero-title">
+        Encontrá licitaciones públicas abiertas
+      </h1>
+      <p class="search-hero-subtitle">
+        Consultá oportunidades del Estado sin abrir Mercado Público. Información clara y al grano para decidir si postular.
+      </p>
+
+      <div class="search-form-container">
+        <form id="searchForm" class="search-form" role="search">
+          <div class="search-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+
+          <input
+            type="search"
+            id="searchInput"
+            class="search-input"
+            placeholder='Buscá por rubro, producto o servicio — ej: "inteligencia artificial"'
+            aria-label='Buscá por rubro, producto o servicio — ej: "inteligencia artificial"'
+            autocomplete="off"
+            autofocus
+          >
+
+          <button type="submit" class="btn-search">
+            Buscar
+          </button>
+        </form>
+        <p class="search-sample-note">Muestra fija de ejemplo — la búsqueda real la resuelve el servidor</p>
+      </div>
+
+      <!-- Sugerencias contextuales -->
+      <div class="search-suggestions" aria-label="Sugerencias de búsqueda rápida">
+        <span>Sugerencias:</span>
+        <button type="button" class="suggestion-chip" data-query="inteligencia artificial">"inteligencia artificial"</button>
+        <button type="button" class="suggestion-chip" data-query="capacitación">"capacitación"</button>
+        <button type="button" class="suggestion-chip" data-query="licencias">"licencias"</button>
+        <button type="button" class="suggestion-chip" data-query="contact center">"contact center"</button>
+      </div>
+    </section>
+
+    <!-- SECCIÓN DE RESULTADOS Y MÉTRICAS (Aparece DESPUÉS de buscar) -->
+    <div id="resultsLayout" class="results-layout" hidden>
+      <!-- Columna Principal: Filtros y Tarjetas -->
+      <div class="results-main-col">
+        <!-- 6.2 BARRA DE RESULTADOS Y FILTROS -->
+        <section id="filterBar" class="results-header-bar" aria-label="Filtros y resultados de búsqueda">
+          <div class="results-count-row">
+            <div class="results-count" id="resultsCount">
+              0 licitaciones encontradas
+            </div>
+          </div>
+
+          <div class="filters-row">
+            <!-- Filtro: Sólo abiertas (Activo por defecto) -->
+            <label class="filter-toggle" for="filterAbiertas">
+              <input type="checkbox" id="filterAbiertas" checked>
+              <span>Sólo abiertas</span>
+            </label>
+
+            <!-- Filtro: Región -->
+            <div class="filter-group">
+              <label for="filterRegion" class="filter-label">Región:</label>
+              <select id="filterRegion" class="filter-select">
+                <option value="">Todas las regiones</option>
+              </select>
+            </div>
+
+            <!-- Filtro: Monto -->
+            <div class="filter-group">
+              <label for="filterMonto" class="filter-label">Monto:</label>
+              <select id="filterMonto" class="filter-select">
+                <option value="">Cualquier monto</option>
+                <option value="con_monto">Con monto publicado</option>
+                <option value="sin_monto">Monto no publicado</option>
+                <option value="mayor_10m">Mayor a $10.000.000</option>
+                <option value="menor_10m">Menor a $10.000.000</option>
+              </select>
+            </div>
+
+            <button type="button" id="filterReset" class="filter-reset">
+              Restablecer filtros
+            </button>
+          </div>
+        </section>
+
+        <!-- 6.3 LISTADO DE TARJETAS DE RESULTADOS -->
+        <section id="resultsContainer" class="results-container" aria-label="Listado de licitaciones públicas">
+          <!-- Las tarjetas se generan dinámicamente desde js/app.js -->
+        </section>
+      </div>
+
+      <!-- 4-bis.1 LATERAL DE MÉTRICAS GLOBALES DEL FILTRO -->
+      <aside id="metricsSidebar" class="metrics-sidebar" aria-label="Métricas del mercado en este filtro">
+        <!-- Renderizado dinámicamente desde js/app.js -->
+      </aside>
+    </div>
+
+    <!-- 4-bis.2 MODAL DE DETALLE MASTICADO DE LICITACIÓN -->
+    <div id="tenderModal" class="tender-modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="modalTenderTitle">
+      <div class="tender-modal-container">
+        <header class="tender-modal-header">
+          <div class="modal-badge-row">
+            <span id="modalTenderTipo" class="tender-tipo-badge"></span>
+            <span id="modalTenderUrgencia" class="urgencia-badge"></span>
+          </div>
+          <button type="button" id="modalCloseBtn" class="modal-close-btn" aria-label="Cerrar detalle masticado">✕</button>
+        </header>
+
+        <h2 id="modalTenderTitle" class="tender-modal-title"></h2>
+
+        <div class="tender-modal-meta-row">
+          <span id="modalTenderOrganismo" class="modal-meta-organismo"></span>
+          <span class="buyer-sep">·</span>
+          <span id="modalTenderRegion" class="modal-meta-region"></span>
+          <span class="buyer-sep">·</span>
+          <div class="tender-codigo-container">
+            <span id="modalTenderCodigo" class="tender-codigo-text"></span>
+            <button type="button" id="modalCopyCodeBtn" class="btn-copy-code" aria-label="Copiar código">Copiar</button>
+          </div>
+        </div>
+
+        <div class="tender-modal-body" id="modalTenderBody">
+          <!-- Inyectado dinámicamente desde js/app.js:
+               1. Lo que están comprando de verdad (Ítems masticados)
+               2. Presupuesto y Referencia Histórica (Regla del umbral y psicología de ventas)
+               3. Datos de competencia del rubro
+          -->
+        </div>
+
+        <footer class="tender-modal-footer">
+          <button type="button" id="modalFooterCloseBtn" class="btn-modal-secondary">Cerrar</button>
+          <a id="modalMpLink" href="#" target="_blank" rel="noopener noreferrer" class="link-mercado-publico-secondary">
+            <span>Ver ficha sin procesar en Mercado Público</span>
+            <span class="icon-arrow" aria-hidden="true">↗</span>
+          </a>
+        </footer>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============================================================
+       6.4 PIE DE PÁGINA (Datos, corte y limitaciones)
+       ============================================================ -->
+  <footer class="pub-footer" role="contentinfo">
+    <div class="pub-footer-inner">
+      <div class="footer-source-line">
+        <span class="dot-live" aria-hidden="true"></span>
+        <span>Datos de ChileCompra — Mercado Público · actualizado al <span id="footerAsOfDate">3 de septiembre de 2026</span></span>
+      </div>
+
+      <div class="footer-meta-limitaciones" id="footerLimitaciones">
+        <p class="footer-compra-agil-note">
+          <strong>Nota de cobertura:</strong> Compra Ágil no aparece acá porque no genera una licitación: es un mecanismo de compra directa. Sus órdenes sí están en la base.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toggle de tema. Mismo patrón que site/publica.html en data_seed. -->
+  <script>
+  (function(){
+    var toggle=document.getElementById('themeToggle');
+    if(!toggle)return;
+    function sync(){
+      var isLight=document.documentElement.dataset.theme==='light';
+      toggle.setAttribute('aria-pressed',String(isLight));
+      toggle.setAttribute('aria-label',isLight?'Cambiar a tema oscuro':'Cambiar a tema claro');
+    }
+    toggle.addEventListener('click',function(){
+      var next=document.documentElement.dataset.theme==='light'?'dark':'light';
+      document.documentElement.dataset.theme=next;
+      try{localStorage.setItem('dataseed-theme',next);}catch(e){}
+      sync();
+    });
+    sync();
+  })();
+  </script>
+
+  <!-- Script principal de la aplicación -->
+  <script src="/site/publica-buscador.js"></script>
+</body>
+</html>
