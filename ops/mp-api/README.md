@@ -113,6 +113,44 @@ el endpoint valida contra `CLAVES_BUSCAR` (`texto`, `solo_abiertas`, `region`,
 —`site/publica-buscador.js` y el proxy `api/buscar.js`, que reenvia el cuerpo
 tal cual— mandan solo claves de esa lista.
 
+## La sonda: el control detectivo que faltaba
+
+`mp-sonda-indice.sh`, en el VPS como `/usr/local/bin/mp-sonda-indice.sh`, cada
+30 min por cron. Mide tres cosas, en vez de leer logs:
+
+1. **Inodo servido vs inodo en disco** de `mp_busqueda.duckdb` y `mp.duckdb`,
+   leído de `/proc/<pid>/fd` — que además delata el sufijo `(deleted)`.
+2. **`count(*)` de `licitacion_texto` vs `licitacion`.**
+3. **Días desde `max(fecha_publicacion)`**, con tope de 4 (tolera un fin de
+   semana largo).
+
+Se **omite sola** si `mp-sync.sh` está corriendo: durante la corrida el desfase
+es esperado, no una falla. Por eso corre cada 30 min y no anclada a la corrida:
+[MEDIDO 2026-09-08] una corrida tardó 43 min y una sonda a las :40 se habría
+omitido sola.
+
+**Se autorepara sólo en el caso 1**, el único con remedio conocido y medido
+(reiniciar `mp-api`), una vez por corrida, y vuelve a medir. Los casos 2 y 3
+sólo alertan: no hay remedio automático honesto para ellos.
+
+### Verificada corriendo, los cuatro caminos
+
+| camino | resultado |
+|---|---|
+| normal | `estado=ok indice_inodo=787315/787315 filas=98891/98891 dias_ultimo_publicado=0` |
+| `MP_SONDA_FORZAR_FALLA=inodo` | alertó, reinició `mp-api`, volvió a responder en **1.955 ms**, y registró *"reparado por reinicio"* |
+| `=filas` | alertó *"el índice no corresponde al almacén: 98.849 vs 98.891"* |
+| `=frescura` | alertó *"la licitación más nueva del almacén tiene 99 días"* |
+
+`MP_SONDA_FORZAR_FALLA` existe para eso: un control que nadie probó fallando no
+es un control.
+
+**Limitación declarada:** las alertas van a `/var/log/mp-sonda-indice.log` y a
+journald (`journalctl -t mp-sonda-indice -p err`). **No hay canal que le llegue
+a una persona** — no hay SMTP verificado en la máquina. La detección y la
+autoreparación del caso 1 están cubiertas; enterarse de los casos 2 y 3 sigue
+exigiendo mirar el log.
+
 ## Lo que NO está acá
 
 `sync.py` (la ingesta) vive en el repo `mcp-mercado-publico`, no en éste. Su

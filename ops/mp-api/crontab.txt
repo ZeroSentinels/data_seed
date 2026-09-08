@@ -30,3 +30,7 @@
 #   22:00        19:00                   18:00
 0 11,14,19,22 * * * /usr/local/bin/mp-sync.sh
 */10 * * * * /usr/local/bin/poc-watchdog.sh
+# Sonda del buscador: inodo servido vs disco, filas indice vs almacen, frescura.
+# Cada 30 min y no solo tras la corrida: la de hoy tardo 43 min y una sonda
+# anclada a las :40 se habria omitido sola. Se salta si mp-sync.sh esta corriendo.
+*/30 * * * * /usr/local/bin/mp-sonda-indice.sh
