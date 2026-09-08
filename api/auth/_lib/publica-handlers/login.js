@@ -4,7 +4,7 @@
 // __Host-ds_* del portal general. No modifica api/auth/login.js.
 //
 // No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
-// función serverless): lo despacha api/auth/publica/[...action].js.
+// función serverless): lo despacha api/auth/publica-router.js.
 import { buildSessionCookies } from '../publica-cookies.js';
 import { AuthorizationError, resolveIdentity } from '../authorization.js';
 import { ensureOrganizationForUser, ProvisioningError } from '../publica-provisioning.js';

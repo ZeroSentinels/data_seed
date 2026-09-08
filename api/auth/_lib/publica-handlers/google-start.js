@@ -8,7 +8,7 @@
 // URL — Supabase reenvía acá (a redirect_to) después de procesar el login.
 //
 // No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
-// función serverless): lo despacha api/auth/publica/[...action].js.
+// función serverless): lo despacha api/auth/publica-router.js.
 import { randomUUID } from 'node:crypto';
 import { getHeader, methodNotAllowed } from '../http.js';
 import { buildOAuthVerifierCookie } from '../publica-cookies.js';

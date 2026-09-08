@@ -258,7 +258,7 @@ primer arreglo, antes del formulario de alta.
    diferencia y por qué no se reescribe.
 4. **`authorization.js`: SIGUE ABIERTO, y ahora es urgente.** Medido en
    `api/auth/_lib/authorization.js` (`resolveIdentity`, compartida por
-   `api/auth/login.js` **y** `api/auth/publica/login.js`): no filtra por
+   `api/auth/login.js` **y** `api/auth/_lib/publica-handlers/login.js`): no filtra por
    `organizations.plan` ni `.type` en ningún punto — solo exige exactamente
    una membresía activa con organización activa. Con el punto 3 ya en
    producción, **cualquier registro self-serve de Pública que intente

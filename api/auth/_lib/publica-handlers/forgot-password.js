@@ -2,7 +2,7 @@
 // a /publica-login en vez de /site/login.html.
 //
 // No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
-// función serverless): lo despacha api/auth/publica/[...action].js.
+// función serverless): lo despacha api/auth/publica-router.js.
 import {
   getHeader,
   isSameOriginRequest,

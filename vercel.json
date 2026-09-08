@@ -38,6 +38,10 @@
       "destination": "/api/portal"
     },
     {
+      "source": "/api/auth/publica/(.*)",
+      "destination": "/api/auth/publica-router?path=$1"
+    },
+    {
       "source": "/publica",
       "destination": "/site/publica.html"
     },

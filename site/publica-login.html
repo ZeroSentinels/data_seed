@@ -19,20 +19,7 @@
        endpoints nuevos e independientes de /api/auth/* (sesión propia, cookies
        __Host-pub_*, nunca las __Host-ds_* del portal general). -->
   <link rel="stylesheet" href="/site/login.css">
-  <style>
-    /* Componentes propios de esta página (tabs, botón Google, separador). No toca login.css. */
-    .auth-tabs{display:flex;gap:.4rem;margin-bottom:1.1rem;border-bottom:1px solid var(--card-b);}
-    .auth-tab{flex:1;padding:.7rem .5rem;border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s;}
-    .auth-tab:hover{color:var(--text);}
-    .auth-tab[aria-selected="true"]{color:var(--g);border-bottom-color:var(--g);}
-    .google-button{display:flex;align-items:center;justify-content:center;gap:.65rem;width:100%;min-height:50px;border:1px solid var(--card-b);border-radius:999px;background:var(--panel);color:var(--text);font-size:.88rem;font-weight:600;text-decoration:none;transition:border-color .2s,background .2s;}
-    .google-button:hover{border-color:var(--g2);background:var(--gdim);}
-    .google-button svg{width:19px;height:19px;flex-shrink:0;}
-    .auth-divider{display:flex;align-items:center;gap:.8rem;margin:1.1rem 0;color:var(--muted);font-size:.75rem;}
-    .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--card-b);}
-    #signup-form[hidden],#login-form[hidden]{display:none;}
-    .field-hint{margin:0;color:var(--muted);font-size:.72rem;line-height:1.4;}
-  </style>
+  <link rel="stylesheet" href="/site/publica-login.css">
   <script src="/site/publica-login.js" defer></script>
 </head>
 <body>
