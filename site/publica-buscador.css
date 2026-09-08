@@ -617,6 +617,66 @@ html[data-theme="light"] .filter-select {
   gap: 1.15rem;
 }
 
+/* 6.3-bis Paginación */
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.4rem;
+  padding: 0.85rem 1.1rem;
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: var(--r);
+  flex-wrap: wrap;
+}
+
+.paginacion-btn {
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--card-b);
+  border-radius: 100px;
+  padding: 0.45rem 1.05rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.paginacion-btn:hover:not(:disabled) {
+  border-color: var(--g);
+  color: var(--g);
+}
+
+.paginacion-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.paginacion-estado {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  flex: 1 1 auto;
+}
+
+.paginacion-detalle {
+  font-weight: 500;
+  color: var(--sub);
+}
+
+@media (max-width: 560px) {
+  .paginacion {
+    justify-content: center;
+  }
+  .paginacion-estado {
+    order: -1;
+    flex-basis: 100%;
+  }
+}
+
 .tender-card {
   background: var(--card);
   border: 1px solid var(--card-b);

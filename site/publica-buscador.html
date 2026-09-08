@@ -170,6 +170,12 @@
         <section id="resultsContainer" class="results-container" aria-label="Listado de licitaciones públicas">
           <!-- Las tarjetas se generan dinámicamente desde js/app.js -->
         </section>
+
+        <!-- 6.3-bis PAGINACIÓN: el endpoint acepta `desde`; sin esto el corte de
+             50 dejaba el resto del universo inalcanzable -->
+        <nav id="paginacion" class="paginacion" hidden aria-label="Paginación de resultados">
+          <!-- Renderizada dinámicamente desde site/publica-buscador.js -->
+        </nav>
       </div>
 
       <!-- 4-bis.1 LATERAL DE MÉTRICAS GLOBALES DEL FILTRO -->
