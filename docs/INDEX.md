@@ -42,6 +42,7 @@ Este índice conecta la información activa e histórica del repo. Si un documen
 | `docs/operations/graphify.md` | Activo | Ops/Arquitectura | Grafo de conocimiento | `graphify-out/GRAPH_REPORT.md` | Regenerar tras cambios |
 | `docs/operations/branch-inventory.md` | Activo | Ops/Arquitectura | Inventario y estado de branches | `git for-each-ref` | Revisar antes de cerrar ramas |
 | `docs/operations/rollback.md` | Activo | Ops | Rollback | Plan operativo | Usar antes de revertir |
+| `docs/operations/coordinacion-agentes.md` | Activo | Ops/Seguridad | Protocolo de dos Claude Code sobre el repo: carga de la prueba, rollback, invariantes, reparto | Dos agentes desde 2026-09-08 | Leer antes de tocar `api/auth/` o `site/login*` |
 
 ## Seguridad
 
