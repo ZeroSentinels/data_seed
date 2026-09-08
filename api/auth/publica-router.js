@@ -44,8 +44,23 @@ const routes = {
 
 export default async function publicaAuthRouter(req, res) {
   const path = String(req.query?.path || '').replace(/\/+$/, '');
-  const handler = routes[path];
-  if (!handler) {
+  // Object.hasOwn y no `routes[path]` a secas: `routes` es un objeto literal,
+  // asi que hereda de Object.prototype y una busqueda por indice resuelve sus
+  // miembros. `routes['constructor']` devolvia la funcion Object -- verdadera,
+  // asi que pasaba el chequeo de handler y se invocaba como si fuera uno.
+  //
+  // Medido en produccion el 2026-09-08, sin autenticacion de por medio:
+  //   /api/auth/publica/constructor    -> sin respuesta, corta a los 25 s
+  //   /api/auth/publica/toString       -> sin respuesta, corta a los 25 s
+  //   /api/auth/publica/__proto__      -> 500
+  //   /api/auth/publica/hasOwnProperty -> 500
+  // Los dos primeros son el problema real: Object(req, res) no escribe nada en
+  // la respuesta, asi que la invocacion queda colgada hasta el timeout de la
+  // plataforma. Anonimo, repetible y sin limite de tasa = consumo de
+  // funcion-segundos a pedido, en un proyecto que ya choco una vez con los
+  // limites del plan.
+  const handler = Object.hasOwn(routes, path) ? routes[path] : null;
+  if (typeof handler !== 'function') {
     return sendJson(res, 404, { error: 'No encontrado.' });
   }
   return handler(req, res);
