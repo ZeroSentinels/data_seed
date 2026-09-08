@@ -48,3 +48,19 @@ test('router: sin query "path" responde 404', async () => {
   await router({ method: 'GET', query: {}, headers: {} }, res);
   assert.equal(res.statusCode, 404);
 });
+
+// Regresion medida en produccion: `routes` es un objeto literal, asi que
+// `routes['constructor']` resolvia la funcion Object heredada de
+// Object.prototype y el router la invocaba como handler. Object(req, res) no
+// responde nada: la invocacion quedaba colgada hasta el timeout de la
+// plataforma (curl corto a los 25 s contra /api/auth/publica/constructor y
+// /toString; __proto__ y hasOwnProperty daban 500). Sin autenticacion y sin
+// limite de tasa.
+test('router: los miembros heredados de Object.prototype no son rutas', async () => {
+  for (const path of ['constructor', 'toString', '__proto__', 'hasOwnProperty', 'valueOf', 'isPrototypeOf']) {
+    const res = response();
+    await router({ method: 'GET', query: { path }, headers: {} }, res);
+    assert.equal(res.statusCode, 404, `${path} tendria que ser 404`);
+    assert.deepEqual(res.body, { error: 'No encontrado.' });
+  }
+});
