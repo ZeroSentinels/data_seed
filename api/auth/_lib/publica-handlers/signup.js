@@ -80,6 +80,20 @@ export function createPublicaSignupHandler({
       return sendJson(res, 503, { error: 'No pudimos crear tu cuenta. Intenta nuevamente.' });
     }
 
+    // Supabase no devuelve error si el correo ya tiene una cuenta confirmada
+    // (a propósito, para no filtrar qué correos están registrados a quien no
+    // tiene la contraseña): responde 200 igual, pero con `identities: []` en
+    // vez de la identidad nueva. Sin este chequeo, el usuario ve "revisa tu
+    // correo" y espera un mail que nunca llega, porque no hay nada que
+    // confirmar de nuevo.
+    if (Array.isArray(signUpResult.user?.identities) && signUpResult.user.identities.length === 0) {
+      return sendJson(res, 409, {
+        ok: false,
+        accountExists: true,
+        error: 'Ya existe una cuenta con este correo. Inicia sesión en su lugar.',
+      });
+    }
+
     // Sin access_token (correo pendiente de confirmar) no hay con qué llamar
     // a la función de aprovisionamiento: necesita el JWT del propio usuario,
     // no admite una clave de privilegios elevados. Queda pendiente para el

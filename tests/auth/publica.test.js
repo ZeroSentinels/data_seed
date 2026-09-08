@@ -214,6 +214,24 @@ test('publica signup: si Supabase exige confirmar el correo, no puede aprovision
   assert.equal(provisioned, false);
 });
 
+test('publica signup: correo ya registrado y confirmado (identities: []) responde 409 sin decir "revisa tu correo"', async () => {
+  let provisioned = false;
+  const handler = createPublicaSignupHandler({
+    env: {},
+    // Comportamiento real de Supabase con "Confirm email" activado: no
+    // devuelve error para no filtrar qué correos existen, pero la identidad
+    // viene vacía en vez de la nueva.
+    signUp: async () => ({ user: { id: 'existing-user', identities: [] } }),
+    provision: async () => { provisioned = true; return { created: true }; },
+  });
+  const res = response();
+  await handler(request({ email: 'ya@existe.cl', password: 'pass12345', empresa: 'Empresa' }), res);
+  assert.equal(res.statusCode, 409);
+  assert.equal(res.body.accountExists, true);
+  assert.doesNotMatch(res.body.error, /revisa tu correo/i);
+  assert.equal(provisioned, false);
+});
+
 test('publica logout y session usan sus propias cookies, no las del portal general', async () => {
   const logoutHandler = createPublicaLogoutHandler({
     env: {},
