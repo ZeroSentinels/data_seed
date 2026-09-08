@@ -8,6 +8,26 @@ releer nada más. Todo lo que dice "medido" se comprobó ejecutando, no razonand
 > sembrar su organización. Las secciones de "cómo ejecutar" quedaron obsoletas y
 > se reescribieron: hay canal (MCP de Supabase) y funciona.
 
+> **Corrección del 2026-09-08, 19:05 UTC — este documento quedó desactualizado
+> abajo de esta línea.** El login y el registro **funcionan en producción**:
+> medido con `count(*)`, hay usuarios, perfiles y membresías reales; `auth.users`
+> **no** está vacío. Lo que sigue vale como historia del esquema, no como estado.
+>
+> **El login con Google ya está habilitado y arreglado (PR #47).** El síntoma era
+> que tras autenticar en Google el usuario caía en la portada y no en
+> `/publica-buscador`. Causa medida: `google-start.js` mandaba un `state` propio
+> al `/authorize` de Supabase y **pisaba el de GoTrue, que es el `id` de la fila
+> que crea en `auth.flow_state`**. El `/callback` de Supabase no encontraba esa
+> fila (`400: OAuth state not found or expired`, 18:45:52 y 18:46:21 en
+> `auth_logs`) y, como el `redirect_to` viaja dentro del state, caía al Site URL.
+> Arreglo: borrar el parámetro. Verificado en producción — el `start` en vivo ya
+> no emite `state`.
+>
+> Trampa que queda anotada: `https://www.dataseed.cl/...` **no** está en la
+> allowlist de Redirect URLs (sondeado: GoTrue cae al Site URL). Hoy no muerde
+> porque `APP_ORIGIN` está fijado al apex, así que el `start` desde `www` igual
+> emite el `redirect_to` del apex. Si alguien cambia `APP_ORIGIN`, muerde.
+
 ## Dónde está parado esto
 
 **Esquema aplicado.** Falta el primer usuario. Nadie puede entrar todavía porque
