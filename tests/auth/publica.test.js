@@ -335,6 +335,37 @@ test('google start: redirige a Supabase con PKCE y deja la cookie de verifier, n
   assert.match(res.headers['Set-Cookie'], /__Host-pub_oauth_verifier=/);
 });
 
+test('google start: desde www rebota al host canonico ANTES de emitir la cookie del verifier', async () => {
+  // Si la cookie se emitiera en www y el callback corriera en el apex, el
+  // verifier nunca llegaria (__Host- es host-only) y el usuario veria
+  // "El enlace de Google expiro". Ver google-start.js.
+  const handler = createGoogleStartHandler({
+    env: { SUPABASE_URL: 'https://proj.supabase.co', APP_ORIGIN: 'https://dataseed.cl' },
+  });
+  const res = response();
+  await handler(request({}, {
+    method: 'GET',
+    headers: { host: 'www.dataseed.cl', 'x-forwarded-host': 'www.dataseed.cl' },
+  }), res);
+  assert.equal(res.statusCode, 302);
+  assert.equal(res.headers.Location, 'https://dataseed.cl/api/auth/publica/google/start');
+  assert.equal(res.headers['Set-Cookie'], undefined);
+});
+
+test('google start: un host que no es el hermano www (preview de Vercel) no se rebota a produccion', async () => {
+  const handler = createGoogleStartHandler({
+    env: { SUPABASE_URL: 'https://proj.supabase.co', APP_ORIGIN: 'https://dataseed.cl' },
+  });
+  const res = response();
+  await handler(request({}, {
+    method: 'GET',
+    headers: { host: 'data-seed-abc123.vercel.app', 'x-forwarded-host': 'data-seed-abc123.vercel.app' },
+  }), res);
+  assert.equal(res.statusCode, 302);
+  assert.equal(new URL(res.headers.Location).origin, 'https://proj.supabase.co');
+  assert.match(res.headers['Set-Cookie'], /__Host-pub_oauth_verifier=/);
+});
+
 test('google callback: sin code o con error del proveedor, vuelve al login con un error legible (no expone detalle interno)', async () => {
   const handler = createGoogleCallbackHandler({ env: {} });
 
