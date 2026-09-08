@@ -38,10 +38,33 @@ create table if not exists public.user_organizations (
 );
 
 -- Upgrade seguro si una versión histórica de las tablas ya existe.
+--
+-- Los `create table if not exists` de arriba son no-op cuando la tabla ya
+-- existe, así que TODA columna nueva tiene que repetirse acá o no llega nunca.
+-- Medido el 2026-09-08 contra pgmfppykgpqpzcoswszv: organizations existía con
+-- (id, name, type, created_at) solamente. Sin `plan`, la consulta de
+-- api/auth/_lib/supabase.js —organizations(id,name,type,plan,is_active)— falla
+-- con 400 de PostgREST y el login devuelve 503 en vez de entrar.
 alter table public.profiles add column if not exists avatar_url text;
 alter table public.profiles add column if not exists is_active boolean not null default false;
 alter table public.organizations add column if not exists is_active boolean not null default true;
+alter table public.organizations add column if not exists plan text not null default 'free';
+alter table public.organizations add column if not exists updated_at timestamptz not null default now();
 alter table public.user_organizations add column if not exists is_active boolean not null default true;
+
+-- El check de `plan` va aparte: si la columna se creó por el `alter` de arriba
+-- llega sin restricción, y si vino del `create table` ya la tiene.
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'organizations_plan_check'
+  ) then
+    alter table public.organizations
+      add constraint organizations_plan_check
+      check (plan in ('free', 'starter', 'pro', 'enterprise'));
+  end if;
+end
+$$;
 
 create table if not exists public.reports (
   id uuid primary key default gen_random_uuid(),
@@ -189,6 +212,31 @@ $$;
 
 revoke all on function public.is_org_member(uuid) from public, anon;
 grant execute on function public.is_org_member(uuid) to authenticated;
+
+-- Funciones SECURITY DEFINER heredadas que el linter de Supabase reporta como
+-- ejecutables por `anon` vía /rest/v1/rpc/. Medido el 2026-09-08: ninguna filtra
+-- datos hoy —`current_user_role()` filtra por auth.uid(), que es NULL sin sesión,
+-- y `handle_new_user()` retorna `trigger`, así que PostgreSQL rechaza llamarla
+-- directamente— pero el EXECUTE abierto no tiene ninguna razón de ser.
+-- current_user_role() queda huérfana: ninguna policy de V1 la referencia.
+do $$
+begin
+  if exists (
+    select 1 from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and p.proname = 'current_user_role'
+  ) then
+    execute 'revoke all on function public.current_user_role() from public, anon, authenticated';
+  end if;
+  if exists (
+    select 1 from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and p.proname = 'handle_new_user'
+  ) then
+    execute 'revoke all on function public.handle_new_user() from public, anon, authenticated';
+  end if;
+end
+$$;
 
 -- Elimina policies históricas inseguras antes de establecer el contrato V1.
 drop policy if exists "profiles_select_self_or_admin" on public.profiles;
