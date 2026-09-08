@@ -269,6 +269,12 @@ primer arreglo, antes del formulario de alta.
    en el código, no inferido. Este punto ya no es "conviene resolverlo
    antes de cobrar": es la fuga entre audiencias que este mismo documento
    advertía, y ya está desplegable.
+
+   **Acordado 2026-09-08 (Matías):** avisa directamente a Daniel de este
+   riesgo fuera del repo antes de que se resuelva. Hasta que ese aviso pase
+   y los dos coincidan en el enfoque, **ningún agente toma este punto sin
+   anunciarlo primero acá** (mismo criterio de `coordinacion-agentes.md`
+   §4.1) — evita un tercer choque sobre el mismo archivo compartido.
 5. Límite de tasa en el borde sobre el registro.
 
 **Verificación manual pendiente, en el panel de Supabase** (el MCP no expone esa
