@@ -1,8 +1,9 @@
 # ¿Va `SUPABASE_SERVICE_ROLE_KEY` en el env de Vercel?
 
-**Estado: abierto. Falta la justificación técnica de para qué se necesita.**
+**Estado: CERRADA. No se agrega la clave — el self-serve no la necesita.**
 Fecha: 2026-09-08. Escrito para que la discusión sea por escrito y con números,
-no por chat.
+no por chat. La decisión de producto que faltaba está tomada y documentada en
+"Resolución" más abajo; el trabajo pendiente sale de ahí.
 
 > **Pedido recibido:** poner `SUPABASE_SERVICE_ROLE_KEY` en las variables de
 > entorno del proyecto Vercel `data-seed`.
@@ -16,6 +17,11 @@ no por chat.
 > producto explícita, no un env var. Y para el camino de escritura que necesita,
 > **hay una alternativa que no requiere la clave**: una función
 > `security definer` con contrato estrecho. Detalle abajo.
+>
+> **Cerrado el 2026-09-08.** La decisión de producto se tomó (Pública freemium
+> self-serve · portal de Dataseed por invitación) y con ella el camino de
+> escritura queda cubierto por la función `security definer`. **La clave no se
+> agrega.** Quien vuelva a proponerla: leer "Resolución" antes.
 
 ## Qué es esa clave, medido
 
@@ -161,27 +167,96 @@ Lo que se pierde: hay que escribir y testear esa función, y el signup queda
 atado a su contrato. Es más trabajo que agregar un env var — y es la diferencia
 entre un permiso acotado y uno total.
 
-## Resolución al 2026-09-08: diferido
+## Resolución al 2026-09-08: no se agrega la clave. Decisión de producto cerrada
 
-**El self-serve viene después; el objetivo actual es solo que el login funcione.**
-Para eso **no se necesita la clave**: el alta del primer usuario es una operación
-de una sola vez que se hace por el canal administrativo (MCP de Supabase), sin
-que ninguna credencial entre al runtime de producción.
+**No se agrega `SUPABASE_SERVICE_ROLE_KEY` al env de Vercel.** No es un diferimiento:
+con la decisión de producto tomada, el self-serve **no la necesita**.
 
-Por lo tanto: **no se agrega `SUPABASE_SERVICE_ROLE_KEY` al env de Vercel ahora.**
+### La decisión de producto (respuesta al punto 1)
 
-Cuando el self-serve entre en agenda, lo que hace falta antes de escribir código:
+Definida por Matías y Daniel el 2026-09-08:
 
-1. La **decisión de producto**: a qué accede un usuario de self-serve, y si eso
-   convive con el aislamiento multi-tenant o lo redefine.
-2. Evaluar la **contrapropuesta** `security definer` frente a la clave. Si se
-   descarta, escribir por qué no alcanza.
-3. Si igual tiene que ir la clave: **no en este env**. Proyecto de Vercel
-   separado o Supabase Edge Function, con su propia autenticación, límite de tasa
-   en el borde, y un test que verifique que no se referencia fuera de un único
-   módulo — el mismo espíritu de los dos tests que ya la vetan.
-4. Declarar por escrito, como exige `CLAUDE.md`: qué superficie queda expuesta,
-   qué la protege, qué pasa si ese control cae, y qué se pierde al cerrarla.
+| | Pública | Portal de Dataseed |
+|---|---|---|
+| Alta | **self-serve**, cualquiera se registra | **por invitación** |
+| Modelo | **freemium** ahora; el pago se activa después | contrato con el cliente |
+| Organización | una propia, vacía, `plan = 'publica_free'` | sembrada por Dataseed |
+
+Un usuario de self-serve **no accede a datos de Dataseed**: obtiene su propia
+organización. El aislamiento multi-tenant de V1 se sostiene tal cual; lo que
+cambia es que ahora hay dos audiencias con **dos reglas de autorización
+distintas**, no una sola relajada para las dos.
+
+El invariante invite-only **sigue vigente para el portal de Dataseed**. Deja de
+ser global.
+
+### El camino de escritura, sin la clave (respuesta al punto 2)
+
+1. **Registro**: signup normal de Supabase con la clave `anon`. Ninguna
+   credencial privilegiada participa.
+2. **Confirmación de correo**: obligatoria. `authorization.js` ya la exige
+   (`email_confirmed_at`), y es el único freno real contra registros masivos
+   mientras no haya pago.
+3. **Login**: el usuario existe y no tiene organización, así que
+   `authorization.js` devuelve **403 `membership_required`**. Esa rama, que hoy
+   es un muro ("Contacta a soporte" en `site/login.js:105`), pasa a ser el
+   redirect al formulario de alta.
+4. **Formulario de alta**: llama a `provision_self_serve_org()` —
+   `security definer`, otorgada **solo a `authenticated`**, invocada con el JWT
+   del propio usuario— que valida que quien llama no tenga ninguna membresía
+   previa y crea **exactamente** una organización con `plan = 'publica_free'`,
+   una membresía, activa el perfil y escribe `audit_log`.
+5. **Segundo login**: entra a Pública.
+
+El bypass de RLS queda dentro de la base, acotado a una operación auditable y
+testeable. La clave `service_role` no aparece en ningún paso.
+
+**`plan` se marca desde el día uno**, aunque no se cobre nada. La columna ya
+existe (PR #29). Sin eso, activar el pago después es una migración sobre cuentas
+vivas en vez de una consulta de dato.
+
+### Puntos 3 y 4: no aplican
+
+No hay clave que ubicar ni superficie nueva que declarar por ella. Si en el
+futuro alguien vuelve a necesitarla, los cuatro puntos siguen siendo el
+requisito, y esta sección es la evidencia de que el self-serve **no** era el caso
+que la justificaba.
+
+## Bug medido que bloquea el "login funcional"
+
+`site/login.js:137`:
+
+```js
+const destination = payload.redirectTo === '/portal' ? '/portal' : '/portal';
+```
+
+Las dos ramas del ternario son `/portal`: el destino es **siempre** el portal de
+Dataseed, sin importar qué responda `api/auth/login.js:77`. Y
+`site/publica-login.html` carga ese mismo `site/login.js` — su propio comentario
+lo declara: "sin tocar la autenticación. Solo cambia el copy".
+
+**Consecuencia:** un usuario freemium de Pública que se autentique aterriza en el
+portal de clientes de Dataseed. Es la fuga entre audiencias que la decisión de
+producto justamente separa. `[Seguro]` — leído en `main`, no inferido.
+
+Mientras esa línea exista, **ningún destino por audiencia es posible**. Es el
+primer arreglo, antes del formulario de alta.
+
+## Trabajo pendiente, en orden
+
+1. `site/login.js:137` — destino según la audiencia, no hardcodeado. Y
+   `api/auth/login.js` devolviendo el destino de verdad.
+2. La rama 403 `membership_required` redirige al formulario en vez de mostrar
+   "Contacta a soporte".
+3. Migración con `provision_self_serve_org()` y sus tests.
+4. `authorization.js`: una membresía de `plan = 'publica_free'` **no** habilita
+   `/portal`.
+5. Límite de tasa en el borde sobre el registro.
+
+**Verificación manual pendiente, en el panel de Supabase** (el MCP no expone esa
+configuración): que el signup público esté habilitado y que la confirmación de
+correo sea obligatoria. Si el signup está cerrado, nada de esto arranca; si la
+confirmación es opcional, el anti-abuso del punto 2 no existe.
 
 ## Referencias
 

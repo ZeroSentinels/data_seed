@@ -1,0 +1,31 @@
+name: Guardia de invariantes
+
+# Corre por EVENTO: cada pull request, sin importar quien lo abra ni si alguien
+# tiene una sesion abierta. Es lo que ningun agente puede garantizar.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: guardia-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  invariantes:
+    name: Decisiones cerradas y carga de la prueba
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Necesita el historial de la base para comparar solo lo del PR.
+          fetch-depth: 0
+
+      - name: Guardia
+        env:
+          # El cuerpo del PR entra por variable de entorno a proposito. Es texto
+          # escrito por quien abre el PR: interpolarlo en la linea de comandos
+          # con ${{ }} seria ejecutar lo que ese texto diga.
+          CUERPO_PR: ${{ github.event.pull_request.body }}
+        run: bash ./scripts/ci/guardia-invariantes.sh "${{ github.event.pull_request.base.sha }}"

@@ -1,0 +1,17 @@
+# Normalizacion de fin de linea.
+# Sin esto, un checkout en Windows (core.autocrlf=true, que es el defecto del
+# instalador de Git para Windows) convierte LF->CRLF y deja dos efectos medidos:
+#  1. tests/ui/landing-mobile.test.js falla porque sus expresiones regulares
+#     esperan \n y encuentran \r\n;
+#  2. cada diff aparece con el archivo entero modificado.
+# Con el equipo trabajando en sistemas operativos distintos, esto no es cosmetico.
+* text=auto eol=lf
+
+*.png  binary
+*.ico  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.pdf  binary
+*.woff  binary
+*.woff2 binary
