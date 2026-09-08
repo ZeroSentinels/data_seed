@@ -10,6 +10,11 @@
 // 1. CONTRATO CON EL BACKEND REAL (Sección 4 y 4-bis de la spec)
 // =========================================================================
 
+// Tamaño de página. El endpoint acepta `desde`, así que el corte de 50 dejaba
+// [MEDIDO 2026-09-08] 2.007 de 2.057 resultados inalcanzables mientras el
+// contador se lo decía al usuario en la cara.
+const POR_PAGINA = 50;
+
 /**
  * Endpoint real en producción:
  * POST /api/buscar
@@ -27,7 +32,7 @@ async function buscarLicitacionesBackend(payload) {
       texto: payload.texto || '',
       solo_abiertas: payload.solo_abiertas !== undefined ? payload.solo_abiertas : true,
       region: payload.region || null,
-      limite: payload.limite || 50,
+      limite: payload.limite || POR_PAGINA,
       desde: payload.desde || 0
     })
   });
@@ -1070,6 +1075,7 @@ class BuscadorPublicaApp {
     this.totalServidor = 0;
     this.idPeticionVigente = 0; // descarta respuestas tardias de busquedas viejas
     this.haBuscado = false;
+    this.pagina = 0;            // pagina vigente, base 0; se traduce a `desde`
 
     // Filtros activos
     this.filtros = {
@@ -1091,6 +1097,7 @@ class BuscadorPublicaApp {
       filterReset: document.getElementById('filterReset'),
       resultsContainer: document.getElementById('resultsContainer'),
       resultsCount: document.getElementById('resultsCount'),
+      paginacion: document.getElementById('paginacion'),
       metricsSidebar: document.getElementById('metricsSidebar'),
       suggestionChips: document.querySelectorAll('.suggestion-chip'),
       footerAsOfDate: document.getElementById('footerAsOfDate'),
@@ -1247,6 +1254,16 @@ class BuscadorPublicaApp {
       });
     }
 
+    // Paginación. Delegado porque el nav se vuelve a escribir en cada render.
+    if (this.dom.paginacion) {
+      this.dom.paginacion.addEventListener('click', (e) => {
+        const btn = e.target.closest('.paginacion-btn');
+        if (!btn || btn.disabled) return;
+        const paso = btn.dataset.pagina === 'anterior' ? -1 : 1;
+        this.irAPagina(this.pagina + paso);
+      });
+    }
+
     // Delegación para botones de copiar código
     this.dom.resultsContainer.addEventListener('click', (e) => {
       const btn = e.target.closest('.btn-copy-code');
@@ -1385,8 +1402,12 @@ class BuscadorPublicaApp {
   // filtro que sigue siendo de cliente es 'monto': el contrato del endpoint no
   // lo tiene (ver docs/architecture/publica-buscador.md §4.1), así que sólo
   // acota la página ya traída — no vuelve a pedir con un total distinto.
-  async aplicarFiltrosYRenderizar() {
+  async aplicarFiltrosYRenderizar(opciones = {}) {
     if (!this.haBuscado) return;
+
+    // Cualquier cambio de texto o de filtros vuelve a la primera página: el
+    // `desde` de la página 7 sobre un universo nuevo apunta a otra cosa.
+    if (!opciones.mantenerPagina) this.pagina = 0;
 
     const idPeticion = ++this.idPeticionVigente;
     // [OBSERVADO] la búsqueda responde en ~150 ms: sin señal de progreso el
@@ -1398,7 +1419,8 @@ class BuscadorPublicaApp {
         texto: this.filtros.texto,
         solo_abiertas: this.filtros.soloAbiertas,
         region: this.filtros.region || null,
-        limite: 50
+        limite: POR_PAGINA,
+        desde: this.pagina * POR_PAGINA
       });
 
       // Una respuesta tardía de una búsqueda vieja no debe pisar la de una
@@ -1458,6 +1480,9 @@ class BuscadorPublicaApp {
           </p>
         </div>
       `;
+      // Con el filtro de monto puesto una página puede quedar vacía sin que el
+      // universo lo esté: la paginación tiene que seguir ahí para poder salir.
+      this.renderizarPaginacion(items.length);
       return;
     }
 
@@ -1468,6 +1493,62 @@ class BuscadorPublicaApp {
     }).join('');
 
     this.dom.resultsContainer.innerHTML = htmlCards;
+    this.renderizarPaginacion(items.length);
+  }
+
+  /**
+   * Paginación. El rango que se declara es el que pidió esta página al
+   * servidor (`desde`+1 .. `desde`+traídas), NO la cantidad que quedó en
+   * pantalla: el filtro de monto es de cliente y acota la página ya traída.
+   * Cuando recorta, se dice — un "51-100 de 2.057" con 12 tarjetas debajo
+   * sería una salvedad falsa.
+   */
+  renderizarPaginacion(visibles) {
+    const nav = this.dom.paginacion;
+    if (!nav) return;
+
+    const total = this.totalServidor || 0;
+    const traidas = (this.datasetCompleto || []).length;
+    const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
+
+    if (total <= POR_PAGINA && this.pagina === 0) {
+      nav.hidden = true;
+      nav.innerHTML = '';
+      return;
+    }
+
+    const desde = this.pagina * POR_PAGINA;
+    const rango = traidas > 0
+      ? `${(desde + 1).toLocaleString('es-CL')}–${(desde + traidas).toLocaleString('es-CL')} de ${total.toLocaleString('es-CL')}`
+      : `sin resultados en esta página de ${total.toLocaleString('es-CL')}`;
+    const recorte = (traidas > 0 && visibles < traidas)
+      ? ` <span class="paginacion-detalle">(${visibles} tras el filtro de monto)</span>`
+      : '';
+
+    nav.hidden = false;
+    nav.innerHTML = `
+      <button type="button" class="paginacion-btn" data-pagina="anterior"
+              ${this.pagina === 0 ? 'disabled' : ''} aria-label="Página anterior">← Anterior</button>
+      <span class="paginacion-estado" aria-live="polite">
+        ${rango}${recorte}
+        <span class="paginacion-detalle">· página ${(this.pagina + 1).toLocaleString('es-CL')} de ${paginas.toLocaleString('es-CL')}</span>
+      </span>
+      <button type="button" class="paginacion-btn" data-pagina="siguiente"
+              ${this.pagina + 1 >= paginas ? 'disabled' : ''} aria-label="Página siguiente">Siguiente →</button>
+    `;
+  }
+
+  async irAPagina(pagina) {
+    const paginas = Math.max(1, Math.ceil((this.totalServidor || 0) / POR_PAGINA));
+    const destino = Math.min(Math.max(pagina, 0), paginas - 1);
+    if (destino === this.pagina) return;
+    this.pagina = destino;
+    await this.aplicarFiltrosYRenderizar({ mantenerPagina: true });
+    // El usuario venía leyendo el final de la página anterior: sin esto la
+    // página nueva arranca a mitad de camino.
+    if (this.dom.resultsCount) {
+      this.dom.resultsCount.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   async abrirModalDetalle(codigo, btnTrigger = null) {
