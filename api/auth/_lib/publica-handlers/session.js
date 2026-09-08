@@ -1,7 +1,7 @@
 // Estado de sesión de Pública (independiente del /api/auth/session general).
 //
 // No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
-// función serverless): lo despacha api/auth/publica/[...action].js.
+// función serverless): lo despacha api/auth/publica-router.js.
 import { AuthorizationError } from '../authorization.js';
 import { clearSessionCookies } from '../publica-cookies.js';
 import { methodNotAllowed, sendJson } from '../http.js';

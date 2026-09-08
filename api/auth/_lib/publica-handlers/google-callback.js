@@ -3,7 +3,7 @@
 // (302) y no con JSON, incluso en los casos de error.
 //
 // No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
-// función serverless): lo despacha api/auth/publica/[...action].js.
+// función serverless): lo despacha api/auth/publica-router.js.
 import { AuthorizationError, resolveIdentity } from '../authorization.js';
 import {
   OAUTH_VERIFIER_COOKIE,

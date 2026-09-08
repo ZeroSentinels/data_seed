@@ -2,7 +2,7 @@
 // afecta la sesión de /portal (__Host-ds_*). No modifica api/auth/logout.js.
 //
 // No es una ruta de Vercel (vive bajo _lib/, que Vercel no cuenta como
-// función serverless): lo despacha api/auth/publica/[...action].js.
+// función serverless): lo despacha api/auth/publica-router.js.
 import { AuthorizationError } from '../authorization.js';
 import {
   ACCESS_COOKIE,
