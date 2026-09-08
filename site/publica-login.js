@@ -247,6 +247,12 @@
       const payload = await parseResponse(response);
       if (!response.ok) {
         setStatus(payload.error || 'No pudimos crear tu cuenta. Intenta nuevamente.', 'error');
+        if (payload.accountExists) {
+          selectTab('login');
+          setStatus(payload.error, 'error');
+          if (loginEmail) loginEmail.value = email;
+          loginPassword?.focus();
+        }
         return;
       }
       if (payload.pendingConfirmation) {
