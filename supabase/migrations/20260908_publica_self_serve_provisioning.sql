@@ -1,9 +1,9 @@
 -- Aprovisionamiento self-serve para Pública.
 --
--- Reemplaza el plan original de usar SUPABASE_SERVICE_ROLE_KEY desde Node
--- (ver docs/security/service-role-key-decision.md — se descartó por exponer
--- una clave que ignora RLS al env compartido de Vercel, incluido el endpoint
--- anónimo api/demo-chat.js).
+-- Reemplaza el plan original de usar una clave de privilegios elevados desde
+-- Node (ver docs/security/service-role-key-decision.md — se descartó por
+-- exponer una clave que ignora RLS al env compartido de Vercel, incluido el
+-- endpoint anónimo api/demo-chat.js).
 --
 -- Mismo patrón que public.is_org_member() en la V1
 -- (supabase/migrations/20260723_secure_multitenant_auth.sql):

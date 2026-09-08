@@ -7,10 +7,11 @@
 // otra regla más allá de esta.
 //
 // Decisión de seguridad (2026-09-08, ver docs/security/service-role-key-decision.md):
-// esto NO usa SUPABASE_SERVICE_ROLE_KEY. Llama a una función `security definer`
-// en la base (supabase/migrations/20260908_publica_self_serve_provisioning.sql)
-// con la clave anon + el access_token del propio usuario recién autenticado.
-// El bypass de RLS necesario para crear la organización vive dentro de esa
+// esto NO usa ninguna clave con privilegios elevados. Llama a una función
+// `security definer` en la base
+// (supabase/migrations/20260908_publica_self_serve_provisioning.sql) con la
+// clave anon + el access_token del propio usuario recién autenticado. El
+// bypass de RLS necesario para crear la organización vive dentro de esa
 // función, acotado a esa única operación — no en el runtime de Node.
 import { provisionSelfServeOrg, SupabaseRequestError } from './supabase.js';
 

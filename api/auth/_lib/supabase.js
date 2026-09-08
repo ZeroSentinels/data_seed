@@ -174,8 +174,8 @@ export function exchangeOAuthCode(code, codeVerifier, options = {}) {
 // Aprovisiona la organización del propio usuario autenticado (self-serve de
 // Pública) llamando a la función `security definer` que crea exactamente una
 // organización + membresía y activa su perfil. Corre con la clave anon + el
-// access_token del propio usuario — nunca con SUPABASE_SERVICE_ROLE_KEY. Ver
-// docs/security/service-role-key-decision.md y
+// access_token del propio usuario — nunca con una clave de privilegios
+// elevados. Ver docs/security/service-role-key-decision.md y
 // supabase/migrations/20260908_publica_self_serve_provisioning.sql.
 export async function provisionSelfServeOrg(accessToken, orgName, options = {}) {
   const rows = await request('/rest/v1/rpc/provision_self_serve_org', {

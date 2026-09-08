@@ -73,8 +73,9 @@ export function createPublicaSignupHandler({
 
     // Sin access_token (correo pendiente de confirmar) no hay con qué llamar
     // a la función de aprovisionamiento: necesita el JWT del propio usuario,
-    // no admite service_role. Queda pendiente para el primer login exitoso
-    // (ver ../publica/login.js), que reintenta esto mismo de forma idempotente.
+    // no admite una clave de privilegios elevados. Queda pendiente para el
+    // primer login exitoso (ver ../publica/login.js), que reintenta esto
+    // mismo de forma idempotente.
     if (!signUpResult.access_token) {
       return sendJson(res, 200, {
         ok: true,
