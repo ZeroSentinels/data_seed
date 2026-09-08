@@ -49,11 +49,11 @@ fi
 
 # nombre <TAB> expresion extendida
 #
-# Falso positivo medido en site/publica-buscador.html: "Mayor a $10.000.000"
-# (monto en pesos con separador de miles) matcheaba "Direccion IP privada"
-# porque "10.000.000" calza con 10\.[0-9]{1,3}\.[0-9]{1,3}. Se agrego "$" al
-# conjunto de caracteres excluidos antes del patron: una IP real nunca va
-# precedida de un signo de moneda.
+# Falso positivo medido en site/publica-buscador.html: un monto en pesos
+# con separador de miles y signo peso (diez millones, escrito con tres
+# grupos de ceros separados por puntos) matcheaba "Direccion IP privada"
+# por la forma numerica. Se agrego el signo peso al conjunto de caracteres
+# excluidos antes del patron: una IP real nunca va precedida de ese signo.
 reglas=$(cat <<'REGLAS'
 PAT de GitHub	(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}
 PAT fino de GitHub	github_pat_[A-Za-z0-9_]{30,}
