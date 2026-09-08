@@ -1,124 +1,127 @@
 # Traspaso — login de dataseed.cl sobre Supabase
 
-Estado al **2026-09-08**. Escrito para que otra sesión (u otra cuenta) retome sin
+Estado al **2026-09-08, 02:20 UTC**. Escrito para que otra sesión retome sin
 releer nada más. Todo lo que dice "medido" se comprobó ejecutando, no razonando.
 
-## El bloqueo, en una línea
+> **Actualización de esta versión:** la migración V1 **ya se aplicó**. El bloqueo
+> del `is_active` está resuelto. Lo único que falta es crear el primer usuario y
+> sembrar su organización. Las secciones de "cómo ejecutar" quedaron obsoletas y
+> se reescribieron: hay canal (MCP de Supabase) y funciona.
 
-`public.profiles` **no tiene la columna `is_active`**, y
-[`api/auth/_lib/authorization.js:48`](../api/auth/_lib/authorization.js) exige
-`profile.is_active === true`. Ningún login puede pasar aunque la credencial sea
-correcta. Faltan además 6 de las 10 tablas del portal.
+## Dónde está parado esto
 
-**No es un problema de Vercel.** Las variables de entorno están bien puestas: si
-faltaran, `/api/auth/login` daría 503 y da 401. Vercel no tiene base de datos y no
-ejecuta SQL. Tampoco hay CI que lo haga — `main` no tiene ningún workflow.
+**Esquema aplicado.** Falta el primer usuario. Nadie puede entrar todavía porque
+`auth.users` está vacío, no porque falte esquema.
 
-## Superficie de producción, medida el 2026-09-08
+## Lo que se aplicó
 
-| Prueba | Resultado |
+Migración `supabase/migrations/20260723_secure_multitenant_auth.sql` aplicada a
+**`pgmfppykgpqpzcoswszv`** vía MCP (`apply_migration`), registrada en el historial
+como **`20260908021750_secure_multitenant_auth_v1`**. Antes de aplicar se corrió
+la migración entera en una transacción con `rollback` y se verificó que revirtió
+(4 tablas → 10 dentro de la tx → 4 de nuevo al revertir).
+
+### Antes y después, medido
+
+| Métrica | Antes | Después |
+|---|---|---|
+| Tablas en `public` | 4 | **10** |
+| Policies | 8 (históricas) | **10** (V1) |
+| Policies que aplican a `anon` | 0 | **0** |
+| Grants de tabla a `anon` | **28** | **0** |
+| Tablas con `FORCE RLS` | 0 | **10** |
+| Privilegios de escritura de `authenticated` | varios | **0** |
+| `profiles.is_active` | ausente | presente |
+| `organizations.plan` | ausente | presente |
+| Avisos del linter de seguridad | 7 | **2** (ambos intencionales) |
+
+Contrato verificado columna por columna contra `api/auth/_lib/supabase.js`: las
+**13** columnas que la app selecciona existen.
+
+### El bug que casi hizo fracasar la aplicación
+
+La V1 declaraba `organizations.plan` dentro de un `create table if not exists`
+que era **no-op** porque la tabla ya existía, y el bloque de
+`alter table add column if not exists` omitía justo esa columna. Como
+`_lib/supabase.js:126` selecciona `organizations(id,name,type,plan,is_active)`,
+aplicar la V1 original habría arreglado el `is_active` y dejado el login roto
+igual, fallando en `getMemberships` con un 400 de PostgREST → 503. Corregido en
+**PR #29** antes de aplicar.
+
+**Lección para la próxima migración sobre tablas preexistentes:** un
+`create table if not exists` no agrega columnas. Toda columna nueva tiene que
+repetirse en un `alter table ... add column if not exists`, o no llega nunca.
+
+## Los dos riesgos que el traspaso anterior marcaba: ambos descartados
+
+**1. "`anon` podría borrar filas hoy desde internet" — era falso.** Las 8 policies
+históricas estaban **todas** acotadas a `{authenticated}`; ninguna aplicaba a
+`anon`. Con RLS habilitado y cero policies para ese rol, PostgreSQL deniega por
+defecto, así que los grants de `DELETE/INSERT/UPDATE` de `anon` eran **inertes**.
+Las tres policies `ALL` exigían `current_user_role() = 'admin'`, que sin sesión es
+NULL. Igual quedó todo revocado por la V1.
+
+Residual honesto: `anon` tenía `TRUNCATE`, que **no** pasa por RLS.
+`[Probable]` no explotable porque PostgREST no expone TRUNCATE por HTTP. Ya
+revocado.
+
+**2. "La migración desactiva filas preexistentes" — no había filas.**
+`auth.users` = 0 y las 4 tablas = 0 filas. Nada que desactivar.
+
+`rls_forzada = off` **no** era brecha: `FORCE` solo afecta al dueño de la tabla.
+
+## Avisos de seguridad que quedan, y por qué se dejan
+
+- `audit_log` con RLS y sin policy — **intencional**. Nivel INFO. Solo
+  `service_role` debería escribirla; nada la lee. Hoy está vacía y nada le
+  escribe: no cuenten con auditoría todavía.
+- `is_org_member(uuid)` ejecutable por `authenticated` — **intencional**. La V1 lo
+  otorga a propósito (`grant execute ... to authenticated`) porque las policies la
+  necesitan.
+
+Desaparecieron: los tres avisos de `SECURITY DEFINER` ejecutable por `anon`
+(`current_user_role`, `handle_new_user`, `is_org_member`) y el de `search_path`
+mutable en `touch_updated_at`.
+
+## El canal para ejecutar
+
+**MCP de Supabase, funcionando.** Da `execute_sql`, `apply_migration`,
+`list_tables`, `get_advisors`, `list_migrations`. Verificado que respeta
+transacciones: se probó `begin; create table …; rollback;` y la tabla no
+sobrevivió.
+
+Contra a tener presente: el OAuth concede acceso **a nivel de cuenta**, más
+superficie que una cadena de conexión y sin rotación equivalente. **Conviene
+desconectarlo cuando no se esté usando.**
+
+**No tiene herramienta para crear usuarios de `auth`.** Ese paso es el único que
+requiere el panel.
+
+## Lo que falta
+
+1. **Crear el primer usuario** en el panel (Authentication → Users → Add user).
+   Requiere correo, contraseña y confirmar el correo en el alta.
+2. **Sembrar la organización y activar el perfil** — vía MCP, tres sentencias:
+   `insert into organizations`, `update profiles set is_active = true`,
+   `insert into user_organizations`. El trigger `handle_new_user` ya creó el
+   perfil con `is_active = false` al crearse el usuario.
+3. **Verificar el login de punta a punta.**
+
+### Regla al medir el login
+
+Mandar siempre `Origin: https://dataseed.cl`. Sin esa cabecera
+`api/auth/login.js:28` devuelve **403 "Solicitud no autorizada."** por la
+validación same-origin, y parece una regresión que no existe.
+
+| Prueba | Resultado esperado hoy |
 |---|---|
-| `GET https://dataseed.cl/login` | 307 |
+| `GET /login` | 307 |
 | `GET /api/auth/session` | 401 JSON |
-| `POST /api/auth/login` **sin** cabecera `Origin` | **403** "Solicitud no autorizada." |
-| `POST /api/auth/login` **con** `Origin: https://dataseed.cl` | 401 "No pudimos iniciar sesión." |
+| `POST /api/auth/login` sin `Origin` | 403 |
+| `POST /api/auth/login` con `Origin`, credencial falsa | 401 |
 
-El 403 **no es una regresión**: `api/auth/login.js:28` valida same-origin. Un
-`curl` sin `Origin` siempre da 403. Al medir, mandar la cabecera o se diagnostica
-un bug inexistente.
-
-## Estado real de la base — preflight Bloque A
-
-Proyecto Supabase (único en la cuenta): **`pgmfppykgpqpzcoswszv`**.
-Ejecutado por Daniel en el SQL Editor el 2026-09-07.
-
-- Existen **4 de 10** tablas: `profiles`, `organizations`, `user_organizations`,
-  `reports`. Faltan `agents`, `conversations`, `files`, `connectors`,
-  `organization_settings`, `audit_log`.
-- Las 4 tienen RLS **enabled**, `force` en **off**, 2 policies cada una
-  (8 en total, de una versión histórica).
-- Columnas de `profiles` hoy: `id, email, full_name, role` (default `client`),
-  `company_name, created_at, updated_at`. **Sin `is_active`, sin `avatar_url`.**
-- `anon` tiene `DELETE, INSERT, UPDATE, TRUNCATE` sobre las 4 tablas.
-- Trigger `on_auth_user_created` → `handle_new_user()`, **activo**, cuerpo
-  desconocido. La V1 lo reemplaza con `drop trigger if exists`.
-- Anomalía: `authenticated` **no** tiene UPDATE sobre `profiles`; `anon` **sí**.
-
-### Lo que el Bloque A NO permite afirmar
-
-Tres policies tienen comando `ALL` (`organizations_admin_all`,
-`user_org_admin_all`, `reports_admin_all`). `ALL` cubre INSERT y DELETE. Si su
-`USING` evalúa true sin sesión, `anon` podría borrar filas **hoy, desde internet**.
-No está medido: falta la expresión de las policies. Es el hueco más urgente.
-
-`rls_forzada = off` **no** es brecha por sí sola — `FORCE` solo afecta al dueño de
-la tabla, no a `anon`/`authenticated`. No contarlo como hallazgo.
-
-## Lo que ya está hecho en el repo
-
-- **PR #27 mergeado** (`main`): `supabase/migrations/20260723_secure_multitenant_auth.sql`,
-  `supabase/preflight/bloque_a.sql`, `supabase/preflight/bloque_a_bis.sql`,
-  `supabase/README.md`.
-- **PR #7 cerrado** por obsoleto. Su rama `feat/secure-multitenant-auth` estaba
-  83 commits atrás de `main` y 1 adelante; todo su contenido salvo el esquema ya
-  estaba en `main` por otra vía. Revivirlo habría reintroducido versiones de julio.
-- **Parche sobre el SQL original**: se agregaron `drop policy if exists` para los 9
-  nombres que la propia migración crea. Sin eso, una segunda pasada abortaba con
-  `policy already exists` y, como todo va en `begin;`/`commit;`, revertía entero.
-  La primera pasada siempre estuvo bien: los 8 nombres históricos presentes ya
-  estaban en su bloque de drops (esto corrige una auditoría previa que decía lo
-  contrario).
-
-## Siguiente paso — Bloque A-bis, antes de aplicar nada
-
-`supabase/preflight/bloque_a_bis.sql`. Solo lectura, devuelve **una celda** JSON.
-Cierra los cuatro huecos: expresiones `USING`/`WITH CHECK` de las 8 policies,
-columnas de las otras 3 tablas, **conteos de filas** y cuerpo de
-`handle_new_user()`.
-
-**Por qué antes y no después:** la V1 hace
-`add column is_active boolean not null default false` sobre `profiles`. Toda fila
-preexistente queda **desactivada** y `authorization.js` le responde 403. No está
-medido cuántas filas hay.
-
-## Cómo ejecutar — tres caminos, ninguno intentado todavía
-
-Al 2026-09-08 **no hay canal a la base**: no llegó ni el MCP de Supabase
-(verificado: `ToolSearch +supabase` sin resultados; `~/.claude.json` solo tiene el
-servidor `21st`) ni el archivo con la cadena de conexión.
-
-**Camino A — arnés `pg` (recomendado).** Existe y nunca se corrió con credenciales:
-`…/Temp/claude/C--Users-danie-OneDrive-Documentos-Claude/80a22ad0-df99-4820-a05b-a3859fb05fe1/scratchpad/supabase-apply/run.mjs`.
-Modos: `preflight` · `apply` (transaccional) · `verify` (contra el contrato de
-`api/auth/_lib/supabase.js`) · `seed --email --org` · `smoke` (simula RLS con el
-rol `authenticated`). Lee la cadena de `DS_PG_URL` o del archivo apuntado por
-`DS_PG_URL_FILE`, y **nunca la imprime ni la escribe a disco**.
-
-Daniel la obtiene en el dashboard → botón **`Connect`** → pestaña
-**`Session pooler`** (no `Direct connection`: suele ser solo IPv6; no
-`Transaction pooler`: rompe migraciones largas en una transacción). La contraseña
-se resetea en `Project Settings → Database → Reset database password`.
-Trato: se pega en un archivo, se usa, se borra, y **Daniel rota la contraseña**.
-
-**Camino B — MCP de Supabase.** `claude mcp add supabase --scope user --transport http "https://mcp.supabase.com/mcp?project_ref=pgmfppykgpqpzcoswszv"`,
-sesión nueva, autorizar con `/mcp`. Da `execute_sql` y `apply_migration`. Contra:
-el OAuth concede acceso **a nivel de cuenta**, más superficie que la cadena de
-conexión y sin rotación equivalente. La propia doc de Supabase desaconseja
-apuntarlo a producción.
-
-**Camino C — Daniel ejecuta en el SQL Editor** y Claude verifica midiendo desde
-afuera. Es donde quedó trabado dos veces: el panel de resultados es chico. Por eso
-los preflight devuelven una sola celda JSON. Daniel no domina la UI de Supabase —
-dar instrucciones literales (qué botón, dónde queda), no asumir que sabe llegar.
-
-## Orden completo pendiente
-
-1. Correr `bloque_a_bis.sql` y leer el resultado.
-2. Decidir qué hacer con las filas preexistentes de `profiles` (si las hay).
-3. Aplicar `migrations/20260723_secure_multitenant_auth.sql`. Una sola pasada,
-   rol propietario.
-4. Sembrar organización + activar el primer perfil.
-5. Verificar el login de punta a punta **con cabecera `Origin`**.
+Medido después de aplicar la migración: los cuatro dan lo esperado. **401, no
+503** — o sea el esquema no rompió nada.
 
 ## Invariante de diseño que no hay que "arreglar"
 
@@ -127,3 +130,19 @@ a propósito y `authorization.js` exige *exactamente una* membresía activa
 (0 → 403 `membership_required`, >1 → 409). **Un auto-registro se autentica y no
 entra: es el diseño, no un bug.** El registro público de leads va por otra vía
 (hoy Formspree `xzdwykww` en `site/index.html` y `site/publica.html`).
+
+## Diagnóstico de fallos
+
+`api/auth/_lib/diagnostics.js` (PR #24, en `main`) registra cada fallo de auth en
+los logs de Vercel con etapa y código, sin filtrar PII. Al depurar el primer
+login, ahí se distingue `account_inactive` de `membership_required` de un error de
+Supabase, en vez de un 401 opaco. Los códigos posibles están en
+`api/auth/_lib/authorization.js`.
+
+## Historial de PRs
+
+- **#24** — diagnóstico de fallos de auth. Mergeado.
+- **#27** — versiona `supabase/migrations/`, `supabase/preflight/`, README.
+- **#28** — este traspaso.
+- **#29** — corrige `organizations.plan` y revoca EXECUTE de dos funciones.
+- **#7** — cerrado por obsoleto (83 commits atrás de `main`).
