@@ -248,9 +248,33 @@ primer arreglo, antes del formulario de alta.
    `api/auth/login.js` devolviendo el destino de verdad.
 2. La rama 403 `membership_required` redirige al formulario en vez de mostrar
    "Contacta a soporte".
-3. Migración con `provision_self_serve_org()` y sus tests.
-4. `authorization.js`: una membresía de `plan = 'publica_free'` **no** habilita
-   `/portal`.
+3. ~~Migración con `provision_self_serve_org()` y sus tests.~~ **Hecho**
+   (2026-09-08, PR `feat/publica-self-serve-auth`) — con un contrato distinto
+   al descrito más arriba: la empresa se pide en el mismo formulario de
+   signup (no en un formulario de alta separado tras el 403), y
+   `plan = 'free'` (no `'publica_free'` — ese valor no existe en el `check`
+   de la V1 y no se agregó ninguna migración para sumarlo). Ver
+   `docs/operations/coordinacion-agentes.md` §4.1 para el porqué de la
+   diferencia y por qué no se reescribe.
+4. **`authorization.js`: SIGUE ABIERTO, y ahora es urgente.** Medido en
+   `api/auth/_lib/authorization.js` (`resolveIdentity`, compartida por
+   `api/auth/login.js` **y** `api/auth/publica/login.js`): no filtra por
+   `organizations.plan` ni `.type` en ningún punto — solo exige exactamente
+   una membresía activa con organización activa. Con el punto 3 ya en
+   producción, **cualquier registro self-serve de Pública que intente
+   loguearse en `site/login.html` (el portal general) va a autenticar
+   correctamente y entrar a `/portal`**, porque su organización recién
+   creada (`type='client'`, `plan='free'`, activa) tiene exactamente la
+   misma forma que una organización de cliente invitada. `[Seguro]` — leído
+   en el código, no inferido. Este punto ya no es "conviene resolverlo
+   antes de cobrar": es la fuga entre audiencias que este mismo documento
+   advertía, y ya está desplegable.
+
+   **Acordado 2026-09-08 (Matías):** avisa directamente a Daniel de este
+   riesgo fuera del repo antes de que se resuelva. Hasta que ese aviso pase
+   y los dos coincidan en el enfoque, **ningún agente toma este punto sin
+   anunciarlo primero acá** (mismo criterio de `coordinacion-agentes.md`
+   §4.1) — evita un tercer choque sobre el mismo archivo compartido.
 5. Límite de tasa en el borde sobre el registro.
 
 **Verificación manual pendiente, en el panel de Supabase** (el MCP no expone esa

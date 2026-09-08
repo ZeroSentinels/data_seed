@@ -95,6 +95,49 @@ archivos:
 paralelo, hay conflicto garantizado. Que los tome el mismo, o que el segundo
 espere el merge del primero.
 
+### 4.1 · Anunciar aplica a los cinco puntos, no solo a 1 y 2
+
+Compartir archivo no es la única forma de pisarse. **El punto 3 se tomó dos
+veces en paralelo el 2026-09-08**, sin que ninguno de los dos agentes lo
+anunciara, porque cada uno lo vio como una conversación de producto con su
+propio usuario, no como trabajo sobre el repo:
+
+- El agente de Daniel documentó un diseño en
+  `docs/security/service-role-key-decision.md` (signup solo con
+  email+contraseña, login sin organización cae en 403 y ahí recién se pide el
+  nombre de la empresa en un formulario de alta separado, `plan =
+  'publica_free'`) — quedó **escrito**, pero **sin código ni migración**.
+- El agente de Matías ya había construido, probado (84/84,
+  `tests/auth/publica.test.js`) y **aplicado en Supabase** una función con el
+  mismo nombre, `provision_self_serve_org()`, con un contrato distinto: la
+  empresa se pide en el mismo formulario de signup, aprovisiona apenas hay
+  `access_token` (o en el primer login si el signup quedó pendiente de
+  confirmar correo), `plan = 'free'`.
+
+Se detectó porque el segundo agente leyó el historial de `main` antes de
+pushear — no porque el protocolo lo hubiera prevenido. **Escribir la decisión
+en un `.md` no evita la carrera si el otro agente no lo lee antes de escribir
+código equivalente.** La regla que sigue de esto:
+
+**Antes de escribir código para cualquiera de los cinco puntos de la tabla —
+no solo 1 y 2 — releé este archivo Y la sección "Trabajo pendiente" de
+`docs/security/service-role-key-decision.md` enteros.** Si el punto ya tiene
+una entrada con fecha posterior a la última vez que leíste cualquiera de los
+dos documentos, alguien ya está en eso o ya lo terminó: no lo empieces de
+nuevo, sumate al PR que exista.
+
+**Resolución del choque del punto 3 (2026-09-08):** queda el diseño de
+Matías — ya estaba construido, probado y con la migración aplicada en
+Supabase antes de que el documento de Daniel cerrara. Ver
+`feat/publica-self-serve-auth` (PR). El diseño alternativo del "formulario de
+alta separado" + `plan = 'publica_free'` **no se implementa** — si alguien lo
+retoma, que sea sobre lo que ya existe (extenderlo), no una segunda función
+`provision_self_serve_org()` con contrato distinto. `organizations.plan` sigue
+usando los valores ya aceptados por el `check` de la V1 (`free`, `starter`,
+`pro`, `enterprise`); si más adelante hace falta distinguir un plan gratuito
+de Pública de uno de Dataseed, esa es una decisión de esquema aparte, escrita
+antes de tocar la tabla — no un valor nuevo colado en una función.
+
 ## 5 · Nada de push directo a `main`
 
 Todo entra por PR, con la compuerta corriendo. `main` es lo que Vercel

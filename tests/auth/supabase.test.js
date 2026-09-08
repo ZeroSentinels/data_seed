@@ -6,6 +6,7 @@ import {
   getMemberships,
   getProfile,
   getUser,
+  provisionSelfServeOrg,
   refreshSession,
   sendPasswordRecovery,
   signInWithPassword,
@@ -85,6 +86,19 @@ test('profile and memberships are queried using the authenticated user JWT', asy
   assert.match(calls[1].url, /is_active=eq\.true/);
   assert.match(decodeURIComponent(calls[1].url), /organizations\(id,name,type,plan,is_active\)/);
   assert.equal(calls[1].options.headers.Authorization, 'Bearer access-token');
+});
+
+test('provisionSelfServeOrg calls the security-definer RPC with the user JWT, never a service key', async () => {
+  const { calls, fetchImpl } = fakeFetchQueue([
+    { body: [{ organization_id: 'org-a', organization_name: 'Empresa Nueva', created: true }] },
+  ]);
+  const result = await provisionSelfServeOrg('access-token', 'Empresa Nueva', { env, fetchImpl });
+  assert.equal(result.organization_id, 'org-a');
+  assert.equal(result.created, true);
+  assert.equal(calls[0].url, 'https://project.supabase.co/rest/v1/rpc/provision_self_serve_org');
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer access-token');
+  assert.equal(calls[0].options.headers.apikey, env.SUPABASE_ANON_KEY);
+  assert.deepEqual(JSON.parse(calls[0].options.body), { org_name: 'Empresa Nueva' });
 });
 
 test('password recovery and logout use provider endpoints', async () => {
