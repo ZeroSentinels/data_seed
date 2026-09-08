@@ -232,6 +232,49 @@ test('publica signup: correo ya registrado y confirmado (identities: []) respond
   assert.equal(provisioned, false);
 });
 
+test('publica signup: cuota horaria de correos agotada responde 429 y NO dice "intenta nuevamente"', async () => {
+  let provisioned = false;
+  const handler = createPublicaSignupHandler({
+    env: {},
+    // Texto literal del 429 de Supabase cuando se agota la ventana horaria del
+    // SMTP integrado (medido en produccion el 2026-09-08).
+    signUp: async () => {
+      throw new SupabaseRequestError('email rate limit exceeded', { status: 429 });
+    },
+    provision: async () => { provisioned = true; return { created: true }; },
+  });
+  const res = response();
+  await handler(request({ email: 'nuevo@ejemplo.cl', password: 'pass12345', empresa: 'Empresa' }), res);
+  assert.equal(res.statusCode, 429);
+  assert.equal(res.body.rateLimited, true);
+  assert.equal(res.body.retryAfter, 3600);
+  assert.equal(res.headers['Retry-After'], '3600');
+  // La regresion que motiva este test: el 429 caia al 503 generico y el usuario
+  // leia "Intenta nuevamente", que es exactamente lo que no hay que hacer.
+  assert.doesNotMatch(res.body.error, /intenta nuevamente/i);
+  assert.match(res.body.error, /no se cre[oó]/i);
+  assert.equal(provisioned, false);
+});
+
+test('publica signup: el cooldown corto informa los segundos que declara Supabase, no la hora completa', async () => {
+  const handler = createPublicaSignupHandler({
+    env: {},
+    signUp: async () => {
+      throw new SupabaseRequestError(
+        'For security purposes, you can only request this after 57 seconds.',
+        { status: 429 },
+      );
+    },
+    provision: async () => ({ created: true }),
+  });
+  const res = response();
+  await handler(request({ email: 'nuevo@ejemplo.cl', password: 'pass12345', empresa: 'Empresa' }), res);
+  assert.equal(res.statusCode, 429);
+  assert.equal(res.body.retryAfter, 57);
+  assert.equal(res.headers['Retry-After'], '57');
+  assert.match(res.body.error, /57 segundos/);
+});
+
 test('publica logout y session usan sus propias cookies, no las del portal general', async () => {
   const logoutHandler = createPublicaLogoutHandler({
     env: {},
