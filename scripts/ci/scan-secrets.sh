@@ -48,6 +48,12 @@ if [ -z "$agregadas" ]; then
 fi
 
 # nombre <TAB> expresion extendida
+#
+# Falso positivo medido en site/publica-buscador.html: "Mayor a $10.000.000"
+# (monto en pesos con separador de miles) matcheaba "Direccion IP privada"
+# porque "10.000.000" calza con 10\.[0-9]{1,3}\.[0-9]{1,3}. Se agrego "$" al
+# conjunto de caracteres excluidos antes del patron: una IP real nunca va
+# precedida de un signo de moneda.
 reglas=$(cat <<'REGLAS'
 PAT de GitHub	(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}
 PAT fino de GitHub	github_pat_[A-Za-z0-9_]{30,}
@@ -56,7 +62,7 @@ Token de agente de vault	av_agt_[A-Za-z0-9]{8,}
 Clave privada	BEGIN [A-Z ]*PRIVATE KEY
 Credencial en URL	[a-z][a-z0-9+.-]*://[^/[:space:]:@]+:[^/[:space:]@]+@
 Asignacion de secreto	(api[_-]?key|apikey|secret|password|passwd|token|bearer)["']?[[:space:]]*[:=][[:space:]]*["'][^"']{16,}
-Direccion IP privada	(^|[^0-9.])(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)[0-9]{1,3}\.[0-9]{1,3}
+Direccion IP privada	(^|[^0-9.$])(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)[0-9]{1,3}\.[0-9]{1,3}
 Hostname numerico de servidor	srv[0-9]{6,}
 Nombre de vault	[a-z0-9]+-vault\b
 REGLAS
