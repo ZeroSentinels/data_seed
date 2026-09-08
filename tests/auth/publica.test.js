@@ -328,6 +328,10 @@ test('google start: redirige a Supabase con PKCE y deja la cookie de verifier, n
   assert.equal(location.searchParams.get('redirect_to'), 'https://dataseed.cl/api/auth/publica/google/callback');
   assert.equal(location.searchParams.get('code_challenge_method'), 's256');
   assert.ok(location.searchParams.get('code_challenge'));
+  // Sin `state` propio: el de GoTrue es el id de su fila en auth.flow_state y
+  // mandar uno lo pisa -> "OAuth state not found or expired" y vuelta a la
+  // portada en vez del buscador. Ver api/auth/_lib/publica-handlers/google-start.js.
+  assert.equal(location.searchParams.get('state'), null);
   assert.match(res.headers['Set-Cookie'], /__Host-pub_oauth_verifier=/);
 });
 
