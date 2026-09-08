@@ -48,6 +48,12 @@ if [ -z "$agregadas" ]; then
 fi
 
 # nombre <TAB> expresion extendida
+#
+# Falso positivo medido en site/publica-buscador.html: un monto en pesos
+# con separador de miles y signo peso (diez millones, escrito con tres
+# grupos de ceros separados por puntos) matcheaba "Direccion IP privada"
+# por la forma numerica. Se agrego el signo peso al conjunto de caracteres
+# excluidos antes del patron: una IP real nunca va precedida de ese signo.
 reglas=$(cat <<'REGLAS'
 PAT de GitHub	(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}
 PAT fino de GitHub	github_pat_[A-Za-z0-9_]{30,}
@@ -56,7 +62,7 @@ Token de agente de vault	av_agt_[A-Za-z0-9]{8,}
 Clave privada	BEGIN [A-Z ]*PRIVATE KEY
 Credencial en URL	[a-z][a-z0-9+.-]*://[^/[:space:]:@]+:[^/[:space:]@]+@
 Asignacion de secreto	(api[_-]?key|apikey|secret|password|passwd|token|bearer)["']?[[:space:]]*[:=][[:space:]]*["'][^"']{16,}
-Direccion IP privada	(^|[^0-9.])(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)[0-9]{1,3}\.[0-9]{1,3}
+Direccion IP privada	(^|[^0-9.$])(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)[0-9]{1,3}\.[0-9]{1,3}
 Hostname numerico de servidor	srv[0-9]{6,}
 Nombre de vault	[a-z0-9]+-vault\b
 REGLAS

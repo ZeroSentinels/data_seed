@@ -54,6 +54,14 @@
       "destination": "/site/publica-login.html"
     },
     {
+      "source": "/publica-buscador",
+      "destination": "/site/publica-buscador.html"
+    },
+    {
+      "source": "/api/licitacion/(.*)",
+      "destination": "/api/licitacion?codigo=$1"
+    },
+    {
       "source": "/robots.txt",
       "destination": "/site/robots.txt"
     },
@@ -101,6 +109,36 @@
     },
     {
       "source": "/api/auth/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    },
+    {
+      "source": "/api/buscar",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    },
+    {
+      "source": "/api/licitacion/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    },
+    {
+      "source": "/site/publica-buscador.html",
       "headers": [
         { "key": "Cache-Control", "value": "no-store, max-age=0" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },

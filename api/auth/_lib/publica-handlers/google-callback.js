@@ -88,7 +88,7 @@ export function createGoogleCallbackHandler({
     }
 
     const sessionCookies = buildCookies(session, { remember: true });
-    return redirect(res, sessionCookies, '/publica');
+    return redirect(res, sessionCookies, '/publica-buscador');
   };
 }
 

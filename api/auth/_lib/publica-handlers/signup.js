@@ -121,7 +121,7 @@ export function createPublicaSignupHandler({
     res.setHeader('Set-Cookie', cookies);
     return sendJson(res, 200, {
       ok: true,
-      redirectTo: '/publica',
+      redirectTo: '/publica-buscador',
       user: {
         email: identity.user.email,
         name: identity.profile.full_name || identity.user.email,

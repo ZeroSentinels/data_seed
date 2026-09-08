@@ -1,0 +1,119 @@
+{
+  "total": 83,
+  "resultados": [
+    {
+      "codigo": "1596-45-LE26",
+      "tipo": "LE",
+      "nombre": "CAPACITACIÓN EN INTELIGENCIA ARTIFICIAL",
+      "estado": "Publicada",
+      "fecha_publicacion": "2026-09-03",
+      "fecha_cierre": "2026-09-14",
+      "region_comprador": "Región del Maule",
+      "monto_estimado_clp": 17533000,
+      "organismo_nombre": "GOBIERNO REGIONAL VII REGION",
+      "n_oferentes": null,
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=1596-45-LE26"
+    },
+    {
+      "codigo": "831-21-LE26",
+      "tipo": "LE",
+      "nombre": "CAPACITACIÓN IA Y POWER BI",
+      "estado": "Publicada",
+      "fecha_publicacion": "2026-09-02",
+      "fecha_cierre": "2026-09-14",
+      "region_comprador": "Región del Biobío",
+      "monto_estimado_clp": null,
+      "organismo_nombre": "GOBIERNO REGIONAL DE LA REGION DEL BIO BIO",
+      "n_oferentes": null,
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=831-21-LE26"
+    },
+    {
+      "codigo": "586-55-LE26",
+      "tipo": "LE",
+      "nombre": "CURSO INGENIERÍA DEL PROMPT",
+      "estado": "Publicada",
+      "fecha_publicacion": "2026-09-01",
+      "fecha_cierre": "2026-09-16",
+      "region_comprador": "Región de Valparaíso",
+      "monto_estimado_clp": null,
+      "organismo_nombre": "SERVICIO NACIONAL DE ADUANAS",
+      "n_oferentes": null,
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=586-55-LE26"
+    },
+    {
+      "codigo": "85-35-LE26",
+      "tipo": "LE",
+      "nombre": "ADQUISICIÓN LICENCIAS IA GENERATIVA",
+      "estado": "Publicada",
+      "fecha_publicacion": "2026-09-01",
+      "fecha_cierre": "2026-09-16",
+      "region_comprador": "Región Metropolitana de Santiago",
+      "monto_estimado_clp": null,
+      "organismo_nombre": "JUNTA NACIONAL DE AUXILIO ESCOLAR Y BECAS",
+      "n_oferentes": null,
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=85-35-LE26"
+    },
+    {
+      "codigo": "1016-8-LE26",
+      "tipo": "LE",
+      "nombre": "LICENCIAS DE IA GENERATIVA TIPO CLOUD",
+      "estado": "Publicada",
+      "fecha_publicacion": "2026-08-29",
+      "fecha_cierre": "2026-09-08",
+      "region_comprador": "Región Metropolitana de Santiago",
+      "monto_estimado_clp": 19980000,
+      "organismo_nombre": "MINISTERIO DE OBRAS PUBLICAS DIRECCION GRAL",
+      "n_oferentes": null,
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=1016-8-LE26"
+    },
+    {
+      "codigo": "2658-284-L126",
+      "tipo": "L1",
+      "nombre": "SUSCRIPCIÓN ANUAL A PLATAFORMA DE IA",
+      "estado": "Publicada",
+      "fecha_publicacion": "2026-08-30",
+      "fecha_cierre": "2026-09-07",
+      "region_comprador": "Región Metropolitana de Santiago",
+      "monto_estimado_clp": 1500000,
+      "organismo_nombre": "I MUNICIPALIDAD DE ANCUD",
+      "n_oferentes": null,
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=2658-284-L126"
+    },
+    {
+      "codigo": "4778-14-LP26",
+      "tipo": "LP",
+      "nombre": "SERVICIO CONTACT CENTER OMNICANAL CON IA",
+      "estado": "Publicada",
+      "fecha_publicacion": "2026-08-27",
+      "fecha_cierre": "2026-09-11",
+      "region_comprador": "Región Aysén del General Carlos Ibáñez del Campo",
+      "monto_estimado_clp": null,
+      "organismo_nombre": "SERVICIO NACIONAL DE SALUD HOSPITAL DE C…",
+      "n_oferentes": null,
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=4778-14-LP26"
+    },
+    {
+      "codigo": "1039-10-L126",
+      "tipo": "L1",
+      "nombre": "CAPACITACIÓN EN INTELIGENCIA ARTIFICIAL",
+      "estado": "Cerrada",
+      "fecha_publicacion": "2026-08-14",
+      "fecha_cierre": "2026-08-28",
+      "region_comprador": "Región Metropolitana de Santiago",
+      "monto_estimado_clp": 5000000,
+      "organismo_nombre": "CORP NACIONAL FORESTAL",
+      "n_oferentes": null,
+      "url_ficha": "https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=1039-10-L126"
+    }
+  ],
+  "meta": {
+    "fuente": "ChileCompra - Mercado Público",
+    "as_of": "2026-09-03",
+    "limitaciones": [
+      {
+        "limitacion": "Compra Ágil no aparece acá porque no genera una licitación: es un mecanismo de compra directa. Sus órdenes sí están en la base.",
+        "severidad": "media"
+      }
+    ]
+  }
+}

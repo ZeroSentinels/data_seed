@@ -72,7 +72,7 @@ test('publica login: mismos requisitos que el login general, pero cookies y redi
   assert.equal(res.statusCode, 200);
   assert.deepEqual(res.headers['Set-Cookie'], ['pub-access-cookie', 'pub-refresh-cookie']);
   assert.equal(cookieCall.options.remember, true);
-  assert.equal(res.body.redirectTo, '/publica');
+  assert.equal(res.body.redirectTo, '/publica-buscador');
   assert.doesNotMatch(JSON.stringify(res.body), /access|refresh|org-a/);
 });
 
@@ -159,7 +159,7 @@ test('publica signup: crea usuario, aprovisiona organización y deja sesión ini
   const res = response();
   await handler(request({ email: 'nueva@empresa.cl', password: 'pass12345', empresa: 'Empresa Nueva' }), res);
   assert.equal(res.statusCode, 200);
-  assert.equal(res.body.redirectTo, '/publica');
+  assert.equal(res.body.redirectTo, '/publica-buscador');
   assert.deepEqual(res.headers['Set-Cookie'], ['pub-access-cookie', 'pub-refresh-cookie']);
   assert.equal(provisionCall.accessToken, 'access');
   assert.equal(provisionCall.empresa, 'Empresa Nueva');
@@ -301,7 +301,7 @@ test('google callback: éxito aprovisiona (si hace falta), resuelve identidad y 
     headers: { cookie: '__Host-pub_oauth_verifier=verifier-value' },
   }), res);
   assert.equal(res.statusCode, 302);
-  assert.equal(res.headers.Location, '/publica');
+  assert.equal(res.headers.Location, '/publica-buscador');
   assert.equal(provisionCall.accessToken, 'access');
   assert.equal(provisionCall.empresa, null);
   assert.ok(res.headers['Set-Cookie'].some((c) => c.startsWith('pub-access-cookie')));

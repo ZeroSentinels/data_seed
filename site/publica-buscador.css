@@ -1,0 +1,1788 @@
+/* =========================================================================
+   PUBLICA BY DATASEED - BUSCADOR DE LICITACIONES PUBLICAS
+   Tokens oficiales de diseno (dataseed.cl/publica), extraidos de
+   site/publica.html en contacto101/data_seed el 2026-09-04. Antes este
+   archivo decia "Modo Claro Exclusivo" y no existia el modo oscuro, que es
+   el que la marca usa por defecto en el CSS base (aunque el primer visitante
+   ve claro: publica.html fuerza data-theme='light' salvo que localStorage
+   diga lo contrario). Replicamos ese mismo comportamiento acá.
+   ========================================================================= */
+
+:root {
+  color-scheme: dark;
+  --bg:      #050e06;
+  --bg2:     #071209;
+  --surface: #0b1c0e;   /* superficies opacas: formularios, modal, sidebar */
+  --card:    rgba(0, 255, 65, 0.035);
+  --card-b:  rgba(0, 255, 65, 0.12);
+  --card-h:  rgba(0, 255, 65, 0.07);
+  --g:       #00ff41;
+  --g2:      #00cc33;
+  --text:    #dff5e3;
+  --sub:     #7aaa84;
+  --muted:   #3d6645;
+  --r:       16px;
+
+  --font-body:    "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Inter", sans-serif;
+
+  --urgencia-rojo:        #ff6b6b;
+  --urgencia-rojo-bg:     rgba(255, 107, 107, 0.10);
+  --urgencia-rojo-border: rgba(255, 107, 107, 0.28);
+
+  --urgencia-ambar:        #e5a100;
+  --urgencia-ambar-bg:     rgba(229, 161, 0, 0.12);
+  --urgencia-ambar-border: rgba(229, 161, 0, 0.30);
+
+  --urgencia-gris:        #7aaa84;
+  --urgencia-gris-bg:     rgba(122, 170, 132, 0.08);
+  --urgencia-gris-border: rgba(122, 170, 132, 0.20);
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg:      #f4fbf5;
+  --bg2:     #eaf6ed;
+  --surface: #ffffff;
+  --card:    rgba(0, 128, 40, 0.055);
+  --card-b:  rgba(0, 128, 40, 0.18);
+  --card-h:  rgba(0, 128, 40, 0.095);
+  --g:       #008f2c;
+  --g2:      #007a25;
+  --text:    #08240d;
+  --sub:     #315c39;
+  --muted:   #66856c;
+
+  --urgencia-rojo:        #b91c1c;
+  --urgencia-rojo-bg:     rgba(185, 28, 28, 0.08);
+  --urgencia-rojo-border: rgba(185, 28, 28, 0.25);
+
+  --urgencia-ambar:        #9a3412;
+  --urgencia-ambar-bg:     rgba(217, 119, 6, 0.10);
+  --urgencia-ambar-border: rgba(217, 119, 6, 0.28);
+
+  --urgencia-gris:        #4b6350;
+  --urgencia-gris-bg:     rgba(75, 99, 80, 0.08);
+  --urgencia-gris-border: rgba(75, 99, 80, 0.20);
+}
+
+/* Regla crítica para evitar que estilos con display:flex o display:grid anulen el atributo hidden */
+[hidden],
+.tender-modal-backdrop[hidden],
+.results-layout[hidden] {
+  display: none !important;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg);
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  line-height: 1.5;
+}
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--g);
+  outline-offset: 3px;
+}
+
+/* =========================================================================
+   HEADER & NAVBAR
+   ========================================================================= */
+
+.pub-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  /* rgba fijo: no puede ser var(). El sitio real usa rgba(5,14,6,.85) para
+     su nav oscuro (docs/product/design-system.md §5); el override de abajo
+     pone el claro cuando data-theme="light". */
+  background: rgba(5, 14, 6, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--card-b);
+  padding: 0.9rem 2rem;
+}
+
+html[data-theme="light"] .pub-header {
+  background: rgba(244, 251, 245, 0.92);
+}
+
+.pub-header-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pub-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.pub-brand-logo {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #050e06;
+  border-radius: 10px;
+  padding: 3px;
+  box-shadow: 0 0 12px rgb(from var(--g) r g b / 0.2);
+}
+
+.pub-brand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pub-brand-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.pub-brand-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.15;
+}
+
+.pub-brand-subtitle {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--g);
+}
+
+.pub-header-tag {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--sub);
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  padding: 0.35rem 0.85rem;
+  border-radius: 100px;
+}
+
+.pub-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--card-b);
+  background: var(--card);
+  color: var(--g);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 0 14px rgb(from var(--g) r g b / 0.14);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.pub-theme-toggle:hover {
+  transform: translateY(-1px);
+  border-color: var(--g);
+}
+
+.pub-theme-toggle .sun { display: none; }
+.pub-theme-toggle .moon { display: inline; }
+html[data-theme="light"] .pub-theme-toggle .moon { display: none; }
+html[data-theme="light"] .pub-theme-toggle .sun { display: inline; }
+
+
+/* =========================================================================
+   MAIN CONTAINER
+   ========================================================================= */
+
+.pub-main {
+  flex: 1;
+  max-width: 1140px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* =========================================================================
+   SECCIÓN DE BÚSQUEDA (HERO / SEARCH BOX)
+   ========================================================================= */
+
+.search-hero {
+  text-align: center;
+  padding: 1.5rem 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.search-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  line-height: 1.15;
+}
+
+.search-hero-subtitle {
+  font-size: 1rem;
+  color: var(--sub);
+  max-width: 580px;
+  line-height: 1.45;
+}
+
+.search-form-container {
+  width: 100%;
+  max-width: 780px;
+}
+
+.search-form {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1.5px solid var(--card-b);
+  border-radius: 100px;
+  box-shadow: 0 4px 20px rgb(from var(--g) r g b / 0.08);
+  padding: 0.35rem 0.4rem 0.35rem 1.25rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-form:focus-within {
+  border-color: var(--g);
+  box-shadow: 0 6px 28px rgb(from var(--g) r g b / 0.16);
+}
+
+.search-icon {
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  color: var(--text);
+  padding: 0.65rem 0;
+  min-width: 0;
+}
+
+.search-input:focus {
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.btn-search {
+  background: var(--g);
+  color: #f7fff8;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 100px;
+  padding: 0.75rem 1.6rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 10px rgb(from var(--g) r g b / 0.24);
+  flex-shrink: 0;
+}
+
+.btn-search:hover {
+  background: var(--g2);
+  box-shadow: 0 4px 14px rgb(from var(--g) r g b / 0.35);
+}
+
+.btn-search:active {
+  transform: scale(0.98);
+}
+
+.search-sample-note {
+  margin-top: 0.65rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  text-align: center;
+  font-style: normal;
+}
+
+/* Sugerencias contextuales */
+.search-suggestions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.suggestion-chip {
+  background: var(--card);
+  color: var(--sub);
+  border: 1px solid var(--card-b);
+  border-radius: 100px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.suggestion-chip:hover {
+  background: var(--card-h);
+  border-color: var(--g);
+  color: var(--g);
+}
+
+/* =========================================================================
+   BARRA DE RESULTADOS Y FILTROS
+   Aparece DESPUÉS del primer resultado (Sección 6.2 de la spec)
+   ========================================================================= */
+
+.results-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.75rem;
+  align-items: start;
+  width: 100%;
+}
+
+.results-main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.results-header-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--card-b);
+}
+
+.results-count-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.results-count {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.results-count-detail {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--muted);
+  margin-left: 0.4rem;
+}
+
+/* Filtros */
+.filters-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filter-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--sub);
+}
+
+/* Switch / Checkbox "Sólo abiertas" */
+.filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+  background: var(--surface);
+  padding: 0.4rem 0.85rem;
+  border-radius: 100px;
+  border: 1px solid var(--card-b);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.filter-toggle:hover {
+  border-color: var(--g);
+}
+
+.filter-toggle input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--muted);
+  border-radius: 4px;
+  background: var(--surface);
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.filter-toggle input[type="checkbox"]:checked {
+  background: var(--g);
+  border-color: var(--g);
+}
+
+.filter-toggle input[type="checkbox"]:checked::after {
+  content: "";
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+/* Selectores de Región y Monto */
+.filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  /* La flecha del dropdown es un SVG embebido: no puede leer var(--sub), asi
+     que lleva dos versiones. Este es el trazo claro (--sub del modo oscuro,
+     #7aaa84) para que se vea sobre --surface oscuro; la regla de abajo la
+     cambia por la de modo claro. */
+  background: var(--surface) url("data:image/svg+xml;charset=UTF-8,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%237aaa84' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 0.85rem center;
+  background-size: 11px;
+  border: 1px solid var(--card-b);
+  border-radius: 100px;
+  padding: 0.45rem 2.2rem 0.45rem 0.95rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  min-width: 170px;
+}
+
+html[data-theme="light"] .filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  /* La flecha del dropdown es un SVG embebido: no puede leer var(--sub), asi
+     que lleva dos versiones. Este es el trazo claro (--sub del modo oscuro,
+     #7aaa84) para que se vea sobre --surface oscuro; la regla de abajo la
+     cambia por la de modo claro. */
+  background: var(--surface) url("data:image/svg+xml;charset=UTF-8,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23315c39' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 0.85rem center;  /* trazo #315c39 = --sub claro */
+  background-size: 11px;
+  border: 1px solid var(--card-b);
+  border-radius: 100px;
+  padding: 0.45rem 2.2rem 0.45rem 0.95rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  min-width: 170px;
+}
+
+.filter-select:hover {
+  border-color: var(--g);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--g);
+  box-shadow: 0 0 0 2px rgb(from var(--g) r g b / 0.15);
+}
+
+.filter-reset {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0.2rem 0.4rem;
+}
+
+.filter-reset:hover {
+  color: var(--text);
+}
+
+/* =========================================================================
+   LISTA DE TARJETAS DE RESULTADOS
+   Jerarquía visual de 7 niveles (Sección 6.3 de la spec)
+   ========================================================================= */
+
+.results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.tender-card {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: var(--r);
+  padding: 1.45rem 1.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  position: relative;
+}
+
+.tender-card:hover {
+  background: var(--card-h);
+  border-color: rgb(from var(--g) r g b / 0.32);
+  box-shadow: 0 6px 22px rgb(from var(--g) r g b / 0.08);
+  transform: translateY(-2px);
+}
+
+/* Fila Superior: 1. Nombre (grande, Space Grotesk) y 2. Cierra en X días */
+.card-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+/* 1. Nombre */
+.tender-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text);
+  letter-spacing: -0.015em;
+  flex: 1;
+}
+
+/* 2. Cierra en X días — Etiqueta de Urgencia */
+.urgencia-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 100px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.urgencia-badge .badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Reglas de color exactas de la spec:
+   - Más de 7 días: gris
+   - 3 a 7 días: ámbar
+   - Menos de 3 días: rojo
+   - Ya cerrada: gris tachado */
+
+.urgencia-badge.urgencia-gris {
+  color: var(--urgencia-gris);
+  background: var(--urgencia-gris-bg);
+  border: 1px solid var(--urgencia-gris-border);
+}
+.urgencia-badge.urgencia-gris .badge-dot {
+  background: var(--urgencia-gris);
+}
+
+.urgencia-badge.urgencia-ambar {
+  color: var(--urgencia-ambar);
+  background: var(--urgencia-ambar-bg);
+  border: 1px solid var(--urgencia-ambar-border);
+}
+.urgencia-badge.urgencia-ambar .badge-dot {
+  background: var(--urgencia-ambar);
+}
+
+.urgencia-badge.urgencia-rojo {
+  color: var(--urgencia-rojo);
+  background: var(--urgencia-rojo-bg);
+  border: 1px solid var(--urgencia-rojo-border);
+}
+.urgencia-badge.urgencia-rojo .badge-dot {
+  background: var(--urgencia-rojo);
+}
+
+.urgencia-badge.urgencia-cerrada {
+  color: var(--muted);
+  background: var(--urgencia-gris-bg);
+  border: 1px solid var(--urgencia-gris-border);
+  text-decoration: line-through;
+}
+.urgencia-badge.urgencia-cerrada .badge-dot {
+  background: var(--muted);
+}
+
+/* Fila Media: 3. Monto y 4. Organismo y Región */
+.card-middle-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.5rem;
+}
+
+/* 3. Monto */
+.tender-monto {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.monto-publicado {
+  font-family: var(--font-display);
+  font-size: 1.22rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.monto-no-publicado {
+  font-size: 0.92rem;
+  color: var(--muted);
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* 4. Organismo y Región (en una línea, texto atenuado) */
+.tender-buyer-info {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  font-size: 0.88rem;
+  color: var(--sub);
+  line-height: 1.4;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.buyer-organismo {
+  font-weight: 600;
+  color: var(--sub);
+  white-space: normal;
+}
+
+.buyer-sep {
+  color: var(--muted);
+  font-weight: 400;
+  flex-shrink: 0;
+}
+
+.buyer-region {
+  color: var(--muted);
+  font-weight: 400;
+  white-space: normal;
+}
+
+/* 4-bis.3 Referencia histórica y llenar el vacío del competidor */
+.card-ref-historica-container {
+  background: rgba(0, 128, 40, 0.04);
+  border: 1px solid rgba(0, 128, 40, 0.16);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-ref-fill-void {
+  background: rgba(217, 119, 6, 0.05);
+  border-color: rgba(217, 119, 6, 0.25);
+}
+
+.card-ref-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--sub);
+}
+
+.card-ref-fill-void .card-ref-title {
+  color: #9a3412;
+}
+
+.ref-historica-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ref-meta-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  font-size: 0.76rem;
+}
+
+.ref-badge-n {
+  font-weight: 700;
+  color: var(--g);
+  background: var(--surface);
+  border: 1px solid var(--card-b);
+  padding: 0.15rem 0.55rem;
+  border-radius: 100px;
+}
+
+.ref-badge-alcance {
+  color: var(--muted);
+  font-style: normal;
+}
+
+.ref-badge-low-comp {
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: #9a3412;
+  background: rgba(217, 119, 6, 0.12);
+  border: 1px solid rgba(217, 119, 6, 0.28);
+  padding: 0.15rem 0.55rem;
+  border-radius: 100px;
+}
+
+.ref-data-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.4rem;
+  font-size: 0.82rem;
+}
+
+.ref-data-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.ref-item-label {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.ref-item-value {
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--font-display);
+}
+
+.ref-item-range {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-left: 0.3rem;
+}
+
+.ref-item-n {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-left: 0.25rem;
+}
+
+/* 4-bis.2 Ítems masticados en la tarjeta */
+.card-items-masticados {
+  background: var(--surface);
+  border: 1px solid var(--card-b);
+  border-radius: 10px;
+  padding: 0.75rem 0.95rem;
+}
+
+.items-masticados-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--sub);
+  margin-bottom: 0.45rem;
+}
+
+.items-masticados-ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.item-masticado-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.item-masticado-main {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  color: var(--text);
+}
+
+.item-masticado-bullet {
+  color: var(--g);
+  font-weight: bold;
+}
+
+.item-masticado-nombre {
+  font-weight: 600;
+}
+
+.item-masticado-qty {
+  color: var(--sub);
+}
+
+.item-masticado-unspsc {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--bg2);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* Fila Inferior: 5. Tipo, 6. Código y 7. Destino Principal + Mercado Público Secundario */
+.card-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed rgba(0, 128, 40, 0.14);
+}
+
+.card-meta-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* 5. Tipo como etiqueta pequeña con el nombre completo */
+.tender-tipo-badge {
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--card-b);
+  border-radius: 6px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--sub);
+}
+
+/* 6. Código chiquito para copiar y pegar */
+.tender-codigo-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(0, 128, 40, 0.04);
+  border: 1px solid rgba(0, 128, 40, 0.12);
+  border-radius: 6px;
+  padding: 0.2rem 0.55rem;
+}
+
+.tender-codigo-text {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.btn-copy-code {
+  background: transparent;
+  border: none;
+  color: var(--sub);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.btn-copy-code:hover {
+  background: rgba(0, 128, 40, 0.12);
+  color: var(--g);
+}
+
+.btn-copy-code.copied {
+  color: var(--g);
+  font-weight: 700;
+}
+
+/* Acciones a la derecha: Destino principal y salida secundaria */
+.card-actions-right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+/* Destino Principal nuevo (Sección 2.2): Ver detalle masticado */
+.btn-ver-detalle {
+  background: var(--g);
+  color: #f7fff8;
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 100px;
+  padding: 0.45rem 1.15rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 8px rgb(from var(--g) r g b / 0.2);
+}
+
+.btn-ver-detalle:hover {
+  background: var(--g2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgb(from var(--g) r g b / 0.3);
+}
+
+.btn-ver-detalle:active {
+  transform: scale(0.98);
+}
+
+/* 7. Salida secundaria: Enlace a Mercado Público */
+.link-mercado-publico {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--sub);
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.38rem 0.8rem;
+  border-radius: 100px;
+  background: transparent;
+  border: 1px solid var(--card-b);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.link-mercado-publico:hover {
+  background: rgb(from var(--g) r g b / 0.08);
+  border-color: var(--g);
+  color: var(--g2);
+}
+
+.link-mercado-publico .icon-arrow {
+  font-size: 0.92rem;
+  transition: transform 0.15s ease;
+}
+
+.link-mercado-publico:hover .icon-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* Estado de Sin Resultados */
+.empty-state {
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--card-b);
+  border-radius: var(--r);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.empty-state-icon {
+  font-size: 2.2rem;
+  color: var(--muted);
+}
+
+.empty-state-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.empty-state-desc {
+  font-size: 0.92rem;
+  color: var(--sub);
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+/* =========================================================================
+   LATERAL DE MÉTRICAS GLOBALES DEL FILTRO (Sección 4-bis.1)
+   ========================================================================= */
+
+.metrics-sidebar {
+  position: sticky;
+  top: 5.5rem;
+  width: 100%;
+}
+
+.sidebar-inner {
+  background: var(--surface);
+  border: 1px solid var(--card-b);
+  border-radius: var(--r);
+  padding: 1.35rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  box-shadow: 0 4px 18px rgb(from var(--g) r g b / 0.05);
+}
+
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--g);
+  background: rgb(from var(--g) r g b / 0.08);
+  border: 1px solid rgb(from var(--g) r g b / 0.18);
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  margin-bottom: 0.4rem;
+}
+
+.sidebar-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.015em;
+}
+
+.sidebar-subtitle {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+  margin-top: 0.2rem;
+}
+
+.sidebar-card {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sidebar-card-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sub);
+}
+
+.sidebar-main-value {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.sidebar-inline-unit {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  font-family: var(--font-body);
+}
+
+.sidebar-value-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--card-b);
+  margin: 0.4rem 0;
+}
+
+.sidebar-stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.sidebar-stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.text-amber {
+  color: var(--urgencia-ambar);
+}
+
+.sidebar-callout {
+  background: rgb(from var(--g) r g b / 0.07);
+  border-left: 3px solid var(--g);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--sub);
+  line-height: 1.45;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.callout-icon {
+  flex-shrink: 0;
+}
+
+.sidebar-cierre-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+}
+
+.sidebar-cierre-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.cierre-pill {
+  padding: 0.2rem 0.55rem;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.74rem;
+}
+
+.pill-rojo {
+  background: var(--urgencia-rojo-bg);
+  color: var(--urgencia-rojo);
+  border: 1px solid var(--urgencia-rojo-border);
+}
+
+.pill-ambar {
+  background: var(--urgencia-ambar-bg);
+  color: var(--urgencia-ambar);
+  border: 1px solid var(--urgencia-ambar-border);
+}
+
+.pill-gris {
+  background: var(--urgencia-gris-bg);
+  color: var(--urgencia-gris);
+  border: 1px solid var(--urgencia-gris-border);
+}
+
+.cierre-desc {
+  flex: 1;
+  color: var(--sub);
+  font-size: 0.78rem;
+}
+
+.cierre-count {
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--font-display);
+}
+
+.sidebar-ranking-group {
+  font-size: 0.78rem;
+}
+
+.ranking-group-title {
+  font-weight: 600;
+  color: var(--sub);
+  margin-bottom: 0.35rem;
+}
+
+.ranking-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ranking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface);
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 128, 40, 0.1);
+}
+
+.ranking-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 195px;
+  color: var(--text);
+}
+
+.ranking-badge {
+  font-weight: 700;
+  font-size: 0.74rem;
+  background: var(--bg2);
+  color: var(--g);
+  padding: 0.1rem 0.45rem;
+  border-radius: 100px;
+}
+
+/* =========================================================================
+   MODAL DE DETALLE MASTICADO (Sección 4-bis.2)
+   ========================================================================= */
+
+body.modal-open {
+  overflow: hidden;
+}
+
+.tender-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 36, 13, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.tender-modal-container {
+  background: var(--surface);
+  border: 1.5px solid var(--card-b);
+  border-radius: var(--r);
+  max-width: 720px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0, 30, 10, 0.2);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+  position: relative;
+}
+
+.tender-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.modal-badge-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.modal-close-btn {
+  background: var(--bg2);
+  border: 1px solid var(--card-b);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--sub);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.modal-close-btn:hover {
+  background: var(--card-h);
+  color: var(--text);
+}
+
+.tender-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.tender-modal-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  color: var(--sub);
+}
+
+.modal-meta-organismo {
+  font-weight: 600;
+}
+
+.modal-meta-region {
+  color: var(--muted);
+}
+
+.tender-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.modal-section-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.modal-section-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.modal-section-sub {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.modal-items-table-container {
+  border: 1px solid var(--card-b);
+  border-radius: 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.modal-items-table th {
+  background: var(--bg2);
+  color: var(--sub);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid var(--card-b);
+}
+
+.modal-items-table td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid rgba(0, 128, 40, 0.08);
+  vertical-align: top;
+}
+
+.modal-items-table td.col-prod {
+  color: var(--text);
+}
+
+.modal-items-table td.col-unspsc code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.74rem;
+  background: var(--bg2);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  color: var(--muted);
+}
+
+.modal-budget-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .modal-budget-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.modal-budget-card {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.budget-card-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--sub);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.budget-card-val {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.budget-card-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.modal-intel-card {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: 10px;
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.intel-opportunity-banner {
+  background: rgba(217, 119, 6, 0.07);
+  border: 1px solid rgba(217, 119, 6, 0.25);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.intel-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #9a3412;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.intel-standard-banner {
+  background: rgba(0, 128, 40, 0.04);
+  border: 1px solid var(--card-b);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.intel-badge-standard {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--sub);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.intel-void-banner {
+  background: rgb(from var(--g) r g b / 0.06);
+  border-left: 3px solid var(--g);
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.intel-badge-void {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--g2);
+}
+
+.intel-text {
+  font-size: 0.82rem;
+  color: var(--sub);
+  line-height: 1.45;
+}
+
+.tender-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--card-b);
+}
+
+.btn-modal-secondary {
+  background: var(--bg2);
+  color: var(--text);
+  border: 1px solid var(--card-b);
+  padding: 0.45rem 1.2rem;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.84rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-modal-secondary:hover {
+  background: var(--card-h);
+}
+
+.link-mercado-publico-secondary {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 100px;
+  border: 1px dashed var(--card-b);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.link-mercado-publico-secondary:hover {
+  color: var(--text);
+  border-color: var(--g);
+}
+
+/* =========================================================================
+   FOOTER CON METADATOS Y LIMITACIONES (Sección 6.4)
+   ========================================================================= */
+
+.pub-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--card-b);
+  background: var(--bg2);
+  padding: 1.8rem 1.5rem 2.2rem;
+  font-size: 0.84rem;
+  color: var(--sub);
+}
+
+.pub-footer-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-source-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.footer-source-line .dot-live {
+  width: 8px;
+  height: 8px;
+  background: var(--g);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px rgb(from var(--g) r g b / 0.4);
+}
+
+.footer-meta-limitaciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.footer-compra-agil-note {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+  background: rgba(0, 128, 40, 0.04);
+  padding: 0.55rem 0.85rem;
+  border-radius: 8px;
+  border-left: 3px solid var(--g);
+}
+
+.footer-compra-agil-note strong {
+  color: var(--sub);
+}
+
+/* =========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================= */
+
+@media (max-width: 991px) {
+  .results-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .metrics-sidebar {
+    position: static;
+    order: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .pub-header {
+    padding: 0.8rem 1rem;
+  }
+
+  .pub-main {
+    padding: 1.5rem 1rem 3rem;
+    gap: 1.5rem;
+  }
+
+  .search-hero-title {
+    font-size: 1.7rem;
+  }
+
+  .search-form {
+    padding: 0.3rem 0.3rem 0.3rem 1rem;
+  }
+
+  .btn-search {
+    padding: 0.65rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .card-header-row {
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .tender-title {
+    font-size: 1.15rem;
+  }
+
+  .urgencia-badge {
+    align-self: flex-start;
+  }
+
+  .card-footer-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+
+  .card-actions-right {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btn-ver-detalle {
+    width: 100%;
+    text-align: center;
+  }
+
+  .link-mercado-publico {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filters-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+
+  .filter-toggle {
+    justify-content: center;
+  }
+
+  .tender-modal-container {
+    padding: 1.25rem;
+    max-height: 94vh;
+  }
+
+  .tender-modal-title {
+    font-size: 1.15rem;
+  }
+}
