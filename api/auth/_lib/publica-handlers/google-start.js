@@ -23,10 +23,40 @@ import { generateCodeChallenge, generateCodeVerifier } from '../pkce.js';
 function resolveOrigin(req, env) {
   const configured = String(env.APP_ORIGIN || '').replace(/\/$/, '');
   if (configured) return configured;
-  const forwardedHost = String(getHeader(req, 'x-forwarded-host') || getHeader(req, 'host') || '')
-    .split(',')[0]
-    .trim();
+  const forwardedHost = requestHost(req);
   return forwardedHost ? `https://${forwardedHost}` : '';
+}
+
+function requestHost(req) {
+  return String(getHeader(req, 'x-forwarded-host') || getHeader(req, 'host') || '')
+    .split(',')[0]
+    .trim()
+    .toLowerCase();
+}
+
+// El sitio responde igual en el apex y en www, pero el `redirect_to` sale
+// siempre del APP_ORIGIN (el apex). Si arrancamos en www, la cookie del
+// verifier queda en www -- `__Host-` no lleva Domain, es host-only -- y el
+// callback corre en el apex, que nunca la recibe: el usuario ve "El enlace de
+// Google expiró" y vuelve al login. Medido el 2026-09-08 con la cuenta de
+// prueba: fallaba desde www, funcionaba desde el apex.
+//
+// Se resuelve rebotando al host canónico ANTES de emitir la cookie, para que
+// cookie y callback vivan en el mismo host. Solo se rebota entre el apex y su
+// hermano www: cualquier otro host (previews de Vercel, localhost) sigue de
+// largo, para no mandar un preview a producción.
+function canonicalRedirect(req, configured) {
+  if (!configured) return '';
+  let configuredHost;
+  try {
+    configuredHost = new URL(configured).host.toLowerCase();
+  } catch {
+    return '';
+  }
+  const host = requestHost(req);
+  if (!host || host === configuredHost) return '';
+  const isWwwSibling = host === `www.${configuredHost}` || configuredHost === `www.${host}`;
+  return isWwwSibling ? `${configured}/api/auth/publica/google/start` : '';
 }
 
 export function createGoogleStartHandler({ env = process.env } = {}) {
@@ -34,6 +64,15 @@ export function createGoogleStartHandler({ env = process.env } = {}) {
     if (req.method !== 'GET') return methodNotAllowed(res, ['GET']);
 
     const supabaseUrl = String(env.SUPABASE_URL || '').replace(/\/$/, '');
+    const configured = String(env.APP_ORIGIN || '').replace(/\/$/, '');
+
+    const canonical = canonicalRedirect(req, configured);
+    if (canonical) {
+      res.setHeader('Cache-Control', 'no-store, max-age=0');
+      res.writeHead(302, { Location: canonical });
+      return res.end();
+    }
+
     const origin = resolveOrigin(req, env);
     if (!supabaseUrl.startsWith('https://') || !origin) {
       res.setHeader('Cache-Control', 'no-store, max-age=0');
