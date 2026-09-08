@@ -51,7 +51,7 @@ Este índice conecta la información activa e histórica del repo. Si un documen
 | `docs/security/demo-guardrails.md` | Activo | Seguridad/Producto | Guardrails demo pública | `scripts/web/dataseed_demo_proxy.py` | Probar prompts riesgosos |
 | `docs/security/auth-plan.md` | Histórico útil | Seguridad/Producto | Firebase/GCP Auth | `agent-landing-updates/docs/auth-login-plan.md` | Revalidar con admin GCP |
 | `docs/security/public-demo-risk-review.md` | Histórico útil | Seguridad | Riesgos portal/reportes | `agent-landing-updates/docs/security-daily-report-portal-review.md` | No publicar JSON privado |
-| `docs/security/service-role-key-decision.md` | **Abierto** | Seguridad/Auth | ¿Va `SUPABASE_SERVICE_ROLE_KEY` en Vercel? Diferido: no se necesita para el login; el self-serve exige decisión de producto antes | Pedido de Matías 2026-09-08 | Responder los 4 puntos antes de agregar la clave |
+| `docs/security/service-role-key-decision.md` | **Cerrado** | Seguridad/Auth | ¿Va `SUPABASE_SERVICE_ROLE_KEY` en Vercel? **No.** Decisión de producto tomada: Pública freemium self-serve, portal de Dataseed por invitación; el alta va por `provision_self_serve_org()` (`security definer`), sin la clave | Pedido de Matías 2026-09-08, cerrado el mismo día | Ejecutar el trabajo pendiente del doc; empieza en `site/login.js:137` |
 | `docs/security/dnsaid-readiness.md` | Activo | Seguridad | Evaluación DNS-AID (no adoptar) | Revisión pasiva 2026-08-30 | Reevaluar solo si cambian criterios |
 | `docs/security/agent-readiness-audit-2026-08-30.md` | Activo | Seguridad/SEO | Canonical, redirects, metadatos, Content-Signal, Markdown for Agents pendiente | `vercel.json` + `site/index.html` | Validar redirects en preview antes de mergear |
 
