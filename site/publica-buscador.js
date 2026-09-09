@@ -119,6 +119,35 @@ async function guardarCertificacionesBackend(certificaciones) {
 }
 
 /**
+ * Licitaciones favoritas, por organización. GET /api/auth/publica/favorites
+ * — silencioso ante error o sesión ausente: el panel sigue funcionando
+ * igual, solo sin recordar favoritos.
+ */
+async function cargarFavoritosBackend() {
+  const response = await fetch('/api/auth/publica/favorites', {
+    method: 'GET',
+    credentials: 'same-origin',
+    headers: { Accept: 'application/json' }
+  });
+  if (!response.ok) return null;
+  const payload = await response.json().catch(() => null);
+  return payload && Array.isArray(payload.favoritos) ? payload.favoritos : null;
+}
+
+/**
+ * Guarda la lista completa de favoritos. POST /api/auth/publica/favorites —
+ * silencioso ante error: no bloquea al usuario por un fallo al guardar.
+ */
+async function guardarFavoritosBackend(favoritos) {
+  await fetch('/api/auth/publica/favorites', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ favoritos })
+  }).catch(() => {});
+}
+
+/**
  * Obtiene el detalle de la licitación de una licitación (items + referencia histórica).
  * Cachea por código para no repetir la llamada si el usuario reabre el modal.
  */
@@ -734,7 +763,7 @@ function formatearItemsDetalle(items) {
 // - Referencia histórica debajo de "Monto no publicado" (llenar el vacío del competidor)
 // - Botón principal: "Ver detalle de la licitación"
 // =========================================================================
-function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null, certificaciones = null) {
+function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null, certificaciones = null, favoritos = null) {
   if (!item) return '';
 
   // 1. Nombre normalizado (formato visual normal, no mayúsculas)
@@ -765,6 +794,15 @@ function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null, cert
 
   // 6. Código chiquito para copiar
   const codigo = item.codigo || 'S/C';
+
+  // Favoritas: botón por tarjeta, persistido en organization_settings (ver
+  // cargarFavoritos/guardarFavoritos). `favoritos` es un Set de códigos.
+  const esFavorito = favoritos instanceof Set && favoritos.has(codigo);
+  const botonFavoritoHtml = `
+    <button type="button" class="btn-favorito ${esFavorito ? 'is-active' : ''}" data-codigo="${codigo}" aria-pressed="${esFavorito}" aria-label="${esFavorito ? 'Quitar de favoritas' : 'Guardar en favoritas'}" title="${esFavorito ? 'Quitar de favoritas' : 'Guardar en favoritas'}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="${esFavorito ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+    </button>
+  `;
 
   // 7. Enlace a Mercado Público (patrón oficial medido en producción)
   const urlMp = (detalle && detalle.url_ficha) || item.url_ficha || `https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=${encodeURIComponent(codigo)}`;
@@ -819,6 +857,7 @@ function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null, cert
           <span class="badge-dot"></span>
           <span>${cierre.texto}</span>
         </div>
+        ${botonFavoritoHtml}
       </div>
 
       <!-- Fit score autodeclarado (opcional, solo si hay coincidencia) -->
@@ -867,6 +906,63 @@ function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null, cert
             <span>Ver en Mercado Público</span>
             <span class="icon-arrow" aria-hidden="true">↗</span>
           </a>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+/**
+ * Tarjeta simplificada para la sección Favoritas: se arma solo con el
+ * snapshot guardado (codigo, nombre, organismo, región, cierre, monto), sin
+ * depender de una búsqueda activa. Reutiliza las mismas clases CSS que
+ * generarHtmlTarjeta (mismo estilo visual), no la lógica de esa función.
+ * "Ver detalle" sigue funcionando igual: pide /api/licitacion/{codigo} con
+ * datos frescos, no depende del snapshot.
+ */
+function generarHtmlTarjetaFavorito(favorito, fechaBase = '2026-09-03') {
+  if (!favorito || !favorito.codigo) return '';
+  const codigo = favorito.codigo;
+  const nombreNormalizado = normalizarTextoVisual(favorito.nombre || 'Sin título');
+  const cierre = evaluarCierre(favorito.fecha_cierre, fechaBase);
+  const monto = formatearMonto(favorito.monto_estimado_clp);
+  const organismoNormalizado = normalizarTextoVisual(favorito.organismo_nombre);
+  const regionTexto = favorito.region_comprador || 'Región no informada';
+
+  return `
+    <article class="tender-card" data-codigo="${codigo}">
+      <div class="card-header-row">
+        <h2 class="tender-title">${nombreNormalizado}</h2>
+        <div class="urgencia-badge ${cierre.claseCss}" title="Fecha límite: ${formatearFechaCorta(favorito.fecha_cierre)}">
+          <span class="badge-dot"></span>
+          <span>${cierre.texto}</span>
+        </div>
+        <button type="button" class="btn-favorito is-active" data-codigo="${codigo}" aria-pressed="true" aria-label="Quitar de favoritas" title="Quitar de favoritas">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        </button>
+      </div>
+
+      <div class="card-middle-row">
+        <div class="tender-monto">
+          ${monto.html}
+        </div>
+        <div class="tender-buyer-info">
+          <span class="buyer-organismo">${organismoNormalizado}</span>
+          <span class="buyer-sep">·</span>
+          <span class="buyer-region">${regionTexto}</span>
+        </div>
+      </div>
+
+      <div class="card-footer-row">
+        <div class="card-meta-left">
+          <div class="tender-codigo-container" title="Código de licitación">
+            <span class="tender-codigo-text">${codigo}</span>
+          </div>
+        </div>
+        <div class="card-actions-right">
+          <button type="button" class="btn-ver-detalle" data-codigo="${codigo}" aria-label="Ver detalle de la licitación de ${codigo}">
+            <span>Ver detalle de la licitación</span>
+          </button>
         </div>
       </div>
     </article>
@@ -1192,6 +1288,12 @@ class BuscadorPublicaApp {
       iso45001: false
     };
 
+    // Favoritas: this.favoritos es el Set de códigos (para la ⭐ de cada
+    // tarjeta); this.favoritosDatos guarda el snapshot completo para poder
+    // listarlas en la sección Favoritas sin depender de una búsqueda activa.
+    this.favoritos = new Set();
+    this.favoritosDatos = [];
+
     // Referencias al DOM
     this.dom = {
       searchForm: document.getElementById('searchForm'),
@@ -1206,6 +1308,9 @@ class BuscadorPublicaApp {
       certOs10: document.getElementById('certOs10'),
       certIso9001: document.getElementById('certIso9001'),
       certIso45001: document.getElementById('certIso45001'),
+      pubRail: document.getElementById('pubRail'),
+      railToggle: document.getElementById('railToggle'),
+      favoritasContainer: document.getElementById('favoritasContainer'),
       resultsContainer: document.getElementById('resultsContainer'),
       resultsCount: document.getElementById('resultsCount'),
       paginacion: document.getElementById('paginacion'),
@@ -1240,8 +1345,17 @@ class BuscadorPublicaApp {
   async inicializar() {
     this.vincularEventos();
     this.poblarRegiones();
+
+    // Sincroniza aria-expanded del toggle con lo que ya aplicó el <script>
+    // de <head> antes del primer paint (si el rail arrancó colapsado).
+    if (this.dom.railToggle) {
+      const colapsado = document.documentElement.getAttribute('data-rail-colapsado') === '1';
+      this.dom.railToggle.setAttribute('aria-expanded', String(!colapsado));
+    }
+
     await this.cargarPerfilBusqueda();
     await this.cargarPerfilCertificaciones();
+    await this.cargarFavoritos();
 
     // Llamada minima solo para tener meta.as_of real en el pie antes de que el
     // usuario busque nada (Sección 6.1: sin resultados visibles todavia).
@@ -1353,6 +1467,82 @@ class BuscadorPublicaApp {
       os10: this.certificaciones.os10,
       iso9001: this.certificaciones.iso9001,
       iso45001: this.certificaciones.iso45001
+    });
+  }
+
+  // Favoritas: carga/guarda sobre organization_settings (clave "favoritos",
+  // mismo mecanismo que filtros/certificaciones). No altera la lógica de
+  // búsqueda ni de renderizado de tarjetas existente.
+  async cargarFavoritos() {
+    try {
+      const favoritos = await cargarFavoritosBackend();
+      if (!Array.isArray(favoritos)) return;
+      this.favoritosDatos = favoritos.filter((f) => f && typeof f.codigo === 'string');
+      this.favoritos = new Set(this.favoritosDatos.map((f) => f.codigo));
+      this.renderizarFavoritas();
+    } catch (err) {
+      // Sin sesión, o backend no disponible: el panel sigue sin favoritos
+      // guardados, igual que antes de que existiera esta persistencia.
+      console.warn('No se pudieron cargar los favoritos guardados:', err);
+    }
+  }
+
+  guardarFavoritos() {
+    guardarFavoritosBackend(this.favoritosDatos);
+  }
+
+  // Agrega o quita una licitación de favoritas. Si se agrega, guarda un
+  // snapshot liviano tomado de this.datasetCompleto (la búsqueda en curso) —
+  // "Ver detalle" sigue pidiendo datos frescos, no depende de este snapshot.
+  alternarFavorito(codigo) {
+    if (!codigo) return;
+    if (this.favoritos.has(codigo)) {
+      this.favoritos.delete(codigo);
+      this.favoritosDatos = this.favoritosDatos.filter((f) => f.codigo !== codigo);
+    } else {
+      const item = (this.datasetCompleto || []).find((it) => it.codigo === codigo);
+      if (!item) return;
+      this.favoritos.add(codigo);
+      this.favoritosDatos.push({
+        codigo: item.codigo,
+        nombre: item.nombre,
+        organismo_nombre: item.organismo_nombre,
+        region_comprador: item.region_comprador,
+        fecha_cierre: item.fecha_cierre,
+        monto_estimado_clp: item.monto_estimado_clp
+      });
+    }
+    this.guardarFavoritos();
+    this.renderizarFavoritas();
+    // Refleja el cambio de la ⭐ en la tarjeta ya renderizada, sin relanzar
+    // una búsqueda nueva al servidor.
+    this.aplicarFiltrosYRenderizar({ mantenerPagina: true });
+  }
+
+  renderizarFavoritas() {
+    if (!this.dom.favoritasContainer) return;
+    if (this.favoritosDatos.length === 0) {
+      this.dom.favoritasContainer.innerHTML =
+        '<p class="dashboard-empty-state">Todavía no guardaste ninguna licitación. Usá la ⭐ de cada tarjeta en Buscador.</p>';
+      return;
+    }
+    const fechaBase = (this.meta && this.meta.as_of) || '2026-09-03';
+    this.dom.favoritasContainer.innerHTML = this.favoritosDatos
+      .map((f) => generarHtmlTarjetaFavorito(f, fechaBase))
+      .join('');
+  }
+
+  // Nav rail: cambia qué panel se ve (Buscador/Dashboard/Favoritas/Agente).
+  // No dispara ninguna búsqueda ni recarga nada por sí solo.
+  activarSeccion(nombre) {
+    document.querySelectorAll('.pub-panel[data-panel]').forEach((panel) => {
+      panel.hidden = panel.dataset.panel !== nombre;
+    });
+    document.querySelectorAll('.rail-item[data-section]').forEach((btn) => {
+      const activo = btn.dataset.section === nombre;
+      btn.classList.toggle('is-active', activo);
+      if (activo) btn.setAttribute('aria-current', 'page');
+      else btn.removeAttribute('aria-current');
     });
   }
 
@@ -1499,6 +1689,54 @@ class BuscadorPublicaApp {
         this.abrirModalDetalle(codigo, btn);
       }
     });
+
+    // Favoritas: delegación en resultsContainer (tarjetas de Buscador) y
+    // favoritasContainer (tarjetas de la sección Favoritas) — ambos
+    // contenedores regeneran su HTML dinámicamente.
+    const wireFavoritoToggle = (contenedor) => {
+      if (!contenedor) return;
+      contenedor.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-favorito');
+        if (btn) this.alternarFavorito(btn.dataset.codigo);
+      });
+    };
+    wireFavoritoToggle(this.dom.resultsContainer);
+    wireFavoritoToggle(this.dom.favoritasContainer);
+    if (this.dom.favoritasContainer) {
+      this.dom.favoritasContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-ver-detalle');
+        if (btn) this.abrirModalDetalle(btn.dataset.codigo, btn);
+      });
+    }
+
+    // Nav rail: cambio de sección.
+    document.querySelectorAll('.rail-item[data-section]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        this.activarSeccion(btn.dataset.section);
+      });
+    });
+
+    // Nav rail: colapsar/expandir a solo íconos. Se recuerda entre visitas
+    // (localStorage, igual que el tema) — no depende de organization_settings.
+    if (this.dom.railToggle) {
+      this.dom.railToggle.addEventListener('click', () => {
+        // Mismo mecanismo que aplica el <script> de <head> antes del primer
+        // paint (atributo en <html>, no una clase en #pubRail): así el CSS
+        // usa un solo selector para los dos casos, y no hay que sincronizar
+        // dos lugares distintos.
+        const root = document.documentElement;
+        const colapsado = root.getAttribute('data-rail-colapsado') !== '1';
+        if (colapsado) root.setAttribute('data-rail-colapsado', '1');
+        else root.removeAttribute('data-rail-colapsado');
+        this.dom.railToggle.setAttribute('aria-expanded', String(!colapsado));
+        try {
+          localStorage.setItem('publica-rail-colapsado', colapsado ? '1' : '0');
+        } catch (err) {
+          // La persistencia del colapso es opcional.
+        }
+      });
+    }
 
     // Cierre del modal
     if (this.dom.modalCloseBtn) {
@@ -1708,7 +1946,7 @@ class BuscadorPublicaApp {
     // Renderizar tarjetas con las 7 capas visuales obligatorias (Sección 6.3) y detalle de la licitación
     const htmlCards = items.map(item => {
       const det = this.detalles[item.codigo] || item.detalle || null;
-      return generarHtmlTarjeta(item, fechaBase, det, this.certificaciones);
+      return generarHtmlTarjeta(item, fechaBase, det, this.certificaciones, this.favoritos);
     }).join('');
 
     this.dom.resultsContainer.innerHTML = htmlCards;
@@ -1835,7 +2073,7 @@ class BuscadorPublicaApp {
   }
 
   generarHtmlTarjeta(item, fechaBase, detalle) {
-    return generarHtmlTarjeta(item, fechaBase, detalle, this.certificaciones);
+    return generarHtmlTarjeta(item, fechaBase, detalle, this.certificaciones, this.favoritos);
   }
 
   async copiarAlPortapapeles(texto, botonElemento) {
@@ -1935,6 +2173,7 @@ if (typeof module !== 'undefined' && module.exports) {
     GLOSARIO_TIPOS,
     calcularCoincidenciasCertificaciones,
     PALABRAS_CLAVE_CERTIFICACIONES,
+    generarHtmlTarjetaFavorito,
     BuscadorPublicaApp
   };
 }

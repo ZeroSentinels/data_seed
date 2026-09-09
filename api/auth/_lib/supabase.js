@@ -228,3 +228,16 @@ export function savePublicaCertifications(accessToken, certs, options = {}) {
     body: { certs },
   });
 }
+
+// Guarda la lista completa de licitaciones favoritas del propio usuario
+// autenticado, vía la función `security definer` — clave hermana de
+// `buscador_perfil`/`certificaciones` dentro del mismo jsonb `settings`, no
+// las pisa. Ver supabase/migrations/20260909_publica_favorites.sql.
+export function savePublicaFavorites(accessToken, favoritos, options = {}) {
+  return request('/rest/v1/rpc/save_publica_favorites', {
+    ...options,
+    method: 'POST',
+    accessToken,
+    body: { favoritos },
+  });
+}

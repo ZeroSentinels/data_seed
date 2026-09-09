@@ -10,6 +10,7 @@ import {
   provisionSelfServeOrg,
   refreshSession,
   savePublicaCertifications,
+  savePublicaFavorites,
   savePublicaSearchProfile,
   sendPasswordRecovery,
   signInWithPassword,
@@ -137,6 +138,15 @@ test('savePublicaCertifications calls the security-definer RPC with the user JWT
   assert.equal(calls[0].options.headers.Authorization, 'Bearer access-token');
   assert.equal(calls[0].options.headers.apikey, env.SUPABASE_ANON_KEY);
   assert.deepEqual(JSON.parse(calls[0].options.body), { certs: { os10: true } });
+});
+
+test('savePublicaFavorites calls the security-definer RPC with the user JWT, never a service key', async () => {
+  const { calls, fetchImpl } = fakeFetchQueue([{ body: null }]);
+  await savePublicaFavorites('access-token', [{ codigo: 'ABC-123' }], { env, fetchImpl });
+  assert.equal(calls[0].url, 'https://project.supabase.co/rest/v1/rpc/save_publica_favorites');
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer access-token');
+  assert.equal(calls[0].options.headers.apikey, env.SUPABASE_ANON_KEY);
+  assert.deepEqual(JSON.parse(calls[0].options.body), { favoritos: [{ codigo: 'ABC-123' }] });
 });
 
 test('password recovery and logout use provider endpoints', async () => {

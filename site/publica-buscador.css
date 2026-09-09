@@ -250,6 +250,233 @@ html[data-theme="light"] .pub-theme-toggle .sun { display: inline; }
 
 
 /* =========================================================================
+   NAV RAIL: Buscador / Dashboard / Favoritas / Agente (Próximamente).
+   Patrón tipo Claude/GPT: íconos con panel expandible, colapsa a solo
+   íconos con .rail-toggle. Mismos tokens de color que el resto de la
+   página (--surface, --card-b, --g, --text, --sub) -- no es un sistema de
+   diseño nuevo.
+   ========================================================================= */
+
+.pub-shell {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.pub-rail {
+  display: flex;
+  flex-direction: column;
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--card-b);
+  padding: 1rem 0.6rem;
+  gap: 0.75rem;
+  transition: width 0.2s ease;
+}
+
+.rail-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  align-self: flex-end;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--sub);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.rail-toggle:hover {
+  background: var(--card);
+  border-color: var(--card-b);
+  color: var(--text);
+}
+
+.rail-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.rail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sub);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.rail-item:hover {
+  background: var(--card);
+  color: var(--text);
+}
+
+.rail-item.is-active {
+  background: var(--card-h);
+  border-color: var(--card-b);
+  color: var(--text);
+}
+
+.rail-item.is-disabled,
+.rail-item:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.rail-item.is-disabled:hover,
+.rail-item:disabled:hover {
+  background: transparent;
+  color: var(--sub);
+}
+
+.rail-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.rail-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rail-soon {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  color: var(--sub);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+
+.rail-account {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--card-b);
+}
+
+.rail-account .pub-logout-button {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Colapsado a solo íconos: mismo atributo que aplica el <script> de <head>
+   antes del primer paint (ver publica-buscador.html) y que alterna el click
+   del toggle (ver publica-buscador.js) -- un solo mecanismo para los dos
+   casos. */
+html[data-rail-colapsado="1"] .pub-rail {
+  width: 72px;
+}
+
+html[data-rail-colapsado="1"] .rail-label,
+html[data-rail-colapsado="1"] .rail-soon {
+  display: none;
+}
+
+html[data-rail-colapsado="1"] .rail-item {
+  justify-content: center;
+}
+
+html[data-rail-colapsado="1"] .rail-toggle {
+  align-self: center;
+}
+
+/* Pantallas chicas: el rail se queda colapsado siempre (menos espacio
+   horizontal para gastar en un panel expandido) y el toggle desaparece --
+   mismo límite que ya usa .results-layout/.metrics-sidebar más abajo. */
+@media (max-width: 1024px) {
+  .pub-rail {
+    width: 72px;
+  }
+  .rail-label,
+  .rail-soon {
+    display: none;
+  }
+  .rail-item {
+    justify-content: center;
+  }
+  .rail-toggle {
+    display: none;
+  }
+}
+
+/* =========================================================================
+   PANELES DEL RAIL (Dashboard / Favoritas / Agente)
+   ========================================================================= */
+
+.pub-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.metrics-sidebar-standalone {
+  width: 100%;
+  max-width: 420px;
+}
+
+.dashboard-empty-state,
+.agente-placeholder p {
+  padding: 2rem;
+  border: 1px dashed var(--card-b);
+  border-radius: var(--r);
+  background: var(--card);
+  color: var(--sub);
+  text-align: center;
+}
+
+.btn-favorito {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--card-b);
+  background: var(--card);
+  color: var(--sub);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+}
+
+.btn-favorito:hover {
+  transform: translateY(-1px);
+  border-color: var(--g);
+  color: var(--g);
+}
+
+.btn-favorito.is-active {
+  color: var(--g);
+  border-color: var(--g);
+}
+
+/* =========================================================================
    MAIN CONTAINER
    ========================================================================= */
 
@@ -453,7 +680,10 @@ html[data-theme="light"] .pub-theme-toggle .sun { display: inline; }
 
 .results-layout {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  /* Antes 1fr 340px: la segunda columna era #metricsSidebar, que se reubicó
+     a su propia sección "Dashboard" (ver panel-dashboard más arriba en el
+     HTML) -- ya no hay un segundo hijo acá. */
+  grid-template-columns: 1fr;
   gap: 1.75rem;
   align-items: start;
   width: 100%;
