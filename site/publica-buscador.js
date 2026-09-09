@@ -1000,6 +1000,10 @@ function renderizarMetricasLateral(metricas, meta) {
   const c3 = metricas.cierre ? (metricas.cierre.en_3_dias || 0) : 0;
   const c7 = metricas.cierre ? (metricas.cierre.en_7_dias || 0) : 0;
   const cMas7 = metricas.cierre ? (metricas.cierre.mas_de_7 || 0) : 0;
+  // Barra de proporción visual (Dashboard, panel BI): solo estética, el
+  // número exacto de cada fila sigue siendo la fuente de verdad.
+  const totalCierre = c3 + c7 + cMas7;
+  const pctCierre = (n) => (totalCierre > 0 ? Math.round((n / totalCierre) * 100) : 0);
 
   // 3. Competencia
   // El backend aplica la regla del umbral y declara si el dato alcanza para
@@ -1061,16 +1065,19 @@ function renderizarMetricasLateral(metricas, meta) {
             <span class="cierre-pill pill-rojo">≤ 3 días</span>
             <span class="cierre-desc">Urgencia alta</span>
             <span class="cierre-count">${c3}</span>
+            <span class="cierre-bar-track"><span class="cierre-bar-fill fill-rojo" style="width:${pctCierre(c3)}%"></span></span>
           </div>
           <div class="sidebar-cierre-row">
             <span class="cierre-pill pill-ambar">3 a 7 días</span>
             <span class="cierre-desc">Cierran esta semana</span>
             <span class="cierre-count">${c7}</span>
+            <span class="cierre-bar-track"><span class="cierre-bar-fill fill-ambar" style="width:${pctCierre(c7)}%"></span></span>
           </div>
           <div class="sidebar-cierre-row">
             <span class="cierre-pill pill-gris">> 7 días</span>
             <span class="cierre-desc">Plazo estándar</span>
             <span class="cierre-count">${cMas7}</span>
+            <span class="cierre-bar-track"><span class="cierre-bar-fill fill-gris" style="width:${pctCierre(cMas7)}%"></span></span>
           </div>
         </div>
       </div>
@@ -1310,6 +1317,7 @@ class BuscadorPublicaApp {
       certIso45001: document.getElementById('certIso45001'),
       pubRail: document.getElementById('pubRail'),
       railToggle: document.getElementById('railToggle'),
+      railConfigButton: document.getElementById('railConfigButton'),
       favoritasContainer: document.getElementById('favoritasContainer'),
       resultsContainer: document.getElementById('resultsContainer'),
       resultsCount: document.getElementById('resultsCount'),
@@ -1544,6 +1552,10 @@ class BuscadorPublicaApp {
       if (activo) btn.setAttribute('aria-current', 'page');
       else btn.removeAttribute('aria-current');
     });
+    // Hook solo de CSS (ver publica-buscador.css): Dashboard necesita ancho
+    // completo, sin el max-width centrado que usan Buscador/Favoritas/Agente.
+    // Mismo patrón que data-theme/data-rail-colapsado: atributo en <html>.
+    document.documentElement.setAttribute('data-panel-activo', nombre);
   }
 
   renderizarLimitacionesFooter() {
@@ -1716,6 +1728,21 @@ class BuscadorPublicaApp {
         this.activarSeccion(btn.dataset.section);
       });
     });
+
+    // Cuenta → Configuración: no duplica el control de certificaciones
+    // (#certRow, con sus propios ids leídos por cargarPerfilCertificaciones);
+    // navega a Buscador y hace foco/scroll ahí, sobre el mismo componente.
+    if (this.dom.railConfigButton) {
+      this.dom.railConfigButton.addEventListener('click', () => {
+        this.activarSeccion('buscador');
+        const certRow = document.getElementById('certRow');
+        if (certRow) {
+          certRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          certRow.classList.add('cert-row-resaltado');
+          setTimeout(() => certRow.classList.remove('cert-row-resaltado'), 1600);
+        }
+      });
+    }
 
     // Nav rail: colapsar/expandir a solo íconos. Se recuerda entre visitas
     // (localStorage, igual que el tema) — no depende de organization_settings.

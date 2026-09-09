@@ -261,7 +261,14 @@ html[data-theme="light"] .pub-theme-toggle .sun { display: inline; }
   flex: 1;
   display: flex;
   align-items: stretch;
-  min-height: 0;
+  /* Antes tenía min-height: 0. Eso le sacaba el piso de tamaño-por-contenido
+     (min-height:auto) que un contenedor flex necesita para crecer más allá
+     del alto que le tocaba por reparto de espacio libre. Con una búsqueda de
+     resultados largos, .pub-main quedaba más alto que ese reparto y
+     desbordaba: el rail (estirado por align-items:stretch a la altura vieja,
+     más corta) se cortaba antes de llegar al pie, dejando el fondo de
+     página a la vista al lado de las tarjetas. Sacando el min-height:0 el
+     shell vuelve a crecer con el contenido real y el rail lo acompaña. */
 }
 
 .pub-rail {
@@ -380,9 +387,33 @@ html[data-theme="light"] .pub-theme-toggle .sun { display: inline; }
   border-top: 1px solid var(--card-b);
 }
 
-.rail-account .pub-logout-button {
+.rail-account .pub-logout-button,
+.rail-account .rail-config-button {
   width: 100%;
   justify-content: center;
+}
+
+.rail-config-button {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0.7rem;
+  margin-bottom: 0.35rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sub);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.rail-config-button:hover {
+  background: var(--card);
+  border-color: var(--card-b);
+  color: var(--text);
 }
 
 /* Colapsado a solo íconos: mismo atributo que aplica el <script> de <head>
@@ -435,9 +466,41 @@ html[data-rail-colapsado="1"] .rail-toggle {
   gap: 2rem;
 }
 
+/* Dashboard: antes esta aside heredaba max-width:420px de cuando vivía como
+   columna angosta al lado de los resultados (.results-layout), y además
+   quedaba adentro de .pub-main (max-width:1140px, centrado) -- dos topes de
+   ancho apilados. El resultado eran las métricas en una sola tarjeta angosta
+   con aire vacío a los costados. Acá se saca el tope propio... */
 .metrics-sidebar-standalone {
   width: 100%;
-  max-width: 420px;
+}
+
+/* ...y este selector saca el de .pub-main, pero SOLO mientras el panel activo
+   es "dashboard": el atributo lo pone activarSeccion() en <html>, mismo
+   mecanismo que ya usan el tema (data-theme) y el colapso del rail
+   (data-rail-colapsado) -- un solo lugar por selector, nada nuevo. Buscador/
+   Favoritas/Agente conservan el ancho centrado de siempre. */
+html[data-panel-activo="dashboard"] .pub-main {
+  max-width: none;
+}
+
+/* Grilla horizontal en vez de columna: las .sidebar-card ya son hermanas
+   directas dentro de .sidebar-inner (las genera renderizarMetricasLateral en
+   publica-buscador.js, sin cambios) -- alcanza con ponerlas en grid acá, sin
+   tocar ese render. El encabezado ocupa el ancho completo arriba. */
+.metrics-sidebar-standalone .sidebar-inner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.metrics-sidebar-standalone .sidebar-header {
+  grid-column: 1 / -1;
+}
+
+.metrics-sidebar-standalone .dashboard-empty-state {
+  grid-column: 1 / -1;
 }
 
 .dashboard-empty-state,
@@ -738,6 +801,14 @@ html[data-rail-colapsado="1"] .rail-toggle {
 
 .cert-row {
   margin-top: 0.6rem;
+  border-radius: var(--r);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Foco temporal al llegar desde el botón de Configuración del rail (ver
+   railConfigButton en publica-buscador.js) -- se saca solo por JS. */
+.cert-row.cert-row-resaltado {
+  box-shadow: 0 0 0 2px var(--g);
 }
 
 .filter-group {
@@ -1647,11 +1718,32 @@ html[data-theme="light"] .filter-select {
 
 .sidebar-cierre-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
   font-size: 0.8rem;
 }
+
+/* Barra de proporción bajo cada fila -- flex-basis:100% la baja a su propia
+   línea sin tocar el orden ni el layout de pill/desc/count de arriba. */
+.cierre-bar-track {
+  flex-basis: 100%;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--card);
+}
+
+.cierre-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.cierre-bar-fill.fill-rojo { background: var(--urgencia-rojo); }
+.cierre-bar-fill.fill-ambar { background: var(--urgencia-ambar); }
+.cierre-bar-fill.fill-gris { background: var(--urgencia-gris); }
 
 .cierre-pill {
   padding: 0.2rem 0.55rem;
