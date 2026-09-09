@@ -215,3 +215,16 @@ export function savePublicaSearchProfile(accessToken, perfil, options = {}) {
     body: { perfil },
   });
 }
+
+// Guarda las certificaciones autodeclaradas (fit score) del propio usuario
+// autenticado, vía la función `security definer` — clave hermana de
+// `buscador_perfil` dentro del mismo jsonb `settings`, no la pisa. Ver
+// supabase/migrations/20260908c_publica_certifications.sql.
+export function savePublicaCertifications(accessToken, certs, options = {}) {
+  return request('/rest/v1/rpc/save_publica_certifications', {
+    ...options,
+    method: 'POST',
+    accessToken,
+    body: { certs },
+  });
+}

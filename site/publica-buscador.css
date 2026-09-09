@@ -506,6 +506,10 @@ html[data-theme="light"] .pub-theme-toggle .sun { display: inline; }
   gap: 1rem;
 }
 
+.cert-row {
+  margin-top: 0.6rem;
+}
+
 .filter-group {
   display: inline-flex;
   align-items: center;
@@ -1066,6 +1070,26 @@ html[data-theme="light"] .filter-select {
   font-size: 0.78rem;
   font-weight: 500;
   color: var(--sub);
+}
+
+/* Fit score autodeclarado: coincidencia de palabras clave en el título, no
+   una verificación del pliego real (ver comentario en generarHtmlTarjeta). */
+.card-fit-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.4rem 0;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--card-b);
+  border-radius: 6px;
+  background: var(--card-h);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--sub);
+}
+
+.card-fit-score .fit-score-icon {
+  color: var(--g);
 }
 
 /* 6. Código chiquito para copiar y pegar */

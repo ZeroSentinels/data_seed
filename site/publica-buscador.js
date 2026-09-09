@@ -89,6 +89,35 @@ async function guardarPerfilBusquedaBackend(perfil) {
 }
 
 /**
+ * Certificaciones autodeclaradas para el fit score, por organización.
+ * GET /api/auth/publica/certifications — silencioso ante error o sesión
+ * ausente: el panel sigue funcionando igual, solo sin fit score.
+ */
+async function cargarCertificacionesBackend() {
+  const response = await fetch('/api/auth/publica/certifications', {
+    method: 'GET',
+    credentials: 'same-origin',
+    headers: { Accept: 'application/json' }
+  });
+  if (!response.ok) return null;
+  const payload = await response.json().catch(() => null);
+  return payload && typeof payload.certificaciones === 'object' ? payload.certificaciones : null;
+}
+
+/**
+ * Guarda las certificaciones autodeclaradas. POST /api/auth/publica/certifications
+ * — silencioso ante error: no bloquea al usuario por un fallo al guardar.
+ */
+async function guardarCertificacionesBackend(certificaciones) {
+  await fetch('/api/auth/publica/certifications', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ certificaciones })
+  }).catch(() => {});
+}
+
+/**
  * Obtiene el detalle de la licitación de una licitación (items + referencia histórica).
  * Cachea por código para no repetir la llamada si el usuario reabre el modal.
  */
@@ -212,6 +241,32 @@ function normalizarTextoVisual(texto) {
 function quitarTildes(str) {
   if (!str || typeof str !== 'string') return '';
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
+/**
+ * Fit score autodeclarado (certificaciones OS10 / ISO 9001 / ISO 45001):
+ * aproximación por palabras clave, NO una lectura del pliego real. El backend
+ * no expone `descripcion` en /api/buscar (solo `nombre`, ver CAMPOS_BUS en
+ * ops/mp-api/app.py) ni en /api/licitacion/{codigo}, así que esto solo puede
+ * comparar contra el título de la licitación — no hay más texto disponible
+ * en el cliente hoy.
+ */
+const PALABRAS_CLAVE_CERTIFICACIONES = {
+  os10: { etiqueta: 'OS10', patron: /\bos[\s-]?10\b/i },
+  iso9001: { etiqueta: 'ISO 9001', patron: /\biso[\s-]?9001\b/i },
+  iso45001: { etiqueta: 'ISO 45001', patron: /\biso[\s-]?45001\b/i }
+};
+
+function calcularCoincidenciasCertificaciones(item, certificaciones) {
+  if (!certificaciones || !item) return [];
+  const texto = String(item.nombre || '');
+  const coincidencias = [];
+  for (const clave of Object.keys(PALABRAS_CLAVE_CERTIFICACIONES)) {
+    if (!certificaciones[clave]) continue;
+    const { etiqueta, patron } = PALABRAS_CLAVE_CERTIFICACIONES[clave];
+    if (patron.test(texto)) coincidencias.push(etiqueta);
+  }
+  return coincidencias;
 }
 
 /**
@@ -678,11 +733,21 @@ function formatearItemsDetalle(items) {
 // - Referencia histórica debajo de "Monto no publicado" (llenar el vacío del competidor)
 // - Botón principal: "Ver detalle de la licitación"
 // =========================================================================
-function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null) {
+function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null, certificaciones = null) {
   if (!item) return '';
 
   // 1. Nombre normalizado (formato visual normal, no mayúsculas)
   const nombreNormalizado = normalizarTextoVisual(item.nombre);
+
+  // Fit score autodeclarado: solo se muestra si hay coincidencia, para no
+  // llenar cada tarjeta con un "sin coincidencias" que no aporta nada.
+  const coincidenciasCert = calcularCoincidenciasCertificaciones(item, certificaciones);
+  const bloqueFitScoreHtml = coincidenciasCert.length > 0 ? `
+    <div class="card-fit-score" title="Coincidencia de palabras clave en el título de la licitación — no es una verificación del pliego real, todavía no leemos el PDF de bases.">
+      <span class="fit-score-icon" aria-hidden="true">✓</span>
+      <span>Menciona ${coincidenciasCert.join(', ')} en el título (aproximado, no verifica el pliego)</span>
+    </div>
+  ` : '';
 
   // 2. Cierre y días restantes
   const cierre = evaluarCierre(item.fecha_cierre, fechaBase);
@@ -754,6 +819,9 @@ function generarHtmlTarjeta(item, fechaBase = '2026-09-03', detalle = null) {
           <span>${cierre.texto}</span>
         </div>
       </div>
+
+      <!-- Fit score autodeclarado (opcional, solo si hay coincidencia) -->
+      ${bloqueFitScoreHtml}
 
       <!-- Fila 2: 3. Monto y 4. Organismo + Región -->
       <div class="card-middle-row">
@@ -1114,6 +1182,14 @@ class BuscadorPublicaApp {
       monto: ''
     };
 
+    // Certificaciones autodeclaradas para el fit score (opcional, ver
+    // cargarPerfilCertificaciones/guardarPerfilCertificaciones).
+    this.certificaciones = {
+      os10: false,
+      iso9001: false,
+      iso45001: false
+    };
+
     // Referencias al DOM
     this.dom = {
       searchForm: document.getElementById('searchForm'),
@@ -1124,6 +1200,9 @@ class BuscadorPublicaApp {
       filterRegion: document.getElementById('filterRegion'),
       filterMonto: document.getElementById('filterMonto'),
       filterReset: document.getElementById('filterReset'),
+      certOs10: document.getElementById('certOs10'),
+      certIso9001: document.getElementById('certIso9001'),
+      certIso45001: document.getElementById('certIso45001'),
       resultsContainer: document.getElementById('resultsContainer'),
       resultsCount: document.getElementById('resultsCount'),
       paginacion: document.getElementById('paginacion'),
@@ -1159,6 +1238,7 @@ class BuscadorPublicaApp {
     this.vincularEventos();
     this.poblarRegiones();
     await this.cargarPerfilBusqueda();
+    await this.cargarPerfilCertificaciones();
 
     // Llamada minima solo para tener meta.as_of real en el pie antes de que el
     // usuario busque nada (Sección 6.1: sin resultados visibles todavia).
@@ -1239,6 +1319,40 @@ class BuscadorPublicaApp {
     });
   }
 
+  // Certificaciones autodeclaradas para el fit score, sobre organization_settings
+  // (clave "certificaciones", hermana de "buscador_perfil"). No altera la
+  // lógica de búsqueda/filtrado — solo lo que se muestra en cada tarjeta.
+  async cargarPerfilCertificaciones() {
+    try {
+      const certificaciones = await cargarCertificacionesBackend();
+      if (!certificaciones) return;
+      if (typeof certificaciones.os10 === 'boolean') {
+        this.certificaciones.os10 = certificaciones.os10;
+        if (this.dom.certOs10) this.dom.certOs10.checked = certificaciones.os10;
+      }
+      if (typeof certificaciones.iso9001 === 'boolean') {
+        this.certificaciones.iso9001 = certificaciones.iso9001;
+        if (this.dom.certIso9001) this.dom.certIso9001.checked = certificaciones.iso9001;
+      }
+      if (typeof certificaciones.iso45001 === 'boolean') {
+        this.certificaciones.iso45001 = certificaciones.iso45001;
+        if (this.dom.certIso45001) this.dom.certIso45001.checked = certificaciones.iso45001;
+      }
+    } catch (err) {
+      // Sin sesión, o backend no disponible: el panel sigue sin fit score,
+      // igual que antes de que existiera esta persistencia.
+      console.warn('No se pudieron cargar las certificaciones guardadas:', err);
+    }
+  }
+
+  guardarPerfilCertificaciones() {
+    guardarCertificacionesBackend({
+      os10: this.certificaciones.os10,
+      iso9001: this.certificaciones.iso9001,
+      iso45001: this.certificaciones.iso45001
+    });
+  }
+
   renderizarLimitacionesFooter() {
     if (!this.dom.footerLimitaciones) return;
 
@@ -1316,6 +1430,20 @@ class BuscadorPublicaApp {
       this.aplicarFiltrosYRenderizar();
       this.guardarPerfilBusqueda();
     });
+
+    // Certificaciones autodeclaradas (fit score): no filtran resultados,
+    // solo cambian el bloque que se muestra en cada tarjeta.
+    const wireCertToggle = (checkbox, clave) => {
+      if (!checkbox) return;
+      checkbox.addEventListener('change', (e) => {
+        this.certificaciones[clave] = e.target.checked;
+        this.aplicarFiltrosYRenderizar();
+        this.guardarPerfilCertificaciones();
+      });
+    };
+    wireCertToggle(this.dom.certOs10, 'os10');
+    wireCertToggle(this.dom.certIso9001, 'iso9001');
+    wireCertToggle(this.dom.certIso45001, 'iso45001');
 
     // Restablecer filtros
     if (this.dom.filterReset) {
@@ -1566,7 +1694,7 @@ class BuscadorPublicaApp {
     // Renderizar tarjetas con las 7 capas visuales obligatorias (Sección 6.3) y detalle de la licitación
     const htmlCards = items.map(item => {
       const det = this.detalles[item.codigo] || item.detalle || null;
-      return generarHtmlTarjeta(item, fechaBase, det);
+      return generarHtmlTarjeta(item, fechaBase, det, this.certificaciones);
     }).join('');
 
     this.dom.resultsContainer.innerHTML = htmlCards;
@@ -1693,7 +1821,7 @@ class BuscadorPublicaApp {
   }
 
   generarHtmlTarjeta(item, fechaBase, detalle) {
-    return generarHtmlTarjeta(item, fechaBase, detalle);
+    return generarHtmlTarjeta(item, fechaBase, detalle, this.certificaciones);
   }
 
   async copiarAlPortapapeles(texto, botonElemento) {
@@ -1791,6 +1919,8 @@ if (typeof module !== 'undefined' && module.exports) {
     renderizarModalDetalle,
     obtenerNombreTipo,
     GLOSARIO_TIPOS,
+    calcularCoincidenciasCertificaciones,
+    PALABRAS_CLAVE_CERTIFICACIONES,
     BuscadorPublicaApp
   };
 }

@@ -166,6 +166,26 @@
               Restablecer filtros
             </button>
           </div>
+
+          <!-- Fit score autodeclarado: aproximación por palabras clave en el
+               título de la licitación, no una verificación del pliego real
+               (no hay lectura de PDF de bases todavía). Opcional, se guarda
+               por organización igual que los filtros. -->
+          <div class="filters-row cert-row" id="certRow">
+            <span class="filter-label">Mis certificaciones (opcional):</span>
+            <label class="filter-toggle" for="certOs10">
+              <input type="checkbox" id="certOs10">
+              <span>OS10</span>
+            </label>
+            <label class="filter-toggle" for="certIso9001">
+              <input type="checkbox" id="certIso9001">
+              <span>ISO 9001</span>
+            </label>
+            <label class="filter-toggle" for="certIso45001">
+              <input type="checkbox" id="certIso45001">
+              <span>ISO 45001</span>
+            </label>
+          </div>
         </section>
 
         <!-- 6.3 LISTADO DE TARJETAS DE RESULTADOS -->

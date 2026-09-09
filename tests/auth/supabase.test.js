@@ -9,6 +9,7 @@ import {
   getUser,
   provisionSelfServeOrg,
   refreshSession,
+  savePublicaCertifications,
   savePublicaSearchProfile,
   sendPasswordRecovery,
   signInWithPassword,
@@ -127,6 +128,15 @@ test('savePublicaSearchProfile calls the security-definer RPC with the user JWT,
   assert.equal(calls[0].options.headers.Authorization, 'Bearer access-token');
   assert.equal(calls[0].options.headers.apikey, env.SUPABASE_ANON_KEY);
   assert.deepEqual(JSON.parse(calls[0].options.body), { perfil: { region: 'Metropolitana' } });
+});
+
+test('savePublicaCertifications calls the security-definer RPC with the user JWT, never a service key', async () => {
+  const { calls, fetchImpl } = fakeFetchQueue([{ body: null }]);
+  await savePublicaCertifications('access-token', { os10: true }, { env, fetchImpl });
+  assert.equal(calls[0].url, 'https://project.supabase.co/rest/v1/rpc/save_publica_certifications');
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer access-token');
+  assert.equal(calls[0].options.headers.apikey, env.SUPABASE_ANON_KEY);
+  assert.deepEqual(JSON.parse(calls[0].options.body), { certs: { os10: true } });
 });
 
 test('password recovery and logout use provider endpoints', async () => {

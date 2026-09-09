@@ -29,6 +29,7 @@ import forgotPasswordHandler from './_lib/publica-handlers/forgot-password.js';
 import googleStartHandler from './_lib/publica-handlers/google-start.js';
 import googleCallbackHandler from './_lib/publica-handlers/google-callback.js';
 import searchProfileHandler from './_lib/publica-handlers/search-profile.js';
+import certificationsHandler from './_lib/publica-handlers/certifications.js';
 import { sendJson } from './_lib/http.js';
 
 export const config = { runtime: 'nodejs' };
@@ -42,6 +43,7 @@ const routes = {
   'google/start': googleStartHandler,
   'google/callback': googleCallbackHandler,
   'search-profile': searchProfileHandler,
+  certifications: certificationsHandler,
 };
 
 export default async function publicaAuthRouter(req, res) {
