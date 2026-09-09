@@ -4,10 +4,14 @@ import assert from 'node:assert/strict';
 import {
   SupabaseRequestError,
   getMemberships,
+  getOrganizationSettings,
   getProfile,
   getUser,
   provisionSelfServeOrg,
   refreshSession,
+  savePublicaCertifications,
+  savePublicaFavorites,
+  savePublicaSearchProfile,
   sendPasswordRecovery,
   signInWithPassword,
   signOut,
@@ -99,6 +103,50 @@ test('provisionSelfServeOrg calls the security-definer RPC with the user JWT, ne
   assert.equal(calls[0].options.headers.Authorization, 'Bearer access-token');
   assert.equal(calls[0].options.headers.apikey, env.SUPABASE_ANON_KEY);
   assert.deepEqual(JSON.parse(calls[0].options.body), { org_name: 'Empresa Nueva' });
+});
+
+test('getOrganizationSettings reads the row scoped to the organization, with the user JWT', async () => {
+  const { calls, fetchImpl } = fakeFetchQueue([
+    { body: [{ settings: { buscador_perfil: { region: 'Metropolitana', monto: '', soloAbiertas: true } } }] },
+  ]);
+  const row = await getOrganizationSettings('access-token', 'org-a', { env, fetchImpl });
+  assert.equal(row.settings.buscador_perfil.region, 'Metropolitana');
+  assert.match(calls[0].url, /\/rest\/v1\/organization_settings\?/);
+  assert.match(calls[0].url, /organization_id=eq\.org-a/);
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer access-token');
+});
+
+test('getOrganizationSettings returns null when the organization has no row yet', async () => {
+  const { fetchImpl } = fakeFetchQueue([{ body: [] }]);
+  const row = await getOrganizationSettings('access-token', 'org-a', { env, fetchImpl });
+  assert.equal(row, null);
+});
+
+test('savePublicaSearchProfile calls the security-definer RPC with the user JWT, never a service key', async () => {
+  const { calls, fetchImpl } = fakeFetchQueue([{ body: null }]);
+  await savePublicaSearchProfile('access-token', { region: 'Metropolitana' }, { env, fetchImpl });
+  assert.equal(calls[0].url, 'https://project.supabase.co/rest/v1/rpc/save_publica_search_profile');
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer access-token');
+  assert.equal(calls[0].options.headers.apikey, env.SUPABASE_ANON_KEY);
+  assert.deepEqual(JSON.parse(calls[0].options.body), { perfil: { region: 'Metropolitana' } });
+});
+
+test('savePublicaCertifications calls the security-definer RPC with the user JWT, never a service key', async () => {
+  const { calls, fetchImpl } = fakeFetchQueue([{ body: null }]);
+  await savePublicaCertifications('access-token', { os10: true }, { env, fetchImpl });
+  assert.equal(calls[0].url, 'https://project.supabase.co/rest/v1/rpc/save_publica_certifications');
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer access-token');
+  assert.equal(calls[0].options.headers.apikey, env.SUPABASE_ANON_KEY);
+  assert.deepEqual(JSON.parse(calls[0].options.body), { certs: { os10: true } });
+});
+
+test('savePublicaFavorites calls the security-definer RPC with the user JWT, never a service key', async () => {
+  const { calls, fetchImpl } = fakeFetchQueue([{ body: null }]);
+  await savePublicaFavorites('access-token', [{ codigo: 'ABC-123' }], { env, fetchImpl });
+  assert.equal(calls[0].url, 'https://project.supabase.co/rest/v1/rpc/save_publica_favorites');
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer access-token');
+  assert.equal(calls[0].options.headers.apikey, env.SUPABASE_ANON_KEY);
+  assert.deepEqual(JSON.parse(calls[0].options.body), { favoritos: [{ codigo: 'ABC-123' }] });
 });
 
 test('password recovery and logout use provider endpoints', async () => {

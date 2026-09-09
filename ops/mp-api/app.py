@@ -477,6 +477,10 @@ ORDENES = {
     "reciente": "fecha_publicacion desc nulls last, codigo",
     # Lo que cierra antes. Util para decidir a que llegar a tiempo.
     "cierre": "fecha_cierre asc nulls last, codigo",
+    # El monto mas alto primero. nulls last: monto_estimado_clp es null cuando
+    # el organismo no lo publica (visibilidad_monto=false), que es frecuente
+    # -- van al final, no rompen el orden ni desaparecen de la pagina.
+    "monto": "monto_estimado_clp desc nulls last, codigo",
     # Relevancia: se resuelve distinto en cada camino (bm25 con indice, la
     # heuristica de _orden sin el), asi que aca no tiene SQL propio.
     "relevancia": None,

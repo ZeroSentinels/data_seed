@@ -1,0 +1,87 @@
+<!--
+  Plantilla de "Confirm signup" para Supabase Auth, con marca DataSeed.
+
+  No se aplica sola: hay que pegarla a mano en el dashboard de Supabase
+  (Authentication -> Emails -> Templates -> "Confirm signup"), y solo
+  funciona una vez que el proyecto tiene un SMTP propio configurado
+  (Authentication -> Emails -> SMTP Settings) — con el servicio de correo
+  por defecto de Supabase, la plantilla queda fija en la genérica.
+
+  Variables que usa (sintaxis Go template, las provee Supabase en runtime):
+    {{ .ConfirmationURL }} — el link real de confirmación, único por usuario.
+
+  Estilos inline a propósito: la mayoría de los clientes de correo (Gmail,
+  Outlook) ignora o recorta <style> en el <head>. Layout con <table> por el
+  mismo motivo (soporte real en clientes de correo viejos, no por moda).
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirma tu cuenta — Pública by DataSeed</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6f5; font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f5; padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px; background-color:#0a0f0d; border-radius:16px; overflow:hidden;">
+          <!-- Encabezado con logo -->
+          <tr>
+            <td style="padding:32px 32px 24px 32px; text-align:center;">
+              <img src="https://dataseed.cl/site/assets/dataseed-icon.png" width="48" height="48" alt="DataSeed" style="display:block; margin:0 auto 12px auto; border-radius:10px;">
+              <div style="font-size:20px; font-weight:700; color:#ffffff; letter-spacing:-0.3px;">
+                Pública <span style="color:#00ff41;">by DataSeed</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Cuerpo -->
+          <tr>
+            <td style="padding:0 32px 32px 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#121815; border:1px solid #1f2b26; border-radius:12px;">
+                <tr>
+                  <td style="padding:32px 28px; text-align:center;">
+                    <h1 style="margin:0 0 12px 0; font-size:18px; font-weight:700; color:#ffffff;">
+                      Confirma tu correo electrónico
+                    </h1>
+                    <p style="margin:0 0 24px 0; font-size:14px; line-height:1.6; color:#a8b3ae;">
+                      Falta un paso para activar tu acceso a Pública. Confirmá tu
+                      correo para poder iniciar sesión y empezar a buscar
+                      licitaciones públicas.
+                    </p>
+
+                    <a href="{{ .ConfirmationURL }}"
+                       style="display:inline-block; background-color:#00ff41; color:#06110b; font-size:15px; font-weight:700; text-decoration:none; padding:14px 32px; border-radius:100px;">
+                      Confirmar mi cuenta
+                    </a>
+
+                    <p style="margin:24px 0 0 0; font-size:12px; line-height:1.5; color:#5f6c66;">
+                      Si el botón no funciona, copiá y pegá este link en tu navegador:<br>
+                      <a href="{{ .ConfirmationURL }}" style="color:#00ff41; word-break:break-all;">{{ .ConfirmationURL }}</a>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:24px 0 0 0; font-size:12px; line-height:1.5; color:#5f6c66; text-align:center;">
+                Si no creaste esta cuenta, podés ignorar este correo — no se
+                activó ningún acceso.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Pie -->
+          <tr>
+            <td style="padding:20px 32px; border-top:1px solid #1f2b26; text-align:center;">
+              <p style="margin:0; font-size:11px; color:#4a5651;">
+                DataSeed · dataseed.cl
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

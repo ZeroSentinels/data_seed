@@ -186,3 +186,58 @@ export async function provisionSelfServeOrg(accessToken, orgName, options = {}) 
   });
   return Array.isArray(rows) ? rows[0] || null : rows;
 }
+
+// Perfil de búsqueda guardado del panel de autoservicio (/publica-buscador).
+// Lectura directa: `authenticated` ya tiene `select` sobre organization_settings
+// (policy de la V1), no hace falta una función security definer para esto.
+// Ver supabase/migrations/20260908b_publica_search_profile.sql.
+export async function getOrganizationSettings(accessToken, organizationId, options = {}) {
+  const params = new URLSearchParams({
+    select: 'settings',
+    organization_id: `eq.${organizationId}`,
+    limit: '1',
+  });
+  const rows = await request(`/rest/v1/organization_settings?${params}`, {
+    ...options,
+    accessToken,
+  });
+  return Array.isArray(rows) ? rows[0] || null : null;
+}
+
+// Guarda el perfil de búsqueda del propio usuario autenticado, vía la función
+// `security definer` — no pisa otras claves del jsonb `settings` de la
+// organización. Ver supabase/migrations/20260908b_publica_search_profile.sql.
+export function savePublicaSearchProfile(accessToken, perfil, options = {}) {
+  return request('/rest/v1/rpc/save_publica_search_profile', {
+    ...options,
+    method: 'POST',
+    accessToken,
+    body: { perfil },
+  });
+}
+
+// Guarda las certificaciones autodeclaradas (fit score) del propio usuario
+// autenticado, vía la función `security definer` — clave hermana de
+// `buscador_perfil` dentro del mismo jsonb `settings`, no la pisa. Ver
+// supabase/migrations/20260908c_publica_certifications.sql.
+export function savePublicaCertifications(accessToken, certs, options = {}) {
+  return request('/rest/v1/rpc/save_publica_certifications', {
+    ...options,
+    method: 'POST',
+    accessToken,
+    body: { certs },
+  });
+}
+
+// Guarda la lista completa de licitaciones favoritas del propio usuario
+// autenticado, vía la función `security definer` — clave hermana de
+// `buscador_perfil`/`certificaciones` dentro del mismo jsonb `settings`, no
+// las pisa. Ver supabase/migrations/20260909_publica_favorites.sql.
+export function savePublicaFavorites(accessToken, favoritos, options = {}) {
+  return request('/rest/v1/rpc/save_publica_favorites', {
+    ...options,
+    method: 'POST',
+    accessToken,
+    body: { favoritos },
+  });
+}
