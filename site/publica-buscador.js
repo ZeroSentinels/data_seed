@@ -32,6 +32,7 @@ async function buscarLicitacionesBackend(payload) {
       texto: payload.texto || '',
       solo_abiertas: payload.solo_abiertas !== undefined ? payload.solo_abiertas : true,
       region: payload.region || null,
+      orden: payload.orden || null,
       limite: payload.limite || POR_PAGINA,
       desde: payload.desde || 0
     })
@@ -1179,7 +1180,8 @@ class BuscadorPublicaApp {
       texto: '',
       soloAbiertas: true, // activo por defecto (Sección 6.2)
       region: '',
-      monto: ''
+      monto: '',
+      orden: 'reciente' // default del backend (ver ORDENES en ops/mp-api/app.py)
     };
 
     // Certificaciones autodeclaradas para el fit score (opcional, ver
@@ -1199,6 +1201,7 @@ class BuscadorPublicaApp {
       filterAbiertas: document.getElementById('filterAbiertas'),
       filterRegion: document.getElementById('filterRegion'),
       filterMonto: document.getElementById('filterMonto'),
+      filterOrden: document.getElementById('filterOrden'),
       filterReset: document.getElementById('filterReset'),
       certOs10: document.getElementById('certOs10'),
       certIso9001: document.getElementById('certIso9001'),
@@ -1431,6 +1434,16 @@ class BuscadorPublicaApp {
       this.guardarPerfilBusqueda();
     });
 
+    // Ordenar por: reciente / cierre / monto. Se manda al servidor (a
+    // diferencia de Monto, que filtra en el cliente), así que dispara una
+    // búsqueda nueva, no un re-render sobre el dataset ya traído.
+    if (this.dom.filterOrden) {
+      this.dom.filterOrden.addEventListener('change', (e) => {
+        this.filtros.orden = e.target.value;
+        this.aplicarFiltrosYRenderizar();
+      });
+    }
+
     // Certificaciones autodeclaradas (fit score): no filtran resultados,
     // solo cambian el bloque que se muestra en cada tarjeta.
     const wireCertToggle = (checkbox, clave) => {
@@ -1624,6 +1637,7 @@ class BuscadorPublicaApp {
         texto: this.filtros.texto,
         solo_abiertas: this.filtros.soloAbiertas,
         region: this.filtros.region || null,
+        orden: this.filtros.orden || null,
         limite: POR_PAGINA,
         desde: this.pagina * POR_PAGINA
       });

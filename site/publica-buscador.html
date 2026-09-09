@@ -162,6 +162,18 @@
               </select>
             </div>
 
+            <!-- Ordenar: reciente (default) / cierre / monto. Se manda como
+                 "orden" en el body de /api/buscar (ver ORDENES en
+                 ops/mp-api/app.py) -- no es un filtro client-side como Monto. -->
+            <div class="filter-group">
+              <label for="filterOrden" class="filter-label">Ordenar por:</label>
+              <select id="filterOrden" class="filter-select">
+                <option value="reciente">Más reciente</option>
+                <option value="cierre">Cierre más próximo</option>
+                <option value="monto">Mayor monto</option>
+              </select>
+            </div>
+
             <button type="button" id="filterReset" class="filter-reset">
               Restablecer filtros
             </button>
