@@ -37,6 +37,13 @@ test('router: rutea /login, /session y /google/start a su handler', async () => 
   assert.notEqual(googleRes.statusCode, 404);
 });
 
+test('router: rutea /search-profile a su handler', async () => {
+  const res = response();
+  await router({ method: 'GET', query: { path: 'search-profile' }, headers: {} }, res);
+  // sin sesión -> 401, pero lo importante es que NO sea 404: llegó al handler correcto.
+  assert.notEqual(res.statusCode, 404);
+});
+
 test('router: ruta desconocida bajo /api/auth/publica/* responde 404, no cae a ningún handler', async () => {
   const res = response();
   await router({ method: 'GET', query: { path: 'no-existe' }, headers: {} }, res);

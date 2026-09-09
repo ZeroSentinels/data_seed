@@ -60,6 +60,35 @@ async function obtenerDetalleLicitacionBackend(codigo) {
 }
 
 /**
+ * Perfil de búsqueda guardado (filtros: región, monto, solo abiertas), por
+ * organización. GET /api/auth/publica/search-profile — silencioso ante error
+ * o sesión ausente: el panel sigue funcionando igual, solo sin recordar nada.
+ */
+async function cargarPerfilBusquedaBackend() {
+  const response = await fetch('/api/auth/publica/search-profile', {
+    method: 'GET',
+    credentials: 'same-origin',
+    headers: { Accept: 'application/json' }
+  });
+  if (!response.ok) return null;
+  const payload = await response.json().catch(() => null);
+  return payload && typeof payload.perfil === 'object' ? payload.perfil : null;
+}
+
+/**
+ * Guarda el perfil de búsqueda actual. POST /api/auth/publica/search-profile
+ * — silencioso ante error: no bloquea al usuario por un fallo al guardar.
+ */
+async function guardarPerfilBusquedaBackend(perfil) {
+  await fetch('/api/auth/publica/search-profile', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ perfil })
+  }).catch(() => {});
+}
+
+/**
  * Obtiene el detalle de la licitación de una licitación (items + referencia histórica).
  * Cachea por código para no repetir la llamada si el usuario reabre el modal.
  */
@@ -1129,6 +1158,7 @@ class BuscadorPublicaApp {
   async inicializar() {
     this.vincularEventos();
     this.poblarRegiones();
+    await this.cargarPerfilBusqueda();
 
     // Llamada minima solo para tener meta.as_of real en el pie antes de que el
     // usuario busque nada (Sección 6.1: sin resultados visibles todavia).
@@ -1172,6 +1202,40 @@ class BuscadorPublicaApp {
       opt.value = reg;
       opt.textContent = reg;
       this.dom.filterRegion.appendChild(opt);
+    });
+  }
+
+  // Perfil de búsqueda guardado (región, monto, solo abiertas) por
+  // organización, sobre organization_settings. No altera texto ni resultados
+  // de la búsqueda en curso — solo precarga los filtros al iniciar sesión.
+  async cargarPerfilBusqueda() {
+    try {
+      const perfil = await cargarPerfilBusquedaBackend();
+      if (!perfil) return;
+      if (typeof perfil.soloAbiertas === 'boolean') {
+        this.filtros.soloAbiertas = perfil.soloAbiertas;
+        this.dom.filterAbiertas.checked = perfil.soloAbiertas;
+      }
+      if (typeof perfil.region === 'string') {
+        this.filtros.region = perfil.region;
+        this.dom.filterRegion.value = perfil.region;
+      }
+      if (typeof perfil.monto === 'string') {
+        this.filtros.monto = perfil.monto;
+        this.dom.filterMonto.value = perfil.monto;
+      }
+    } catch (err) {
+      // Sin sesión, o backend no disponible: el panel sigue con los filtros
+      // por defecto, igual que antes de que existiera esta persistencia.
+      console.warn('No se pudo cargar el perfil de búsqueda guardado:', err);
+    }
+  }
+
+  guardarPerfilBusqueda() {
+    guardarPerfilBusquedaBackend({
+      soloAbiertas: this.filtros.soloAbiertas,
+      region: this.filtros.region,
+      monto: this.filtros.monto
     });
   }
 
@@ -1236,18 +1300,21 @@ class BuscadorPublicaApp {
     this.dom.filterAbiertas.addEventListener('change', (e) => {
       this.filtros.soloAbiertas = e.target.checked;
       this.aplicarFiltrosYRenderizar();
+      this.guardarPerfilBusqueda();
     });
 
     // Filtro: Región
     this.dom.filterRegion.addEventListener('change', (e) => {
       this.filtros.region = e.target.value;
       this.aplicarFiltrosYRenderizar();
+      this.guardarPerfilBusqueda();
     });
 
     // Filtro: Monto
     this.dom.filterMonto.addEventListener('change', (e) => {
       this.filtros.monto = e.target.value;
       this.aplicarFiltrosYRenderizar();
+      this.guardarPerfilBusqueda();
     });
 
     // Restablecer filtros
@@ -1260,6 +1327,7 @@ class BuscadorPublicaApp {
         this.dom.filterRegion.value = '';
         this.dom.filterMonto.value = '';
         this.aplicarFiltrosYRenderizar();
+        this.guardarPerfilBusqueda();
       });
     }
 

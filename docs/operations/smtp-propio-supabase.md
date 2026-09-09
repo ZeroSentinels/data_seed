@@ -129,12 +129,14 @@ techo lo pone el plan de Resend, no Supabase.
 Sin este paso los tres anteriores mejoran la entregabilidad y no arreglan nada
 de lo que motivó el documento.
 
-### 5 · Plantilla del correo de confirmación — **pendiente en el repo**
+### 5 · Plantilla del correo de confirmación — **rescatada**
 
-`supabase/email-templates/confirm-signup.html` se escribió en la rama
-`feat/publica-buscador-conectado` (commit `7f80581`) pero **no llegó a `main`**:
-el PR #41 mergeó `e1eeac7`, que es anterior a ese commit. Hay que rescatarlo
-antes de poder pegarlo en Authentication → Emails → Templates → Confirm signup.
+`supabase/email-templates/confirm-signup.html` se había escrito en la rama
+`feat/publica-buscador-conectado` (commit `7f80581`) pero no había llegado a
+`main` (el PR #41 mergeó `e1eeac7`, anterior a ese commit — junto con el botón
+de "Cerrar sesión" del mismo commit). Repuesta con el mismo contenido en
+`feat/publica-buscador-perfil-guardado`. Ya se puede pegar en
+Authentication → Emails → Templates → Confirm signup.
 
 ## Verificación, después de aplicar
 

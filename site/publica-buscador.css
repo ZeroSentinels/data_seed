@@ -219,6 +219,35 @@ html[data-theme="light"] .pub-header {
 html[data-theme="light"] .pub-theme-toggle .moon { display: none; }
 html[data-theme="light"] .pub-theme-toggle .sun { display: inline; }
 
+.pub-logout-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 38px;
+  padding: 0 0.9rem;
+  border-radius: 100px;
+  border: 1px solid var(--card-b);
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.pub-logout-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--g);
+}
+
+.pub-logout-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+}
+
 
 /* =========================================================================
    MAIN CONTAINER
